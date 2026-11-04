@@ -1,0 +1,163 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getUserCompanyId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return getUserRole() == 'admin';
+    }
+
+    function isManager() {
+      return getUserRole() in ['admin', 'manager'];
+    }
+
+    function isStaffOrHigher() {
+      return getUserRole() in ['admin', 'manager', 'staff'];
+    }
+
+    function belongsToCompany(companyId) {
+      return getUserCompanyId() == companyId;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Users can read/write their own document
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if isSignedIn() && request.auth.uid == userId;
+
+      // Admins can manage all users in their company
+      allow read, write: if isSignedIn() && isAdmin() && belongsToCompany(resource.data.companyId);
+    }
+
+    // Companies collection
+    match /companies/{companyId} {
+      // Users belonging to the company can read
+      allow read: if isSignedIn() && belongsToCompany(companyId);
+
+      // Only admins can update company data
+      allow write: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+    }
+
+    // Products collection
+    match /companies/{companyId}/products/{productId} {
+      // Users in the company can read products
+      allow read: if isSignedIn() && belongsToCompany(companyId);
+
+      // Managers and admins can create/update products
+      allow create, update: if isSignedIn() && isManager() && belongsToCompany(companyId) &&
+        request.resource.data.companyId == companyId;
+
+      // Admins can delete products
+      allow delete: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+
+      // Product variants subcollection
+      match /variants/{variantId} {
+        allow read: if isSignedIn() && belongsToCompany(companyId);
+        allow create, update: if isSignedIn() && isManager() && belongsToCompany(companyId);
+        allow delete: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+      }
+    }
+
+    // Customers collection
+    match /companies/{companyId}/customers/{customerId} {
+      // Users in the company can read customers
+      allow read: if isSignedIn() && belongsToCompany(companyId);
+
+      // Managers and admins can create/update customers
+      allow create, update: if isSignedIn() && isManager() && belongsToCompany(companyId) &&
+        request.resource.data.companyId == companyId;
+
+      // Admins can delete customers
+      allow delete: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+
+      // Customer addresses subcollection
+      match /addresses/{addressId} {
+        allow read: if isSignedIn() && belongsToCompany(companyId);
+        allow create, update: if isSignedIn() && isManager() && belongsToCompany(companyId);
+        allow delete: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+      }
+    }
+
+    // Orders collection
+    match /companies/{companyId}/orders/{orderId} {
+      // Users in the company can read orders
+      allow read: if isSignedIn() && belongsToCompany(companyId);
+
+      // Managers and admins can create/update orders
+      allow create, update: if isSignedIn() && isManager() && belongsToCompany(companyId) &&
+        request.resource.data.companyId == companyId;
+
+      // Admins can delete orders
+      allow delete: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+
+      // Order items subcollection
+      match /items/{itemId} {
+        allow read: if isSignedIn() && belongsToCompany(companyId);
+        allow create, update: if isSignedIn() && isManager() && belongsToCompany(companyId);
+        allow delete: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+      }
+    }
+
+    // Warehouses collection
+    match /companies/{companyId}/warehouses/{warehouseId} {
+      // Users in the company can read warehouses
+      allow read: if isSignedIn() && belongsToCompany(companyId);
+
+      // Managers and admins can create/update warehouses
+      allow create, update: if isSignedIn() && isManager() && belongsToCompany(companyId) &&
+        request.resource.data.companyId == companyId;
+
+      // Admins can delete warehouses
+      allow delete: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+
+      // Inventory subcollection
+      match /inventory/{inventoryId} {
+        allow read: if isSignedIn() && belongsToCompany(companyId);
+        allow create, update: if isSignedIn() && isStaffOrHigher() && belongsToCompany(companyId);
+        allow delete: if isSignedIn() && isManager() && belongsToCompany(companyId);
+      }
+    }
+
+    // Audit logs collection (read-only for users)
+    match /companies/{companyId}/auditLogs/{logId} {
+      // Only admins can read audit logs
+      allow read: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+
+      // Only server-side operations can write audit logs
+      allow write: if false;
+    }
+
+    // Webhooks collection
+    match /companies/{companyId}/webhooks/{webhookId} {
+      // Only admins can manage webhooks
+      allow read, create, update, delete: if isSignedIn() && isAdmin() && belongsToCompany(companyId) &&
+        request.resource.data.companyId == companyId;
+
+      // Webhook logs subcollection
+      match /webhookLogs/{logId} {
+        // Only admins can read webhook logs
+        allow read: if isSignedIn() && isAdmin() && belongsToCompany(companyId);
+
+        // Only server-side operations can write
+        allow write: if false;
+      }
+    }
+
+    // Default deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

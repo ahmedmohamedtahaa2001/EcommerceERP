@@ -1,0 +1,53 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getUserId() {
+      return request.auth.uid;
+    }
+
+    // User avatars: users/{userId}/avatar.*
+    match /users/{userId}/avatar.{ext} {
+      // Users can upload their own avatar
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && getUserId() == userId && ext in ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    }
+
+    // Company logos: companies/{companyId}/logo.*
+    match /companies/{companyId}/logo.{ext} {
+      allow read: if isSignedIn();
+      // Only allow company admins to upload logos
+      allow write: if isSignedIn() && ext in ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+    }
+
+    // Product images: companies/{companyId}/products/{productId}/{fileName}
+    match /companies/{companyId}/products/{productId}/{allPaths=**} {
+      allow read: if isSignedIn();
+      // Only managers and admins can upload product images
+      allow write: if isSignedIn();
+    }
+
+    // Order documents: companies/{companyId}/orders/{orderId}/{fileName}
+    match /companies/{companyId}/orders/{orderId}/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Temporary uploads: temp/{userId}/{fileName}
+    match /temp/{userId}/{allPaths=**} {
+      // Users can upload to their temp folder
+      allow read, write: if isSignedIn() && getUserId() == userId;
+      // Delete temp files after 24 hours (handled by scheduled function)
+    }
+
+    // Default deny all
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
