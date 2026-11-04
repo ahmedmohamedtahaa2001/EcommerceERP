@@ -1,0 +1,1515 @@
+{
+  "metadata": {
+    "timestamp": "2026-11-04T10:15:28.230Z",
+    "targetUrl": "https://operix.co/new-landing",
+    "totalRequests": 124
+  },
+  "requests": [
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing",
+      "resourceType": "document",
+      "headers": {
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"macOS\""
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.508Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
+      "resourceType": "font",
+      "headers": {
+        "origin": "https://operix.co",
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.800Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "resourceType": "font",
+      "headers": {
+        "origin": "https://operix.co",
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.800Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/hero/hero-bg.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.801Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/hero/perspective-grid.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.801Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/image?url=%2Fbrand%2Foperix-logo.webp&w=256&q=75",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.801Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/hero/headline-underline.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.801Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/icons/hero-arrow.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.801Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/badge.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.801Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/check.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.801Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/badge-sparkle.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c1-glow.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c1-chart-up-a.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/1-91fbtv1awjp.css",
+      "resourceType": "stylesheet",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/1-ck0oycp724b.css",
+      "resourceType": "stylesheet",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/22r45i7cmhs_4.css",
+      "resourceType": "stylesheet",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/0mwl418enp_wf.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/3srfjz42u14tx.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/3htqi3sdxk_qq.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/2oi9n3b4syua3.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.802Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/turbopack-2c3mg3r-05n1w.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.803Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/0umf92h1sb77c.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.803Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/098q0l9dqcjkw.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.803Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/0o89nyzp9ub_a.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.803Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/3ydqwr1ifu9q-.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.803Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/3oj4-nwuzr5v5.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/38ryl5d3hbyqw.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/31w4ij2xno1fv.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/02k99xhigy_4q.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/0m4kvfpytap-v.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/1zc05cpfgjiix.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/1y2dtoilc5-tb.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/static/chunks/2n5qeheznvl4u.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/brand/operix-logo.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c1-chart-up-b.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c1-chart-down-a.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c1-chart-down-b.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c1-folder-cloud.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c2-border-full.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c2-check-list.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c2-blockchain.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c3-ring-outer.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c3-ring-mid.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c3-ring-inner.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c3-dot.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c4-glow-a.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c4-glow-b.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c4-coins.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c4-bitcoin-up.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c4-bitcoin-down.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c5-sparkle-a.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c5-sparkle-b.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c5-sparkle-c.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c6-ring-outer.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c6-ring-mid.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c6-ring-inner.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c6-arrows.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c6-bell-1.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c6-bell-2.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/why/c6-bell-3.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/sms-misr.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/instagram.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/whatsapp.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/messenger.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/gemini.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/claude.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/openai.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/woocommerce.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/easyorders.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/strip/shopify.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/badge.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/testimonials/badge.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/faq/badge.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/faq/arrow-mint.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/faq/arrow-dark.svg",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/image?url=%2Fnew-landing%2Fclients%2Fcards%2Fdevailo.webp&w=256&q=75",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/image?url=%2Fnew-landing%2Fclients%2Fcards%2Fstanvi.webp&w=256&q=75",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/image?url=%2Fnew-landing%2Fclients%2Fcards%2Fvalora.webp&w=256&q=75",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/image?url=%2Fnew-landing%2Fclients%2Fcards%2Fmathoona.webp&w=256&q=75",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/image?url=%2Fnew-landing%2Fclients%2Fcards%2Fjoex.webp&w=256&q=75",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.804Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/image?url=%2Fnew-landing%2Fclients%2Fcards%2Fbeauvive.webp&w=256&q=75",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.805Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/_next/image?url=%2Fnew-landing%2Fclients%2Fcards%2Fkhiam.webp&w=128&q=75",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.805Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js",
+      "resourceType": "script",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.808Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092",
+      "resourceType": "script",
+      "headers": {
+        "origin": "https://operix.co",
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.808Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/hero/horizon-fill.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.971Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/hero/horizon-mask.webp",
+      "resourceType": "image",
+      "headers": {
+        "origin": "https://operix.co",
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.971Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/paper-mask.svg",
+      "resourceType": "image",
+      "headers": {
+        "origin": "https://operix.co",
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.971Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/integrations/turbo-mask.svg",
+      "resourceType": "image",
+      "headers": {
+        "origin": "https://operix.co",
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/hero/tabs/orders-main.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/hero/tabs/orders-card-a.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/hero/tabs/orders-card-b.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/order-main.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/order-c2.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/order-c1.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/order-c3.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/warehouse-main.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/warehouse-c1a.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/warehouse-c1b.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/warehouse-c2a.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    },
+    {
+      "type": "request",
+      "method": "GET",
+      "url": "https://operix.co/new-landing/modules/warehouse-c2b.webp",
+      "resourceType": "image",
+      "headers": {
+        "sec-ch-ua-platform": "\"macOS\"",
+        "referer": "https://operix.co/new-landing",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "sec-ch-ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"HeadlessChrome\";v=\"156\"",
+        "sec-ch-ua-mobile": "?0"
+      },
+      "postData": null,
+      "timestamp": "2026-11-04T10:15:24.972Z"
+    }
+  ]
+}

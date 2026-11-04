@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-11-04T10:15:32.263Z",
+  "targetUrl": "https://operix.co/new-landing",
+  "statistics": {
+    "totalForms": 1,
+    "totalFields": 1,
+    "totalButtons": 1,
+    "standaloneInputs": 0
+  },
+  "formTypes": [
+    {
+      "id": "form-0",
+      "method": "get",
+      "action": "https://operix.co/new-landing",
+      "fieldCount": 1,
+      "buttonCount": 1,
+      "fields": [
+        {
+          "name": "email",
+          "type": "email",
+          "required": false,
+          "validation": {
+            "type": "email"
+          }
+        }
+      ]
+    }
+  ]
+}

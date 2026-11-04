@@ -1,0 +1,171 @@
+{
+  "metadata": {
+    "timestamp": "2026-11-04T10:55:56.968Z",
+    "targetUrl": "https://operix.co",
+    "explorationTime": "automated-playwright"
+  },
+  "exploration": {
+    "pages": [],
+    "features": [
+      {
+        "category": "Authentication",
+        "items": {
+          "loginLinks": [],
+          "signupLinks": [],
+          "demoLinks": [],
+          "ctaButtons": [
+            {
+              "text": "Get Started",
+              "href": null,
+              "onClick": null
+            },
+            {
+              "text": "",
+              "href": null,
+              "onClick": null
+            },
+            {
+              "text": "Get Started",
+              "href": null,
+              "onClick": null
+            },
+            {
+              "text": "Orders",
+              "href": null,
+              "onClick": null
+            },
+            {
+              "text": "Inventory",
+              "href": null,
+              "onClick": null
+            },
+            {
+              "text": "Tickets",
+              "href": null,
+              "onClick": null
+            },
+            {
+              "text": "Automation",
+              "href": null,
+              "onClick": null
+            },
+            {
+              "text": "CRM",
+              "href": null,
+              "onClick": null
+            },
+            {
+              "text": "Order Management",
+              "href": null,
+              "onClick": null
+            },
+            {
+              "text": "Warehouse Management",
+              "href": null,
+              "onClick": null
+            }
+          ]
+        }
+      },
+      {
+        "category": "Landing Page Features",
+        "items": []
+      },
+      {
+        "category": "Integrations",
+        "items": [
+          "www.facebook.com",
+          "www.instagram.com",
+          "www.linkedin.com"
+        ]
+      },
+      {
+        "category": "Company Info",
+        "items": {
+          "title": "Operix | E-commerce Order Management System for Egypt & GCC",
+          "description": "Operix: all-in-one e-commerce operations system — order management, smart COD order confirmation, warehouse & inventory, courier integrations, returns and CRM for brands in Egypt and the Gulf.",
+          "keywords": "Operix,e-commerce operations system,e-commerce order management system,order management system Egypt,order management system Saudi Arabia,COD order confirmation software,reduce COD returns RTO Egypt,OMS for online stores,cash on delivery order confirmation,COD confirmation software,warehouse management for e-commerce,shipping integration Egypt,courier integration Saudi Arabia,e-commerce fulfillment software Gulf,Easy Orders integration,LightFunnels integration,Shopify order management Egypt,WooCommerce order management,Babrizq",
+          "email": "support@operix.co",
+          "phone": "+201038219009"
+        }
+      }
+    ],
+    "workflows": [],
+    "apiEndpoints": [],
+    "modules": [],
+    "forms": [],
+    "errors": []
+  },
+  "networkData": [],
+  "siteMap": {
+    "internalLinks": [
+      {
+        "text": "",
+        "href": "https://operix.co/new-landing",
+        "path": "/new-landing"
+      },
+      {
+        "text": "Home",
+        "href": "https://operix.co/#home",
+        "path": "/"
+      },
+      {
+        "text": "Features",
+        "href": "https://operix.co/#features",
+        "path": "/"
+      },
+      {
+        "text": "Modules",
+        "href": "https://operix.co/#modules",
+        "path": "/"
+      },
+      {
+        "text": "Integration",
+        "href": "https://operix.co/#integration",
+        "path": "/"
+      },
+      {
+        "text": "FAQ",
+        "href": "https://operix.co/#faq",
+        "path": "/"
+      },
+      {
+        "text": "Contact Us",
+        "href": "https://operix.co/#contact",
+        "path": "/"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://operix.co/privacy-policy.html",
+        "path": "/privacy-policy.html"
+      },
+      {
+        "text": "About Operix",
+        "href": "https://operix.co/about",
+        "path": "/about"
+      },
+      {
+        "text": "support@operix.co",
+        "href": "mailto:support@operix.co",
+        "path": "support@operix.co"
+      }
+    ],
+    "externalLinks": [
+      {
+        "text": "",
+        "href": "https://www.facebook.com/Operixerp/",
+        "domain": "www.facebook.com"
+      },
+      {
+        "text": "",
+        "href": "https://www.instagram.com/operixerp/",
+        "domain": "www.instagram.com"
+      },
+      {
+        "text": "",
+        "href": "https://www.linkedin.com/company/operixco",
+        "domain": "www.linkedin.com"
+      }
+    ]
+  }
+}

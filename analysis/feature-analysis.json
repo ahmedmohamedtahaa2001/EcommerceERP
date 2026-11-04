@@ -1,0 +1,88 @@
+{
+  "modules": [
+    {
+      "name": "Integration",
+      "href": "https://operix.co/#integration",
+      "pattern": "integration"
+    },
+    {
+      "name": "support@operix.co",
+      "href": "mailto:support@operix.co",
+      "pattern": "support"
+    }
+  ],
+  "features": [],
+  "workflows": [],
+  "dataModels": {
+    "Product": [
+      "name",
+      "price",
+      "stock",
+      "description"
+    ],
+    "Order": [
+      "order",
+      "customer",
+      "total",
+      "status"
+    ],
+    "Customer": [
+      "email",
+      "phone",
+      "address",
+      "company"
+    ],
+    "Supplier": [
+      "supplier",
+      "vendor",
+      "contact"
+    ],
+    "Invoice": [
+      "amount",
+      "date"
+    ],
+    "Warehouse": [
+      "warehouse",
+      "location",
+      "stock"
+    ]
+  },
+  "userRoles": {
+    "roles": [
+      "manager",
+      "user",
+      "owner"
+    ],
+    "hasPermissions": false,
+    "hasRoles": false,
+    "hasSettings": false
+  },
+  "actionButtons": [],
+  "tables": [],
+  "forms": [
+    {
+      "id": "form-1",
+      "action": "https://operix.co/",
+      "method": "get",
+      "fields": [
+        {
+          "type": "email",
+          "name": "email",
+          "placeholder": "Enter your email...",
+          "required": false
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Get Started",
+          "type": "submit"
+        }
+      ]
+    }
+  ],
+  "charts": {
+    "chartElements": [],
+    "chartLibraries": []
+  },
+  "notifications": []
+}

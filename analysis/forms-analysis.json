@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "timestamp": "2026-11-04T10:15:32.262Z",
+    "targetUrl": "https://operix.co/new-landing",
+    "formsCount": 1,
+    "standaloneInputsCount": 0
+  },
+  "forms": [
+    {
+      "id": "form-0",
+      "name": "",
+      "action": "https://operix.co/new-landing",
+      "method": "get",
+      "enctype": "application/x-www-form-urlencoded",
+      "className": "",
+      "dataAttributes": {},
+      "fields": [
+        {
+          "type": "email",
+          "name": "email",
+          "id": "",
+          "placeholder": "Enter your email...",
+          "value": "",
+          "required": false,
+          "disabled": false,
+          "readonly": false,
+          "minLength": -1,
+          "maxLength": -1,
+          "pattern": "",
+          "className": "",
+          "dataAttributes": {},
+          "validation": {
+            "type": "email"
+          },
+          "label": null,
+          "options": []
+        }
+      ],
+      "buttons": [
+        {
+          "type": "submit",
+          "text": "Get Started",
+          "name": "",
+          "className": "",
+          "id": ""
+        }
+      ]
+    }
+  ],
+  "standaloneInputs": [],
+  "formBehavior": [
+    {
+      "formId": "form-0",
+      "action": "fill_field",
+      "fieldName": "email",
+      "initialValue": "",
+      "filledValue": "test_value_123",
+      "success": true
+    }
+  ]
+}

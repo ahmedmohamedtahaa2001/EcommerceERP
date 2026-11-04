@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "timestamp": "2026-11-04T10:15:28.229Z",
+    "targetUrl": "https://operix.co/new-landing",
+    "totalEndpoints": 0,
+    "failedRequests": 0
+  },
+  "endpoints": [],
+  "failedRequests": [],
+  "pageConfig": {},
+  "inlineScripts": [
+    {
+      "src": "",
+      "content": "(globalThis[\"TURBOPACK\"] || (globalThis[\"TURBOPACK\"] = [])).push({\"otherChunks\":[\"static/chunks/0mwl418enp_wf.js\",\"static/chunks/3srfjz42u14tx.js\",\"static/chunks/3htqi3sdxk_qq.js\",\"static/chunks/2oi9n3b4syua3.js\"],\"runtimeModuleIds\":[94553]});",
+      "type": "",
+      "attributes": {
+        "id": "_R_"
+      }
+    },
+    {
+      "src": "",
+      "content": "(self.__next_f=self.__next_f||[]).push([0])",
+      "type": "",
+      "attributes": {}
+    },
+    {
+      "src": "",
+      "content": "self.__next_f.push([1,\"1:\\\"$Sreact.fragment\\\"\\n2:\\\"/_next/static/chunks/0umf92h1sb77c.js\\\"\\n3:I[39756,[\\\"$2\\\"],\\\"default\\\"]\\n4:I[37457,[\\\"$2\\\"],\\\"default\\\"]\\na:\\\"/_next/static/chunks/098q0l9dqcjkw.js\\\"\\nb:\\\"/_next/static/chunks/0o89nyzp9ub_a.js\\\"\\nc:\\\"/_next/static/chunks/3ydqwr1ifu9q-.js\\\"\\nd:\\\"/_next/static/chunks/3oj4-nwuzr5v5.js\\\"\\ne:\\\"/_next/static/chunks/38ryl5d3hbyqw.js\\\"\\nf:\\\"/_next/static/chunks/31w4ij2xno1fv.js\\\"\\n10:\\\"/_next/static/chunks/02k99xhigy_4q.js\\\"\\n11:\\\"/_next/static/chunks/0m4kvfpytap-v.js\\\"\\n12:\\\"/_next/static/chunks/1zc05cpfgjiix.js\\\"\\n13:\\\"/_next/static/chunks/1y2dtoilc5-tb.js\\\"\\n14:I[81928,[\\\"$a\\\",\\\"$b\\\",\\\"$c\\\",\\\"$d\\\",\\\"$e\\\",\\\"$f\\\",\\\"$10\\\",\\\"$11\\\",\\\"$12\\\",\\\"$13\\\"],\\\"default\\\"]\\n15:I[97367,[\\\"$2\\\"],\\\"OutletBoundary\\\"]\\n16:\\\"$Sreact.suspense\\\"\\n18:\\\"ViewportBoundary\\\"\\n19:I[97367,[\\\"$2\\\"],\\\"$18\\\"]\\n1b:\\\"MetadataBoundary\\\"\\n1c:I[97367,[\\\"$2\\\"],\\\"$1b\\\"]\\n1e:I[68027,[],\\\"default\\\",1]\\n:HL[\\\"/_next/static/chunks/1-91fbtv1awjp.css\\\",\\\"style\\\"]\\n:HL[\\\"/_next/static/ch",
+      "type": "",
+      "attributes": {}
+    },
+    {
+      "src": "",
+      "content": "if([\"operix.co\"].indexOf(location.hostname)!==-1){\n!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?\nn.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;\nn.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;\nt.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,\ndocument,'script','https://connect.facebook.net/en_US/fbevents.js');\nfbq('init',\"1475953517673708\");\nfbq('track','PageView');\n}",
+      "type": "",
+      "attributes": {
+        "id": "meta-pixel",
+        "data-nscript": "afterInteractive"
+      }
+    },
+    {
+      "src": "",
+      "content": "{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Organization\",\"@id\":\"https://operix.co/#organization\",\"name\":\"Operix\",\"alternateName\":[\"Operix by Babrizq\",\"أوبريكس\"],\"url\":\"https://operix.co\",\"parentOrganization\":{\"@type\":\"Organization\",\"name\":\"Babrizq\",\"url\":\"https://babrizq.co\"},\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https://operix.co/brand/operix-logo-512.png\",\"width\":512,\"height\":512},\"image\":\"https://operix.co/operix_1200x630.png\",\"description\":\"Operix is a cloud-based e-commerce operations system by Babrizq that helps online stores in Egypt and the Gulf manage orders, confirm cash-on-delivery orders automatically, run warehouses and inventory, integrate with courier companies, manage purchase orders, automate routine fulfilment work, and handle customer tickets and CRM from one dashboard.\",\"email\":\"support@operix.co\",\"telephone\":\"+201038219009\",\"address\":{\"@type\":\"PostalAddress\",\"streetAddress\":\"Office No. C4-102, Al Muteena, Deira\",\"addressLocality\":\"Dubai\",\"addressCountry\":\"",
+      "type": "application/ld+json",
+      "attributes": {
+        "id": "ld-page",
+        "type": "application/ld+json"
+      }
+    }
+  ]
+}

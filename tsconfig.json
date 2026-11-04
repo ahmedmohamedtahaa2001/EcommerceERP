@@ -1,29 +1,77 @@
 {
   "compilerOptions": {
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "exactOptionalPropertyTypes": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2023"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noUncheckedIndexedAccess": true,
-    "outDir": "dist",
-    "rootDir": ".",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
     "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "target": "ES2023",
-    "types": ["node"],
-    "verbatimModuleSyntax": true
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@/app/*": [
+        "./app/*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/types/*": [
+        "./types/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ],
+      "@/utils/*": [
+        "./utils/*"
+      ],
+      "@/styles/*": [
+        "./styles/*"
+      ],
+      "@/db/*": [
+        "./db/*"
+      ],
+      "@/api/*": [
+        "./api/*"
+      ]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "allowJs": true,
+    "noEmit": true
   },
   "include": [
-    "src/**/*.ts",
-    "tests/**/*.ts",
-    "vitest.config.ts",
-    "docs/.vitepress/config.ts"
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
   ],
-  "exclude": ["dist", "node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
