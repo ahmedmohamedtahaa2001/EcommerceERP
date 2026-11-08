@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { getBrowserClient } from '@/lib/supabase';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 type ExportType = 'products' | 'customers' | 'orders' | 'inventory';

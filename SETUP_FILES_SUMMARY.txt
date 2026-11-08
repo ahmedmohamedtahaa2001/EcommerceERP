@@ -1,0 +1,241 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║         FIREBASE DATABASE SETUP - FILES FOR CLAUDE BROWSER EXTENSION        ║
+║                                                                            ║
+║  Complete guide to building production-ready Firestore database           ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📁 FILES YOU NEED TO USE:
+═════════════════════════════════════════════════════════════════════════════
+
+1️⃣  FIREBASE_BROWSER_PROMPT.txt (PRIMARY)
+    ├─ START HERE
+    ├─ Copy-paste entire content into Claude Browser Extension
+    ├─ Follow step-by-step guidance
+    └─ Claude will guide you through entire setup
+
+2️⃣  FIREBASE_BROWSER_SETUP.md (REFERENCE)
+    ├─ Detailed step-by-step instructions
+    ├─ Collection schemas with field definitions
+    ├─ Sample data examples
+    ├─ Index configurations
+    ├─ Security rules
+    └─ Environment variables template
+
+3️⃣  firebase-schema.json (SPECIFICATION)
+    ├─ Machine-readable database schema
+    ├─ All 7 collections defined
+    ├─ Field types and requirements
+    ├─ Relationships between collections
+    ├─ Multi-tenancy pattern
+    └─ Index definitions
+
+4️⃣  firestore-rules.txt (SECURITY)
+    ├─ Copy-paste security rules
+    ├─ Multi-tenant isolation enforced
+    ├─ Read/write permissions defined
+    ├─ Audit trail immutable
+    └─ Paste in Firestore Rules tab
+
+5️⃣  BROWSER_EXTENSION_README.md (WORKFLOW)
+    ├─ How to use all files
+    ├─ Step-by-step workflow
+    ├─ Verification checklist
+    └─ Quick reference guide
+
+═════════════════════════════════════════════════════════════════════════════
+
+🎯 QUICK START WORKFLOW:
+═════════════════════════════════════════════════════════════════════════════
+
+STEP 1: USE FIREBASE_BROWSER_PROMPT.txt
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 1. Copy entire contents of FIREBASE_BROWSER_PROMPT.txt                 │
+│ 2. Open Claude Browser Extension chat                                   │
+│ 3. Paste the prompt                                                      │
+│ 4. Tell Claude to guide you through setup                               │
+│ 5. Follow its step-by-step instructions                                │
+└─────────────────────────────────────────────────────────────────────────┘
+
+STEP 2: REFERENCE BROWSER_EXTENSION_README.md
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Use as workflow guide during setup:                                     │
+│ - Which file to use for each phase                                      │
+│ - When to reference other files                                         │
+│ - Verification steps                                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+STEP 3: CONSULT FIREBASE_BROWSER_SETUP.md WHEN NEEDED
+┌─────────────────────────────────────────────────────────────────────────┐
+│ If Claude asks for:                                                      │
+│ - Exact field names → Check firebase-schema.json                        │
+│ - Sample data format → Check FIREBASE_BROWSER_SETUP.md (Step 4)         │
+│ - Index definitions → Check FIREBASE_BROWSER_SETUP.md (Step 5)          │
+│ - Collection schema → Check firebase-schema.json                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+STEP 4: SECURITY RULES
+┌─────────────────────────────────────────────────────────────────────────┐
+│ When ready to set security rules:                                       │
+│ 1. Go to Firestore Database → Rules tab                                 │
+│ 2. Copy ALL content from firestore-rules.txt                            │
+│ 3. Paste (replace existing rules)                                       │
+│ 4. Click "Publish"                                                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════
+
+📊 WHAT CLAUDE WILL BUILD FOR YOU:
+═════════════════════════════════════════════════════════════════════════════
+
+✅ Collections Created:
+   • companies (Multi-tenant root)
+   • warehouses (Physical locations)
+   • products (Catalog)
+   • inventory (Stock levels)
+   • stock_movements (Audit trail)
+   • users (Access control)
+   • audit_logs (Compliance)
+
+✅ Field Definitions:
+   • Proper data types (string, number, boolean, timestamp, map)
+   • Required vs optional fields
+   • Default values
+   • Field relationships
+
+✅ Relationships:
+   • Company → Warehouses (1 to many)
+   • Company → Products (1 to many)
+   • Product + Warehouse → Inventory (unique combination)
+   • Inventory → Stock Movements (1 to many)
+
+✅ Performance:
+   • Optimized indexes for queries
+   • Efficient company-scoped filtering
+   • Fast pagination support
+   • Sorted collections by timestamp
+
+✅ Security:
+   • Multi-tenant company isolation
+   • Role-based access control
+   • Immutable audit trails
+   • Data encryption
+
+═════════════════════════════════════════════════════════════════════════════
+
+💾 CREDENTIALS YOU'LL GET:
+═════════════════════════════════════════════════════════════════════════════
+
+From Firebase Console:
+  ✅ API Key
+  ✅ Auth Domain
+  ✅ Project ID
+  ✅ Storage Bucket
+  ✅ Messaging Sender ID
+  ✅ App ID
+
+To Save:
+  1. Add to `.env.local` in project root
+  2. Add to Next.js app for API connections
+  3. Use with our inventory API endpoints
+
+═════════════════════════════════════════════════════════════════════════════
+
+📝 COLLECTION SCHEMAS AT A GLANCE:
+═════════════════════════════════════════════════════════════════════════════
+
+COMPANIES:
+  name (string), email (string), industry (string), website (string),
+  country (string), active (boolean), subscription (enum)
+
+WAREHOUSES:
+  companyId, name, location, address, city, state, zipCode, country,
+  isDefault (boolean), capacity (number), currentUtilization (number)
+
+PRODUCTS:
+  companyId, sku, name, description, category, price, cost, margin,
+  weight, dimensions (map), active (boolean), barcode
+
+INVENTORY:
+  companyId, productId, warehouseId, quantity, reserved, available,
+  reorderLevel, reorderQuantity, lastRestocked, lastChecked
+
+STOCK_MOVEMENTS (Immutable):
+  companyId, inventoryId, productId, warehouseId, type (enum),
+  quantityBefore, quantityAfter, quantityChanged, reason, notes
+
+USERS:
+  companyId, email, name, role (enum), department, phone, avatar,
+  active (boolean), lastLogin, permissions (array)
+
+AUDIT_LOGS (Immutable):
+  companyId, userId, action, resource, resourceId, changes (map), ipAddress
+
+═════════════════════════════════════════════════════════════════════════════
+
+✅ VERIFICATION AFTER SETUP:
+═════════════════════════════════════════════════════════════════════════════
+
+□ Firebase project created and active
+□ Firestore database initialized
+□ All 7 collections created
+□ Sample data added to each collection
+□ Indexes created and "Ready" status
+□ Security rules published and active
+□ Can access Firebase Console without errors
+□ API keys in .env.local file
+□ Service Account JSON downloaded
+□ Next.js app can connect to Firebase
+□ Inventory dashboard accessible at /inventory-v2
+
+═════════════════════════════════════════════════════════════════════════════
+
+🚀 AFTER SETUP:
+═════════════════════════════════════════════════════════════════════════════
+
+1. Add credentials to .env.local
+2. Run: npm run dev
+3. Visit: http://localhost:3000/inventory-v2
+4. Test with sample data
+5. Start building inventory features!
+
+═════════════════════════════════════════════════════════════════════════════
+
+📚 FILE PURPOSES:
+═════════════════════════════════════════════════════════════════════════════
+
+File                           | Purpose                  | When to Use
+─────────────────────────────────────────────────────────────────────────
+FIREBASE_BROWSER_PROMPT.txt    | Main guidance            | START HERE
+FIREBASE_BROWSER_SETUP.md      | Detailed instructions    | Reference
+firebase-schema.json           | Schema specification     | Field lookup
+firestore-rules.txt            | Security rules           | Set rules
+BROWSER_EXTENSION_README.md    | Workflow guide           | Overall guide
+
+═════════════════════════════════════════════════════════════════════════════
+
+✨ KEY POINTS:
+═════════════════════════════════════════════════════════════════════════════
+
+✓ Multi-tenant from the start (company isolation)
+✓ Production-ready schema with proper relationships
+✓ Optimized indexes for performance
+✓ Security rules for data protection
+✓ Audit trail for compliance
+✓ Ready to connect to Next.js APIs
+✓ Sample data for testing
+✓ Immutable logs (can't be edited/deleted)
+✓ Role-based access control ready
+✓ All documentation included
+
+═════════════════════════════════════════════════════════════════════════════
+
+🎉 YOU'RE READY TO BUILD!
+
+Follow the workflow:
+1. Copy FIREBASE_BROWSER_PROMPT.txt
+2. Paste into Claude Browser Extension
+3. Let Claude guide you through setup
+4. Save credentials to .env.local
+5. Start building inventory system!
+
+═════════════════════════════════════════════════════════════════════════════

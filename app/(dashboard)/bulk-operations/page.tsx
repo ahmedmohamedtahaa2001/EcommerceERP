@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { getBrowserClient } from '@/lib/supabase';
 
 type OperationType = 'price-update' | 'status-change' | 'bulk-delete' | 'bulk-email' | 'batch-order';
 

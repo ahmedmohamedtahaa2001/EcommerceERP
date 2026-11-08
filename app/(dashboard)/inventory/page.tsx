@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getBrowserClient } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/utils';
 import type { InventoryItem } from '@/types';
 

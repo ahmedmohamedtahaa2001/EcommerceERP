@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { getBrowserClient } from '@/lib/supabase';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');

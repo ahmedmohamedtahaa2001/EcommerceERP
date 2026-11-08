@@ -1,0 +1,204 @@
+{
+  "collections": {
+    "companies": {
+      "description": "Root collection for multi-tenant companies",
+      "fields": {
+        "name": { "type": "string", "required": true, "example": "Acme Corporation" },
+        "email": { "type": "string", "required": true, "example": "contact@acme.com" },
+        "industry": { "type": "string", "required": false, "example": "Retail" },
+        "website": { "type": "string", "required": false, "example": "https://acme.com" },
+        "country": { "type": "string", "required": true, "example": "US" },
+        "active": { "type": "boolean", "required": true, "default": true },
+        "subscription": { "type": "string", "required": true, "enum": ["free", "starter", "pro", "enterprise"] },
+        "createdAt": { "type": "timestamp", "required": true },
+        "updatedAt": { "type": "timestamp", "required": true }
+      },
+      "indexes": []
+    },
+
+    "warehouses": {
+      "description": "Physical warehouse locations for inventory storage",
+      "fields": {
+        "companyId": { "type": "string", "required": true, "ref": "companies" },
+        "name": { "type": "string", "required": true, "example": "Main Warehouse" },
+        "location": { "type": "string", "required": true, "example": "New York" },
+        "address": { "type": "string", "required": true, "example": "123 Main St" },
+        "city": { "type": "string", "required": true },
+        "state": { "type": "string", "required": true },
+        "zipCode": { "type": "string", "required": true },
+        "country": { "type": "string", "required": true },
+        "isDefault": { "type": "boolean", "required": true, "default": false },
+        "capacity": { "type": "number", "required": true, "unit": "units" },
+        "currentUtilization": { "type": "number", "required": false, "default": 0 },
+        "createdAt": { "type": "timestamp", "required": true },
+        "updatedAt": { "type": "timestamp", "required": true },
+        "createdBy": { "type": "string", "required": true, "ref": "users" }
+      },
+      "indexes": [
+        { "fields": ["companyId", "createdAt"] }
+      ]
+    },
+
+    "products": {
+      "description": "Product catalog with pricing and specifications",
+      "fields": {
+        "companyId": { "type": "string", "required": true, "ref": "companies" },
+        "sku": { "type": "string", "required": true, "example": "PROD-001" },
+        "name": { "type": "string", "required": true, "example": "Premium Widget" },
+        "description": { "type": "string", "required": false },
+        "category": { "type": "string", "required": true },
+        "price": { "type": "number", "required": true, "unit": "currency" },
+        "cost": { "type": "number", "required": true, "unit": "currency" },
+        "margin": { "type": "number", "required": false, "formula": "(price - cost) / price" },
+        "weight": { "type": "number", "required": false, "unit": "kg" },
+        "dimensions": {
+          "type": "map",
+          "required": false,
+          "fields": {
+            "length": "number",
+            "width": "number",
+            "height": "number"
+          }
+        },
+        "active": { "type": "boolean", "required": true, "default": true },
+        "barcode": { "type": "string", "required": false },
+        "createdAt": { "type": "timestamp", "required": true },
+        "updatedAt": { "type": "timestamp", "required": true }
+      },
+      "indexes": [
+        { "fields": ["companyId", "active", "createdAt"] }
+      ]
+    },
+
+    "inventory": {
+      "description": "Stock levels tracking for products in warehouses",
+      "fields": {
+        "companyId": { "type": "string", "required": true, "ref": "companies" },
+        "productId": { "type": "string", "required": true, "ref": "products" },
+        "warehouseId": { "type": "string", "required": true, "ref": "warehouses" },
+        "quantity": { "type": "number", "required": true, "default": 0 },
+        "reserved": { "type": "number", "required": true, "default": 0 },
+        "available": { "type": "number", "required": true, "formula": "quantity - reserved" },
+        "reorderLevel": { "type": "number", "required": true, "default": 10 },
+        "reorderQuantity": { "type": "number", "required": true, "default": 50 },
+        "lastRestocked": { "type": "timestamp", "required": false },
+        "lastChecked": { "type": "timestamp", "required": false },
+        "createdAt": { "type": "timestamp", "required": true },
+        "updatedAt": { "type": "timestamp", "required": true },
+        "createdBy": { "type": "string", "required": true, "ref": "users" }
+      },
+      "indexes": [
+        { "fields": ["companyId", "warehouseId", "quantity"] },
+        { "fields": ["companyId", "updatedAt"], "direction": "desc" },
+        { "fields": ["warehouseId", "quantity"], "direction": "asc" }
+      ],
+      "unique": ["companyId", "productId", "warehouseId"]
+    },
+
+    "stock_movements": {
+      "description": "Audit trail for all inventory changes",
+      "fields": {
+        "companyId": { "type": "string", "required": true, "ref": "companies" },
+        "inventoryId": { "type": "string", "required": true, "ref": "inventory" },
+        "productId": { "type": "string", "required": true, "ref": "products" },
+        "warehouseId": { "type": "string", "required": true, "ref": "warehouses" },
+        "type": { "type": "string", "required": true, "enum": ["add", "remove", "adjust", "transfer_in", "transfer_out"] },
+        "quantityBefore": { "type": "number", "required": true },
+        "quantityAfter": { "type": "number", "required": true },
+        "quantityChanged": { "type": "number", "required": true },
+        "reason": { "type": "string", "required": true, "example": "purchase_order" },
+        "notes": { "type": "string", "required": false },
+        "fromWarehouseId": { "type": "string", "required": false, "ref": "warehouses" },
+        "toWarehouseId": { "type": "string", "required": false, "ref": "warehouses" },
+        "createdAt": { "type": "timestamp", "required": true },
+        "createdBy": { "type": "string", "required": true, "ref": "users" }
+      },
+      "indexes": [
+        { "fields": ["companyId", "createdAt"], "direction": "desc" },
+        { "fields": ["warehouseId", "createdAt"], "direction": "desc" },
+        { "fields": ["productId", "createdAt"], "direction": "desc" }
+      ],
+      "immutable": true
+    },
+
+    "users": {
+      "description": "Application users linked to companies",
+      "document_id": "Firebase Auth UID",
+      "fields": {
+        "companyId": { "type": "string", "required": true, "ref": "companies" },
+        "email": { "type": "string", "required": true },
+        "name": { "type": "string", "required": true },
+        "role": { "type": "string", "required": true, "enum": ["admin", "manager", "user"] },
+        "department": { "type": "string", "required": false },
+        "phone": { "type": "string", "required": false },
+        "avatar": { "type": "string", "required": false },
+        "active": { "type": "boolean", "required": true, "default": true },
+        "lastLogin": { "type": "timestamp", "required": false },
+        "createdAt": { "type": "timestamp", "required": true },
+        "updatedAt": { "type": "timestamp", "required": true },
+        "permissions": {
+          "type": "array",
+          "required": true,
+          "items": "string",
+          "example": ["inventory.read", "inventory.write", "warehouse.read"]
+        }
+      },
+      "indexes": [
+        { "fields": ["companyId", "active"] }
+      ]
+    },
+
+    "audit_logs": {
+      "description": "System audit trail for compliance",
+      "fields": {
+        "companyId": { "type": "string", "required": true, "ref": "companies" },
+        "userId": { "type": "string", "required": true, "ref": "users" },
+        "action": { "type": "string", "required": true, "enum": ["create", "read", "update", "delete"] },
+        "resource": { "type": "string", "required": true, "enum": ["inventory", "warehouse", "product", "user"] },
+        "resourceId": { "type": "string", "required": true },
+        "changes": {
+          "type": "map",
+          "required": false,
+          "fields": {
+            "before": "map",
+            "after": "map"
+          }
+        },
+        "ipAddress": { "type": "string", "required": false },
+        "createdAt": { "type": "timestamp", "required": true }
+      },
+      "indexes": [
+        { "fields": ["companyId", "createdAt"], "direction": "desc" },
+        { "fields": ["userId", "createdAt"], "direction": "desc" }
+      ],
+      "immutable": true
+    }
+  },
+
+  "relations": {
+    "companies -> warehouses": "One company has many warehouses",
+    "companies -> products": "One company has many products",
+    "companies -> users": "One company has many users",
+    "products -> inventory": "One product appears in many inventory records",
+    "warehouses -> inventory": "One warehouse contains many inventory records",
+    "inventory -> stock_movements": "One inventory record has many movements",
+    "companies -> stock_movements": "Company scopes all movements"
+  },
+
+  "multi_tenancy": {
+    "pattern": "company_id isolation",
+    "enforcement": "All queries must filter by companyId",
+    "users_link": "Each user document has companyId field",
+    "data_isolation": "Read/write rules enforce company boundaries"
+  },
+
+  "data_types_reference": {
+    "string": "Text values (SKUs, names, emails)",
+    "number": "Integers or floats (quantities, prices)",
+    "boolean": "true/false (active status)",
+    "timestamp": "Firebase server timestamp",
+    "map": "Object with nested fields",
+    "array": "List of values",
+    "reference": "Document reference to another collection"
+  }
+}

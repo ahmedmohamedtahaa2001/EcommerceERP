@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/lib/supabase';
+import { getBrowserClient } from '@/lib/supabase';
 
 const menuItems = [
   { label: 'Dashboard', href: '/dashboard', icon: '📊' },

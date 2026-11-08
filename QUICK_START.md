@@ -1,653 +1,310 @@
-# 🚀 QUICK START GUIDE
+# Operix ERP - Quick Start Guide
 
-**System Status:** ✅ Production Ready  
-**Version:** 1.0 Complete  
-**Last Updated:** November 4, 2026
+## 🚀 Get Started in 5 Minutes
 
----
-
-## 5-MINUTE SETUP
-
-### Step 1: Clone & Install (2 min)
+### 1. Start the Dev Server
 ```bash
-cd /Users/ahmedaboelsnoon/Desktop/ERP
-npm install
-```
-
-### Step 2: Setup Supabase (2 min)
-```bash
-# Follow guide: /Users/ahmedaboelsnoon/Desktop/ERP/SETUP_SUPABASE.md
-# 1. Create Supabase project
-# 2. Copy credentials
-# 3. Create .env.local with:
-NEXT_PUBLIC_SUPABASE_URL=your_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_key
-```
-
-### Step 3: Run Development
-```bash
+cd /Users/ahmedaboelsnoon/Desktop/PROjects/ERP
 npm run dev
-# Visit: http://localhost:3000
+```
+Server runs on: **http://localhost:3001**
+
+### 2. Login to Dashboard
+- URL: http://localhost:3001/auth/login
+- Email: `admin@test.local`
+- Password: `ChangeMe#2026`
+
+### 3. Explore the System
+
+#### Main Dashboard
+- http://localhost:3001/dashboard
+- View metrics and quick actions
+
+#### Agent Console
+- http://localhost:3001/dashboard/agents
+- Send tasks to 4 AI agents
+- View responses and memory
+
+#### Inventory Management
+- http://localhost:3001/dashboard/inventory
+- View, create, and manage inventory
+- API: `GET/POST /api/inventory`
+
+---
+
+## 🤖 Using the Agents
+
+### What Are Agents?
+4 specialized Claude AI agents that help design your ERP:
+1. **Backend Agent** - REST APIs, business logic
+2. **Frontend Agent** - React components, UI/UX
+3. **Database Agent** - Queries, optimization
+4. **DevOps Agent** - Deployment, monitoring
+
+### How to Use
+1. Go to http://localhost:3001/dashboard/agents
+2. Select an agent
+3. Type a task
+4. Get AI-powered recommendations
+
+### Example Tasks
+```
+Backend: "Design an inventory API endpoint with pagination"
+Frontend: "Create a component for stock level display"
+Database: "Write optimized query for low-stock products"
+DevOps: "Setup monitoring for inventory changes"
+```
+
+### Activate Agent System
+Add to `.env.local`:
+```
+ANTHROPIC_API_KEY=sk-ant-[your-api-key]
+```
+Get key from: https://console.anthropic.com/
+
+---
+
+## 🗄️ Using the Database
+
+### Architecture
+- **Database**: Supabase PostgreSQL
+- **URL**: https://nhalhrwoiyqurndsbujz.supabase.co
+- **Keys**: Already in `.env.local`
+
+### Tables
+- `organizations` - Companies
+- `users` - Team members
+- `roles` - Admin, Manager, User
+- `products` - Catalog
+- `warehouses` - Storage locations
+- `inventory` - Stock levels
+- `stock_movements` - History
+- `orders` - Orders
+- `customers` - Clients
+- `audit_logs` - Activity log
+
+### Set Up Security (RLS)
+1. Open Supabase dashboard
+2. Go to SQL Editor
+3. Run SQL from `RLS_POLICIES.md`
+4. Enables organization data isolation
+
+---
+
+## 📡 API Endpoints
+
+### Inventory API
+```bash
+# List all inventory
+GET /api/inventory
+
+# Create inventory
+POST /api/inventory
+Body: { productId, warehouseId, quantity, reorderLevel }
+
+# Adjust stock
+POST /api/inventory/adjust
+Body: { inventoryId, quantity, reason }
+
+# Transfer between warehouses
+POST /api/inventory/transfer
+Body: { fromInventoryId, toInventoryId, quantity }
+
+# Get stock movements
+GET /api/inventory/movements
+```
+
+### Authentication API
+```bash
+# Login
+POST /api/auth/login
+Body: { email, password }
+
+# Logout
+GET /auth/logout
+
+# Register
+POST /auth/register
+Body: { email, password }
+```
+
+### Agents API
+```bash
+# Send task to agent
+POST /api/agents
+Body: {
+  task: "Design inventory API",
+  agent: "backend",
+  sessionId: "session-001"
+}
 ```
 
 ---
 
-## 30-MINUTE FIRST USE
+## 📁 Project Structure
 
-### Login
 ```
-URL: http://localhost:3000/auth/login
-Demo credentials: (create via Supabase)
-Email: admin@company.com
-Password: (your password)
-```
+/app
+  /auth              - Login, register pages
+  /api               - REST API routes
+    /agents          - Agent communication
+    /inventory       - Stock management API
+    /products        - Catalog API
+    /orders          - Order API
+    /customers       - Customer API
+  /(dashboard)       - Protected pages
+    /dashboard       - Main dashboard
+    /inventory       - Inventory UI
+    /products        - Products UI
+    /agents          - Agent console
+    /orders          - Orders UI
+    /customers       - Customers UI
 
-### First Actions
-1. **View Dashboard** (1 min)
-   - See KPI cards
-   - Check recent orders
-   - View top products
+/lib
+  /agents            - AI agent system
+    config.ts        - Agent definitions
+    orchestrator.ts  - Task routing
+    memory.ts        - Memory system
+  /supabase.ts       - Database client
 
-2. **Add a Product** (3 min)
-   - Go to: Products → New Product
-   - Fill: SKU, Name, Price, Cost
-   - Click: Create
-
-3. **Import Sample Data** (5 min)
-   - Go to: Import
-   - Download template
-   - Fill with sample data
-   - Upload CSV
-
-4. **Create an Order** (5 min)
-   - Go to: Orders → New Order
-   - Step 1: Select customer (or create)
-   - Step 2: Add products
-   - Step 3: Review & create
-
-5. **View Analytics** (2 min)
-   - Check dashboard KPIs
-   - View top products
-   - See recent orders
-
-6. **Export Data** (5 min)
-   - Go to: Export
-   - Select data type
-   - Choose format
-   - Download CSV
-
-7. **Manage Users** (4 min)
-   - Go to: Settings → Users
-   - Add team member
-   - Assign role
-   - Share login
-
----
-
-## DAILY OPERATIONS
-
-### Morning Routine (10 min)
-```
-1. Dashboard → Check daily metrics
-   - Revenue total
-   - New orders
-   - Pending items
-   
-2. Orders → Check pending orders
-   - Confirm status
-   - Update shipments
-   
-3. Inventory → Check low stock
-   - See alerts
-   - Plan restocking
-```
-
-### During Day (as needed)
-```
-1. Orders → Create new orders
-   - Customer selection
-   - Product entry
-   - Confirmation
-
-2. Products → Update prices
-   - Modify as needed
-   - Track changes
-
-3. Customers → View history
-   - See past orders
-   - Check total spent
-   - Update info
-
-4. Search → Find items
-   - Use text search
-   - Apply filters
-   - Sort results
-```
-
-### End of Day (10 min)
-```
-1. Export → Backup data
-   - Export all products
-   - Export all customers
-   - Export all orders
-
-2. Settings → Check alerts
-   - Review any issues
-   - Note for tomorrow
-
-3. Users → Verify access
-   - Check user activity
-   - Confirm permissions
+/components
+  /AgentConsole.tsx  - Agent UI component
+  /DashboardLayout   - Layout components
 ```
 
 ---
 
-## KEY FEATURES AT A GLANCE
+## 🔐 Security
 
-### 🛍️ Products
-```
-- CRUD: Create, read, update, delete
-- SKU tracking
-- Price & cost management
-- Variants support
-- Status tracking (active/inactive)
-- Search & filtering
-```
+### Authentication
+- Email + password via Supabase
+- HTTP-only cookies
+- Middleware protection
+- Session-based access
 
-### 📦 Orders
-```
-- Multi-step creation wizard
-- Order number auto-generation
-- Status workflow
-- Payment tracking
-- Item-level details
-- Customer linked
-```
+### Data Isolation
+- Organization-level RLS (Row Level Security)
+- Users see only their org data
+- Admin users can manage org
+- Service role for API automation
 
-### 👥 Customers
-```
-- Full contact management
-- Multiple addresses
-- Order history
-- Lifetime value calculation
-- Search & filtering
-- Activity tracking
-```
+### What's Protected
+- All dashboard routes require login
+- API routes check organization_id
+- Database enforces RLS policies
+- Audit logs track all changes
 
-### 📊 Inventory
-```
-- Warehouse tracking
-- Quantity management
-- Reserved items
-- Low stock alerts
-- Reorder levels
-- Valuation
-```
+---
 
-### 📈 Analytics
-```
-- Revenue KPIs
-- Top products
-- Order trends
-- Customer analytics
-- Real-time dashboards
-```
+## ✅ Checklist for First Use
 
-### 🔧 Admin
-```
-- User management
-- Role assignment
-- Settings panel
-- API key management
-- Audit logs (ready)
-- Security config
+- [ ] Run `npm run dev`
+- [ ] Login with admin@test.local
+- [ ] Visit /dashboard to see metrics
+- [ ] Go to /dashboard/agents
+- [ ] (Optional) Add ANTHROPIC_API_KEY for agents
+- [ ] Apply RLS policies from RLS_POLICIES.md
+- [ ] Create demo data in Supabase
+- [ ] Test inventory API with curl or Postman
+- [ ] Create products, warehouses, customers
+
+---
+
+## 🐛 Troubleshooting
+
+### Login Not Working
+- Check credentials: admin@test.local / ChangeMe#2026
+- Verify .env.local has Supabase keys
+- Restart dev server: `npm run dev`
+
+### Agents Not Responding
+- Add ANTHROPIC_API_KEY to .env.local
+- Restart dev server
+- Check browser console for errors
+
+### Database Queries Failing
+- Verify RLS policies are applied
+- Check organization_id in user record
+- Ensure demo data exists
+
+### Port Already in Use
+Dev server uses port 3001 (not 3000)
+If that's busy:
+```bash
+lsof -i :3001
+kill -9 <PID>
 ```
 
 ---
 
-## NAVIGATION SHORTCUTS
+## 📚 Documentation Files
 
-### From Any Page
-```
-Logo click           → Go to Dashboard
-Sidebar toggle       → Expand/collapse menu
-User dropdown        → Profile & Logout
-Search bar          → Global search
-Settings link       → Admin panel
-```
-
-### Main Menu Items
-```
-📊 Dashboard         → Main overview
-🛍️ Products          → Product management
-📦 Orders            → Order management
-👥 Customers         → Customer management
-📈 Inventory         → Stock tracking
-📋 Analytics         → Business metrics
-⚙️ Settings          → Admin panel
-```
+| File | Purpose |
+|------|---------|
+| CLAUDE.md | Project architecture & standards |
+| AGENTS_SETUP.md | How to use agent system |
+| RLS_POLICIES.md | Security setup guide |
+| PROJECT_ANALYSIS.md | Complete project overview |
+| IMPLEMENTATION_CHECKLIST.md | Next steps & timeline |
+| QUICK_START.md | This file |
 
 ---
 
-## COMMON TASKS
+## 🎯 Next Steps
 
-### Add a New Product (2 min)
-```
-1. Products → New Product
-2. Fill form:
-   - SKU: unique code
-   - Name: product name
-   - Price: selling price
-   - Cost: purchase cost
-   - Description: details
-3. Click: Create
-```
+### Today (5 mins)
+1. Start dev server
+2. Login to dashboard
+3. Explore agent console
 
-### Create an Order (5 min)
-```
-1. Orders → New Order
-2. Step 1: Select customer
-3. Step 2: Add products (set qty)
-4. Step 3: Review & confirm
-5. Done: Order created
-```
+### This Hour (1 hour)
+1. Add ANTHROPIC_API_KEY
+2. Test agent system
+3. Review API responses
 
-### Add a Customer (2 min)
-```
-1. Customers → New Customer
-2. Fill form:
-   - Name: customer name
-   - Email: contact email
-   - Phone: phone number
-   - Address: shipping address
-3. Click: Create
-```
+### This Week (4-8 hours)
+1. Apply RLS policies
+2. Create demo data
+3. Test inventory API
+4. Complete other modules
 
-### Import CSV Data (5 min)
-```
-1. Import page
-2. Select data type:
-   - Products
-   - Customers
-3. Upload CSV file
-4. Preview data
-5. Click: Import
-6. See results
-```
-
-### Export to CSV (2 min)
-```
-1. Export page
-2. Select type:
-   - Products / Customers / Orders / Inventory
-3. Choose format:
-   - CSV / Excel
-4. Select columns
-5. Click: Export
-6. File downloads
-```
-
-### Manage Users (3 min)
-```
-1. Settings → Users
-2. Click: + Add User
-3. Fill form:
-   - Email
-   - Name
-   - Role
-4. Click: Create
-5. Share login info
-```
+### This Month (20+ hours)
+1. Complete CRUD for all modules
+2. Performance optimization
+3. Deploy to production
+4. Advanced features (semantic memory, workflows)
 
 ---
 
-## KEYBOARD SHORTCUTS
+## 💬 Support
 
-```
-Ctrl/Cmd + K       → Open search
-Ctrl/Cmd + /       → Help menu
-Escape              → Close modals
-Tab                 → Navigate forms
-Enter               → Submit forms
-Ctrl/Cmd + S       → Quick save (coming)
-```
-
----
-
-## TROUBLESHOOTING
-
-### Can't Login
-```
-✓ Check email & password
-✓ Verify user exists in Settings
-✓ Check user is active
-✓ Clear browser cache
-✓ Check internet connection
-```
-
-### Page Won't Load
-```
-✓ Refresh browser
-✓ Check internet
-✓ Clear cache
-✓ Try different browser
-✓ Check console (F12)
-```
-
-### Data Not Showing
-```
-✓ Check filters (remove if applied)
-✓ Check search (clear if set)
-✓ Refresh page
-✓ Check user permissions
-✓ Verify data exists
-```
-
-### Import Fails
-```
-✓ Check CSV format
-✓ Verify required columns
-✓ Check file size < 10MB
-✓ Ensure valid data
-✓ See error message
-```
-
-### Export Not Working
-```
-✓ Check data exists
-✓ Try different browser
-✓ Check columns selected
-✓ Verify format selected
-✓ Check browser settings
-```
-
----
-
-## GETTING HELP
-
-### Documentation
-```
-📚 See: /sprints/ folder
-- first_working_sprint.md   (Foundation)
-- SPRINT2_STATUS.md         (Features)
-- SPRINT3_STATUS.md         (Advanced)
-- FINAL_SUMMARY.md          (Complete overview)
-```
-
-### Support
-```
-📧 Contact: admin@company.com
-📞 Phone: +1-xxx-xxx-xxxx
-💬 Slack: #erp-support
-📖 Wiki: company-wiki/erp
-```
+### Quick Links
+- **Supabase**: https://nhalhrwoiyqurndsbujz.supabase.co
+- **GitHub**: Your project repo
+- **Docs**: See CLAUDE.md
 
 ### Common Questions
-```
-Q: How do I add a user?
-A: Settings → Users → + Add User
 
-Q: How do I import data?
-A: Import page → Upload CSV → Confirm
+**Q: How do I add more users?**
+A: Add them to Supabase Auth, then create user records in `users` table
 
-Q: How do I export data?
-A: Export page → Select type → Download
+**Q: Can I change the organization?**
+A: Each user belongs to one organization (organization_id). Use RLS to isolate.
 
-Q: How do I change my password?
-A: Settings → Security → Change Password
+**Q: How do I see data in the database?**
+A: Use Supabase dashboard → Table Editor, or SQL Editor for queries
 
-Q: How do I add a warehouse?
-A: Settings → Company → Add Warehouse
-```
+**Q: What's the difference between Auth and Users table?**
+A: Auth is Supabase authentication. Users table stores organization mapping.
 
----
-
-## FEATURES BY USER ROLE
-
-### Admin
-```
-✅ All features
-✅ User management
-✅ Settings access
-✅ Data import/export
-✅ Security config
-```
-
-### Manager
-```
-✅ View all data
-✅ Create/edit items
-✅ View reports
-✅ Export data
-❌ User management
-```
-
-### Staff
-```
-✅ View data
-✅ Create orders
-✅ Edit products
-✅ Update inventory
-❌ Delete data
-```
-
-### Viewer
-```
-✅ View all data
-✅ View reports
-✅ Export data
-❌ Create/edit
-❌ Delete
-```
+**Q: How do I deploy to production?**
+A: Use Vercel + Supabase. See IMPLEMENTATION_CHECKLIST.md
 
 ---
 
-## BEST PRACTICES
+## 🎉 You're Ready!
 
-### Daily
-```
-✓ Check dashboard each morning
-✓ Confirm pending orders
-✓ Update inventory as needed
-✓ Export data end of day
-✓ Review error alerts
-```
+Your Operix ERP is now ready to use. Start with the agent console to get AI-powered recommendations on how to complete the remaining modules.
 
-### Weekly
-```
-✓ Review sales trends
-✓ Check low stock items
-✓ Verify user access
-✓ Backup all data
-✓ Update customer info
-```
+**Happy building!** 🚀
 
-### Monthly
-```
-✓ Full data export
-✓ Security review
-✓ User audit
-✓ Performance check
-✓ Update company info
-```
-
----
-
-## PERFORMANCE TIPS
-
-### Speed Up
-```
-✓ Use filters to reduce data
-✓ Search instead of scrolling
-✓ Limit result set with pagination
-✓ Close unused tabs
-✓ Clear browser cache monthly
-```
-
-### Large Data Sets
-```
-✓ Use search filters
-✓ Use pagination (50 per page)
-✓ Export to CSV for analysis
-✓ Use bulk import for data
-✓ Schedule bulk ops off-peak
-```
-
----
-
-## SECURITY CHECKLIST
-
-### Do This
-```
-✓ Use strong password (16+ chars)
-✓ Don't share your login
-✓ Logout when away from desk
-✓ Report suspicious activity
-✓ Review user access quarterly
-✓ Update passwords every 90 days
-```
-
-### Don't Do This
-```
-✗ Share passwords
-✗ Use same password as other systems
-✗ Leave session open
-✗ Export unencrypted data
-✗ Give unnecessary permissions
-✗ Use production for testing
-```
-
----
-
-## KEYBOARD SHORTCUTS REFERENCE
-
-```
-Navigation:
-  Ctrl/Cmd + K      → Quick search
-  Ctrl/Cmd + /      → Help
-  Escape             → Close modal
-
-Forms:
-  Tab                → Next field
-  Shift + Tab        → Previous field
-  Enter              → Submit
-  Escape             → Cancel
-
-Data:
-  Ctrl/Cmd + E       → Export
-  Ctrl/Cmd + I       → Import
-  Ctrl/Cmd + F       → Search
-  Ctrl/Cmd + R       → Refresh
-```
-
----
-
-## MOBILE USAGE
-
-### Supported Features
-```
-✅ View dashboard
-✅ View products
-✅ View orders
-✅ View customers
-✅ View inventory
-✅ Create orders (wizard)
-✅ Search & filter
-✅ Basic editing
-```
-
-### Recommended
-```
-✓ Use landscape for tables
-✓ Use portrait for forms
-✓ Tap twice to zoom
-✓ Scroll right for full tables
-✓ Use mobile-optimized pages
-```
-
----
-
-## API REFERENCE (Coming Soon)
-
-### Endpoints Overview
-```
-GET    /api/products           → List products
-POST   /api/products           → Create product
-GET    /api/products/[id]      → Get product
-PUT    /api/products/[id]      → Update product
-DELETE /api/products/[id]      → Delete product
-
-GET    /api/orders             → List orders
-POST   /api/orders             → Create order
-GET    /api/orders/[id]        → Get order
-PUT    /api/orders/[id]        → Update order
-
-GET    /api/customers          → List customers
-POST   /api/customers          → Create customer
-```
-
----
-
-## MAINTENANCE SCHEDULE
-
-### Daily (1 min)
-- Check alerts
-- Verify uptime
-
-### Weekly (10 min)
-- Review logs
-- Check backups
-- Update products
-
-### Monthly (30 min)
-- Full backup
-- Security audit
-- Performance check
-- User review
-
-### Quarterly (1 hour)
-- Complete audit
-- Performance optimization
-- Security review
-- System upgrade
-
----
-
-## NEXT STEPS
-
-### After Setup (Today)
-```
-1. Create first admin user
-2. Add sample products
-3. Add sample customers
-4. Create first order
-5. Explore dashboards
-6. Invite team members
-```
-
-### Next Week
-```
-1. Import bulk data
-2. Setup warehouses
-3. Train staff
-4. Establish workflows
-5. Test features
-```
-
-### Next Month
-```
-1. Optimize performance
-2. Setup integrations
-3. Create reports
-4. Fine-tune workflows
-5. Plan growth
-```
-
----
-
-**Ready to use? Start with `/Users/ahmedaboelsnoon/Desktop/ERP/SETUP_SUPABASE.md`**
-
-**Questions? See `/sprints/FINAL_SUMMARY.md` for complete documentation**
-
-🎉 **Your ERP system is ready for production use!**

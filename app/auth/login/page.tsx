@@ -1,16 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,24 +15,25 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Call API route which sets cookies and authenticates
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (authError) {
-        setError(authError.message);
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Login failed');
+        setLoading(false);
         return;
       }
 
-      if (data?.session) {
-        // Store token
-        localStorage.setItem('auth_token', data.session.access_token);
-        router.push('/dashboard');
-      }
+      // Redirect to dashboard - cookies are now set
+      window.location.href = '/dashboard';
     } catch (err: any) {
       setError(err.message || 'An error occurred');
-    } finally {
       setLoading(false);
     }
   };
@@ -65,6 +63,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
+              autoComplete="email"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -80,6 +79,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              autoComplete="current-password"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -105,11 +105,11 @@ export default function LoginPage() {
 
         <div className="mt-4 text-center">
           <p className="text-gray-600 text-xs">
-            Demo credentials:
+            Test credentials:
             <br />
-            Email: demo@example.com
+            Email: admin@test.local
             <br />
-            Password: demo123
+            Password: ChangeMe#2026
           </p>
         </div>
       </div>

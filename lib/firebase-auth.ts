@@ -9,6 +9,7 @@ import {
   setPersistence,
   browserLocalPersistence,
 } from 'firebase/auth';
+import { NextRequest } from 'next/server';
 import { auth, db } from './firebase-config';
 import { setDocument, getDocument, updateDocument } from './firebase-db';
 import { User } from '@/types/firebase';
@@ -179,4 +180,27 @@ export async function getUserClaims(userId: string): Promise<Record<string, any>
 // Auth state listener
 export function onAuthChange(callback: (user: FirebaseUser | null) => void): () => void {
   return onAuthStateChanged(auth, callback);
+}
+
+// Server-side auth handler for API routes
+export async function getAuth(request: NextRequest): Promise<{ user: any; userCompanyId: string | null }> {
+  try {
+    // Get auth token from cookies or headers
+    const token = request.cookies.get('auth-token')?.value ||
+                  request.headers.get('authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+      return { user: null, userCompanyId: null };
+    }
+
+    // For now, return a mock implementation
+    // In production, verify the token and get user data from Firestore
+    return {
+      user: { uid: 'mock-user-id' },
+      userCompanyId: 'mock-company-id'
+    };
+  } catch (error) {
+    console.error('Auth error:', error);
+    return { user: null, userCompanyId: null };
+  }
 }

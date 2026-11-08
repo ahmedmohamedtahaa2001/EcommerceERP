@@ -1,0 +1,479 @@
+{% comment %}
+  247 Product Page - Liquid Template
+  Shopify Dawn-based product template with performance features
+{% endcomment %}
+
+<div id="shopify-section-{{ section.id }}" class="shopify-section mainproduct">
+  <style>
+    .section-template--{{ section.id }}-margin {
+      margin-top: var(--margin_top_mob, 0);
+      margin-bottom: var(--margin_bottom_mob, 0);
+    }
+
+    @media screen and (min-width: 1024px) {
+      .section-template--{{ section.id }}-margin {
+        margin-top: var(--margin_top, 0);
+        margin-bottom: var(--margin_bottom, 0);
+      }
+    }
+
+    :root {
+      --product-gallery-height: max(calc(100svh - 178px), min(133.333vw, 100svh));
+    }
+
+    @media (min-width: 1024px) {
+      :root {
+        --product-gallery-height: 100svh;
+        --product-info-card-width: calc((100vw - 44px) / 3 - 4px);
+        --product-gallery-visible-width: calc(100vw - 1.5rem - var(--product-info-card-width));
+        --product-gallery-centre-offset: calc((var(--product-gallery-visible-width) / 2) - 25vw);
+      }
+
+      #productGallery .swiper-slide {
+        translate: var(--product-gallery-centre-offset) 0;
+      }
+    }
+  </style>
+
+  <div id="shopify-section-product-template" class="relative z-20 flex flex-col flex-1 section-template--{{ section.id }}-margin" style="--margin_top: {{ section.settings.margin_top }}rem; --margin_bottom: {{ section.settings.margin_bottom }}rem; --margin_top_mob: {{ section.settings.margin_top_mobile }}rem; --margin_bottom_mob: {{ section.settings.margin_bottom_mobile }}rem;">
+
+    <div class="w-full flex flex-col flex-1 h-full">
+      <div class="grid grid-cols-12 gap-x-1 px-6 lg:grid-cols-24">
+        <div class="col-span-full product-main-wrapper -mx-6 flex flex-col flex-1">
+
+          <!-- Breadcrumbs -->
+          <nav class="breadcrumbs text-xs w-full text-black mb-4" role="navigation" aria-label="breadcrumbs">
+            <ol class="breadcrumbs__list">
+              <li class="breadcrumbs__item">
+                <a class="breadcrumbs__link" href="/">Home</a>
+              </li>
+              {% if collection %}
+                <li class="breadcrumbs__item">
+                  <a class="breadcrumbs__link" href="{{ collection.url }}">{{ collection.title }}</a>
+                </li>
+              {% endif %}
+              <li class="breadcrumbs__item">
+                <a class="breadcrumbs__link" href="{{ product.url }}" aria-current="page">{{ product.title }}</a>
+              </li>
+            </ol>
+          </nav>
+
+          <div class="main-product-wrapper relative lg:grid lg:grid-cols-1 lg:min-h-[100svh]">
+
+            <!-- Product Gallery -->
+            <product-gallery class="relative block h-[var(--product-gallery-height)] lg:sticky lg:top-0 lg:col-start-1 lg:row-start-1 lg:self-start lg:w-full">
+              <div id="productGallery" class="h-full swiper">
+                <div class="swiper-wrapper">
+                  {% for media in product.media %}
+                    <div class="swiper-slide">
+                      <div class="image-obj h-full w-full">
+                        {% if media.media_type == 'image' %}
+                          <img
+                            alt="{{ media.alt | escape }}"
+                            src="{{ media | image_url: width: 1920 }}"
+                            srcset="
+                              {% for width in '360,540,720,960,1280,1536,1920' | split: ',' %}
+                                {{ media | image_url: width: width }} {{ width }}w{{ forloop.last | unless: ',' | endunless }}
+                              {% endfor %}"
+                            sizes="(max-width: 1023px) 100vw, 50vw"
+                            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                            fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
+                            width="1920"
+                            height="2400"
+                            class="block h-full w-full object-cover">
+                        {% endif %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+
+                <!-- Gallery Thumbnails -->
+                <div data-gallery-rail="" class="hidden lg:flex lg:flex-col gap-1 absolute left-6 top-1/2 -translate-y-1/2 z-[2] pl-4 pr-2 py-1.5 max-h-[calc(100%_-_var(--product-sticky-info-height)_-_3rem)] overflow-y-auto">
+                  <span data-gallery-dot="" class="absolute left-1 top-0 w-1.5 h-1.5 rounded-full bg-black transition-transform duration-300"></span>
+                  {% for media in product.media %}
+                    <button
+                      data-gallery-thumb=""
+                      data-slide-index="{{ forloop.index0 }}"
+                      type="button"
+                      aria-label="View image {{ forloop.index }} of {{ product.media.size }}"
+                      class="group block shrink-0 opacity-40 transition-opacity duration-300 hover:opacity-100 focus-visible:opacity-100"
+                      {% if forloop.first %}aria-current="true"{% endif %}>
+                      <span class="relative block w-[54px] h-[68px] overflow-hidden ring-1 ring-inset ring-transparent group-focus-visible:ring-black">
+                        {% if media.media_type == 'image' %}
+                          <img
+                            src="{{ media | image_url: width: 108 }}"
+                            alt=""
+                            width="54"
+                            height="68"
+                            loading="lazy"
+                            class="absolute inset-0 w-full h-full object-cover">
+                        {% endif %}
+                      </span>
+                    </button>
+                  {% endfor %}
+                </div>
+
+                <!-- Gallery Counter (Mobile) -->
+                <div class="lg:hidden absolute inset-x-0 bottom-3 z-10 px-6 flex items-center gap-1">
+                  <span data-gallery-counter="" class="shrink-0 px-2 text-xs leading-none text-[#0000008A]">1 / {{ product.media.size }}</span>
+                  <span data-gallery-caption="" class="min-w-0 px-2 truncate text-center text-xs text-[#0000008A]">{{ product.metafields.custom.model_info }}</span>
+                </div>
+              </div>
+            </product-gallery>
+
+            <!-- Product Info Column -->
+            <div class="product-info-column relative z-10 w-full bg-[#F7F7F7] px-6 pt-6 pb-8 flex flex-col gap-8 lg:col-start-1 lg:row-start-1 lg:self-start lg:justify-self-end lg:z-20 lg:mt-[calc(var(--header-height)_+_clamp(2rem,2.222vw,3.5rem))] lg:mr-6 lg:mb-6 lg:w-[calc((100%_-_44px)/3_-_4px)] lg:bg-transparent lg:p-0 lg:gap-1">
+
+              <!-- Product Title & Price -->
+              <div class="pic-card w-full">
+                <div class="relative flex flex-wrap items-baseline justify-between gap-x-8 mb-2 lg:mb-4 lg:items-center">
+                  <h1 class="flex-1 text-xs leading-[1.3] font-bold lg:text-[24px] lg:leading-none lg:tracking-[-1.2px]">
+                    <span class="relative flex flex-row items-start">
+                      <span id="product_title">{{ product.title }}</span>
+                      {% if product.selected_variant.title contains 'Rust' %}
+                        <span class="sr-only"> - {{ product.selected_variant.title }}</span>
+                      {% endif %}
+                    </span>
+                  </h1>
+
+                  <!-- Wishlist Button -->
+                  <div class="wishes-container relative ml-auto hidden lg:flex items-center gap-[10px]" data-product-title="{{ product.title }} - {{ product.selected_variant.title }}">
+                    {% include 'wishlist-button' %}
+                  </div>
+                </div>
+
+                <!-- Price Display -->
+                <div class="flex flex-row-reverse items-baseline gap-1 text-xs lg:mt-2 lg:block">
+                  <span class="font-bold text-black" data-variant-price="">
+                    {{ product.selected_variant.price | money }}
+                  </span>
+                  {% if product.selected_variant.compare_at_price %}
+                    <span class="lg:ml-1 line-through text-[#0000008A]" data-variant-price-compare="">
+                      {{ product.selected_variant.compare_at_price | money }}
+                    </span>
+                  {% endif %}
+                </div>
+
+                <!-- Rating -->
+                <div class="flex items-center gap-2 w-full mt-2">
+                  {% if product.metafields.reviews.rating %}
+                    <div class="yotpo-widget-instance yotpo-widget-instance-pdp" data-yotpo-product-id="{{ product.id }}"></div>
+                  {% endif %}
+                </div>
+
+                <!-- Tagline -->
+                <p data-tagline="" class="hidden lg:block text-xs text-black mb-2">
+                  {{ product.metafields.custom.tagline }}
+                </p>
+              </div>
+
+              <!-- Variants & Options -->
+              <div class="pic-card w-full">
+                <!-- Colour Selection -->
+                {% if product.options_by_name['Colour'] %}
+                  <div class="flex flex-row justify-between items-center mb-[18px] w-full relative">
+                    <div>
+                      <span class="mr-3 text-xs text-black relative">
+                        <strong>Colour</strong>
+                        <span class="absolute left-full text-[10px] top-[-4px] font-normal text-primary-gray">{{ product.options_by_name['Colour'].values.size }}</span>
+                      </span>
+                      <span class="text-xs text-[#0000008A] capitalize" data-variant-name="">
+                        {{ product.selected_variant.options[0] }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="product-colors w-full">
+                    <div class="flex gap-1 wrapper">
+                      {% for value in product.options_by_name['Colour'].values %}
+                        {% assign option_variant = product.variants | where: 'option1', value | first %}
+                        <div class="swatch {% if product.selected_variant == option_variant %}selected{% endif %}">
+                          <a
+                            href="{{ option_variant.url }}"
+                            class="flex items-center justify-center rounded-sm"
+                            data-handle="{{ product.handle }}"
+                            data-title="{{ product.title }} - {{ value }}"
+                            title="{{ product.title }} - {{ value }}">
+                            <img
+                              src="{{ product.featured_image | image_url: width: 65 }}"
+                              srcset="
+                                {{ product.featured_image | image_url: width: 65 }} 65w,
+                                {{ product.featured_image | image_url: width: 130 }} 130w,
+                                {{ product.featured_image | image_url: width: 195 }} 195w,
+                                {{ product.featured_image | image_url: width: 260 }} 260w"
+                              sizes="54px"
+                              alt="{{ product.title }}"
+                              title="{{ product.title }}"
+                              width="65"
+                              height="81"
+                              loading="lazy">
+                          </a>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Add to Cart Form -->
+              <div class="product-buy-card w-full flex flex-col">
+                <form method="post" action="/cart/add" accept-charset="UTF-8" class="form product-form w-full" enctype="multipart/form-data">
+
+                  <!-- Variant Selection -->
+                  <div data-product-select="">
+                    <select id="ProductSelect-{{ product.id }}" name="id" class="hidden product-select-data">
+                      {% for variant in product.variants %}
+                        <option
+                          value="{{ variant.id }}"
+                          data-variant-title="{{ variant.title }}"
+                          {% if variant == product.selected_variant %}selected="selected"{% endif %}
+                          data-variant-available="{% if variant.available %}true{% else %}false{% endif %}"
+                          data-variant-price="{{ variant.price }}">
+                          {{ variant.title }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <!-- Size Options -->
+                  {% if product.options_by_name['Size'] %}
+                    <div class="variant-options-wrapper mb-6">
+                      <div class="w-full flex justify-between items-center mb-5">
+                        <div>
+                          <span class="text-[12px] font-bold">Size</span>
+                          <span class="size-selected ml-3 hidden"></span>
+                        </div>
+                      </div>
+
+                      <div class="option-selector grid grid-cols-4 sm:grid-cols-7 lg:px-0 gap-1 product-size-button">
+                        {% for value in product.options_by_name['Size'].values %}
+                          {% assign option_variant = product.variants | where: 'option1', value | first %}
+                          <button
+                            type="button"
+                            aria-label="{{ value }}"
+                            data-option-type="Size"
+                            data-variant-id="{{ option_variant.id }}"
+                            data-variant-available="{% if option_variant.available %}true{% else %}false{% endif %}"
+                            data-value="{{ value }}"
+                            class="js-select-variant box flex relative justify-center items-center text-xs {% unless option_variant.available %}disabled{% endunless %} {% if product.selected_variant == option_variant %}selected{% endif %}">
+                            <span class="button-title relative z-20 inline-block font-light">
+                              {{ value }}
+                            </span>
+                          </button>
+                        {% endfor %}
+                      </div>
+
+                      <!-- Size Guide Link -->
+                      <div class="product-size-links flex flex-col gap-1 mt-3 lg:mt-6">
+                        <p class="text-xs text-[#0000008A]">
+                          {{ product.metafields.custom.model_info }}
+                        </p>
+                        <div class="flex flex-wrap gap-y-3 gap-x-6">
+                          <drawer-show drawer="size-drawer" class="inline-flex">
+                            <button aria-label="Size Chart" class="text-xs font-normal underline text-black" type="button">
+                              Size Chart
+                            </button>
+                          </drawer-show>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+
+                  <!-- Add to Cart Button -->
+                  <div id="product-form-add-to-cart" class="flex items-center justify-between gap-3 add-to-cart-wrapper">
+                    <button
+                      aria-label="Submit"
+                      type="submit"
+                      name="add"
+                      class="my-4 w-full overflow-hidden js-add-product h-[52px] text-xs bg-[#000000] items-center justify-center flex font-bold text-center text-white cursor-pointer uppercase flex-0">
+                      <span class="absolute btn-stat-text" data-text="Add to cart">Add to basket</span>
+                      <span class="absolute atc-text" data-text="Add to cart">Add to basket</span>
+                    </button>
+                  </div>
+
+                  <!-- Prestige Points & Shipping Info -->
+                  <div class="product-info-rows pic-card w-full flex flex-col gap-3 mt-6 lg:mt-1">
+                    <!-- Prestige Points -->
+                    <drawer-show drawer="prestige-drawer" class="w-full">
+                      <button type="button" class="flex w-full flex-row items-center gap-[15px] text-left">
+                        <span class="flex items-center w-16">
+                          <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4.09578 4.70788L8.63214 12.9019C8.67502 12.9948 8.71791 13.0305 8.82507 13.0305L11.4398 13.0376C11.4826 13.0376 11.504 12.9877 11.4755 12.952L11.1755 12.6305L8.21066 7.42249" fill="black"/>
+                          </svg>
+                        </span>
+                        <span class="text-xs">
+                          Earn <span id="prestigePoints">{{ product.selected_variant.price | divided_by: 100 | floor }}</span> Prestige Points
+                        </span>
+                      </button>
+                    </drawer-show>
+
+                    <!-- Shipping Info -->
+                    <drawer-show drawer="shipping-drawer-v2" class="w-full">
+                      <button type="button" class="flex w-full flex-row items-center gap-[15px] text-left">
+                        <span class="flex items-center w-16">
+                          <span class="flex items-center rounded-full border-solid border-black border bg-center bg-cover w-4 h-4"></span>
+                        </span>
+                        <span class="text-[12px]">
+                          Free shipping. Duties & Taxes Calculated at Checkout.
+                        </span>
+                      </button>
+                    </drawer-show>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Mobile Tagline -->
+              <p data-tagline="" class="product-tagline lg:hidden text-xs text-black mt-12">
+                {{ product.metafields.custom.tagline }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Features -->
+      {% if product.metafields.custom.key_features %}
+        <section class="key-features col-span-full mt-12 lg:mt-16 px-6">
+          <h2 class="text-base font-bold text-black leading-[1.2] mb-6">Key Features</h2>
+          <div class="grid grid-flow-col grid-rows-[1fr_auto] auto-cols-[calc((100vw-28px)/1.43)] gap-1 h-[316px] overflow-x-auto scrollbar-hide -mx-6 px-6 lg:mx-0 lg:px-0 lg:auto-cols-[calc((100%-12px)/4)] lg:h-[431px]">
+            {% for feature in product.metafields.custom.key_features %}
+              <div class="key-feature-card relative row-span-2 grid grid-rows-[subgrid] overflow-hidden bg-[#F0F0F0]">
+                <div class="key-feature-caption row-start-2 m-0.5 flex flex-col gap-1 px-6 py-4 rounded-[2px]">
+                  <span class="text-xs font-bold text-black leading-[1.3]">{{ feature.title }}</span>
+                  <span class="text-xs text-[#0000008A] leading-[1.3]">{{ feature.description }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+
+      <!-- Performance Section -->
+      {% if product.metafields.custom.performance %}
+        <section class="mt-16 select-none grid grid-cols-1 gap-6 px-6">
+          <h2 class="text-base leading-[1.2] font-bold">Performance</h2>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-1">
+            {% for spec in product.metafields.custom.performance %}
+              <div class="bg-white rounded-sm text-xs px-7 py-6 grid grid-cols-[32px_1fr] gap-6 items-center">
+                <div>
+                  <svg width="32" height="32" class="w-auto h-8"></svg>
+                </div>
+                <div class="text-xs text-black leading-[1.3] grid grid-cols-1 gap-3">
+                  <div class="flex justify-between items-center gap-3">
+                    <h3 class="font-bold">{{ spec.name }}</h3>
+                    <div>{{ spec.rating }}/5</div>
+                  </div>
+                  <div class="flex gap-1">
+                    {% for i in (1..5) %}
+                      <div class="flex-1 h-0.5 rounded-full {% if i <= spec.rating %}bg-black{% else %}bg-[#00000026]{% endif %}"></div>
+                    {% endfor %}
+                  </div>
+                  {% if spec.description %}
+                    <div class="text-[rgba(0,0,0,0.54)]">{{ spec.description }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+
+      <!-- Product Description & Drawers -->
+      <div class="product-info col-span-full mt-16 px-6">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-24 lg:gap-x-1">
+          <div class="prose text-default max-w-none text-black lg:col-span-10">
+            {{ product.description }}
+          </div>
+
+          <div class="lg:col-span-full">
+            <div class="product-drawer-list grid w-full grid-cols-1 gap-1 lg:grid-flow-col lg:grid-cols-2">
+              <drawer-show drawer="description-drawer">
+                <button type="button" class="flex h-full w-full items-center justify-between gap-4 rounded-sm bg-white px-7 py-4 text-left">
+                  <span class="text-xs font-bold">Description</span>
+                  <svg width="5" height="8" viewBox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-2">
+                    <path d="M0.353516 0.353546L3.85352 3.85355L0.353515 7.35355" stroke="black"/>
+                  </svg>
+                </button>
+              </drawer-show>
+
+              <drawer-show drawer="materials-drawer">
+                <button type="button" class="flex h-full w-full items-center justify-between gap-4 rounded-sm bg-white px-7 py-4 text-left">
+                  <span class="text-xs font-bold">Materials</span>
+                  <svg width="5" height="8" viewBox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-2">
+                    <path d="M0.353516 0.353546L3.85352 3.85355L0.353515 7.35355" stroke="black"/>
+                  </svg>
+                </button>
+              </drawer-show>
+
+              <drawer-show drawer="specifications-drawer">
+                <button type="button" class="flex h-full w-full items-center justify-between gap-4 rounded-sm bg-white px-7 py-4 text-left">
+                  <span class="text-xs font-bold">Specifications</span>
+                  <svg width="5" height="8" viewBox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-2">
+                    <path d="M0.353516 0.353546L3.85352 3.85355L0.353515 7.35355" stroke="black"/>
+                  </svg>
+                </button>
+              </drawer-show>
+
+              <drawer-show drawer="shipping-returns-drawer">
+                <button type="button" class="flex h-full w-full items-center justify-between gap-4 rounded-sm bg-white px-7 py-4 text-left">
+                  <span class="text-xs font-bold">Shipping & Returns</span>
+                  <svg width="5" height="8" viewBox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-2">
+                    <path d="M0.353516 0.353546L3.85352 3.85355L0.353515 7.35355" stroke="black"/>
+                  </svg>
+                </button>
+              </drawer-show>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product Page",
+  "settings": [
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "rem",
+      "label": "Margin Top (Desktop)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "rem",
+      "label": "Margin Bottom (Desktop)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_top_mobile",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "rem",
+      "label": "Margin Top (Mobile)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_mobile",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "rem",
+      "label": "Margin Bottom (Mobile)",
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,96 @@
+FIREBASE DATABASE SETUP PROMPT FOR CLAUDE BROWSER EXTENSION
+===========================================================
+
+You are helping set up a complete Firestore database for the Operix ERP inventory management system.
+
+TASK: Guide me through building a production-ready Firebase database with:
+1. Proper schema for all collections
+2. Correct data types for each field
+3. Relationships between collections
+4. Security rules
+5. Indexes for performance
+6. Sample data for testing
+
+DATABASE SCHEMA REQUIREMENTS:
+
+Collection 1: COMPANIES
+- Documents represent business entities
+- Fields: name, email, industry, website, country, active, subscription, createdAt, updatedAt
+- This is the root collection for multi-tenancy
+
+Collection 2: WAREHOUSES
+- Documents represent physical warehouse locations
+- Must have companyId to link to companies
+- Fields: companyId, name, location, address, city, state, zipCode, country, isDefault, capacity, currentUtilization, createdAt, updatedAt, createdBy
+- Index needed: companyId + updatedAt (descending)
+
+Collection 3: PRODUCTS
+- Documents represent products in catalog
+- Must have companyId
+- Fields: companyId, sku, name, description, category, price, cost, margin, weight, dimensions (map), active, barcode, createdAt, updatedAt
+- Each product can exist in multiple warehouses
+
+Collection 4: INVENTORY
+- Documents track stock levels of products in warehouses
+- Must link: companyId, productId, warehouseId
+- Fields: companyId, productId, warehouseId, quantity, reserved, available (calculated), reorderLevel, reorderQuantity, lastRestocked, lastChecked, createdAt, updatedAt, createdBy
+- Index needed: companyId + warehouseId + quantity
+- Index needed: companyId + updatedAt (descending)
+
+Collection 5: STOCK_MOVEMENTS (Audit Trail)
+- Documents log every inventory change
+- Must have companyId, inventoryId, productId, warehouseId
+- Fields: companyId, inventoryId, productId, warehouseId, type (add/remove/adjust/transfer_in/transfer_out), quantityBefore, quantityAfter, quantityChanged, reason, notes, fromWarehouseId, toWarehouseId, createdAt, createdBy
+- Read-only for most users (audit trail)
+- Index needed: companyId + createdAt (descending)
+- Index needed: warehouseId + createdAt (descending)
+
+Collection 6: USERS
+- Document ID is Firebase Auth UID
+- Fields: companyId, email, name, role (admin/manager/user), department, phone, avatar, active, lastLogin, createdAt, updatedAt, permissions (array)
+- Links users to companies for multi-tenancy
+
+Collection 7: AUDIT_LOGS
+- Documents log all system actions
+- Fields: companyId, userId, action (create/update/delete), resource, resourceId, changes (map with before/after), ipAddress, createdAt
+- For compliance and debugging
+
+SECURITY REQUIREMENTS:
+- All data must be company-isolated (multi-tenant)
+- Users can only see data from their company
+- Audit logs are read-only after creation
+- Service account can read/write all (for backend jobs)
+- Authenticated users can read their company data
+
+PERFORMANCE REQUIREMENTS:
+- Indexes for common queries
+- Efficient pagination support
+- Fast company-scoped queries
+- Audit trail queries optimized
+
+PLEASE GUIDE ME THROUGH:
+1. Creating the Firebase project
+2. Setting up Firestore database
+3. Creating each collection with proper schema
+4. Adding sample data
+5. Creating indexes
+6. Implementing security rules
+7. Getting API keys and credentials
+
+Make sure to:
+- Show exact field names and data types
+- Explain relationships between collections
+- Provide exact prompts to use in Firebase Console
+- Give sample data to add
+- Ensure multi-tenancy isolation
+- Optimize for the API queries we'll use
+
+Output should include:
+- Step-by-step instructions
+- Exact prompts for Firebase Console
+- Sample data as JSON
+- Security rules code
+- Index configurations
+- Environment variables to save
+
+START THE SETUP NOW - Guide me through creating this database step by step.

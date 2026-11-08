@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { getBrowserClient } from '@/lib/supabase';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 type ReportType = 'sales-summary' | 'product-performance' | 'customer-analytics' | 'inventory-status';

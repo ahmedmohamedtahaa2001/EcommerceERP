@@ -1,0 +1,119 @@
+SUPABASE DATABASE SETUP PROMPT FOR CLAUDE BROWSER EXTENSION
+===========================================================
+
+You are helping set up a complete Supabase PostgreSQL database for the Operix ERP inventory management system.
+
+TASK: Guide me through building a production-ready Supabase database with:
+1. Complete PostgreSQL schema with all tables
+2. Correct data types and relationships
+3. Row Level Security (RLS) policies for multi-tenancy
+4. Indexes for performance
+5. Sample data for testing
+6. Authentication integration
+
+DATABASE REQUIREMENTS:
+
+Collection 1: COMPANIES (Root collection for multi-tenancy)
+- UUID primary key (auto-generated)
+- Fields: name, email (unique), industry, website, country, active, subscription, created_at, updated_at
+- Purpose: Represents business entities in the system
+
+Collection 2: WAREHOUSES (Physical warehouse locations)
+- UUID primary key, references companies via company_id
+- Fields: company_id, name, location, address, city, state, zip_code, country, is_default, capacity, current_utilization, created_by, created_at, updated_at
+- Index: (company_id, created_at DESC)
+- Indexes for efficient filtering by company and location
+
+Collection 3: PRODUCTS (Product catalog)
+- UUID primary key, references companies via company_id
+- Fields: company_id, sku, name, description, category, price, cost, margin, weight, dimensions (JSON), active, barcode, created_at, updated_at
+- Unique constraint: (company_id, sku)
+- Used for product catalog management
+
+Collection 4: INVENTORY (Stock levels)
+- UUID primary key, references companies, products, warehouses
+- Fields: company_id, product_id, warehouse_id, quantity, reserved, available (computed), reorder_level, reorder_quantity, last_restocked, last_checked, created_by, created_at, updated_at
+- Unique constraint: (company_id, product_id, warehouse_id)
+- Indexes:
+  - (company_id, product_id, warehouse_id)
+  - (company_id, updated_at DESC)
+  - (warehouse_id, quantity) for low stock alerts
+- Computed column: available = quantity - reserved
+
+Collection 5: STOCK_MOVEMENTS (Immutable audit trail)
+- UUID primary key, references companies, products, warehouses, inventory
+- Fields: company_id, inventory_id, product_id, warehouse_id, type (enum: add/remove/adjust/transfer_in/transfer_out), quantity_before, quantity_after, quantity_changed, reason, notes, from_warehouse_id, to_warehouse_id, created_by, created_at
+- IMPORTANT: This is IMMUTABLE - no updates or deletes allowed
+- Indexes:
+  - (company_id, created_at DESC)
+  - (warehouse_id, created_at DESC)
+
+Collection 6: USERS (Application users)
+- Document ID is auth.uid() from Supabase Auth
+- Fields: company_id, email, name, role (enum: admin/manager/user), department, phone, avatar, active, permissions (JSON array), last_login, created_at, updated_at
+- Links to Supabase Auth users via foreign key
+- Each user belongs to one company only
+
+Collection 7: AUDIT_LOGS (Immutable system audit trail)
+- UUID primary key
+- Fields: company_id, user_id, action (enum: create/update/delete), resource, resource_id, changes (JSON), ip_address, created_at
+- IMPORTANT: This is IMMUTABLE - no updates or deletes allowed
+- Used for compliance and debugging
+- Indexes:
+  - (company_id, created_at DESC)
+  - (user_id, created_at DESC)
+
+SECURITY REQUIREMENTS:
+- Multi-tenant architecture: All data scoped by company_id
+- Row Level Security (RLS) enabled on all tables
+- Users can only access data from their company
+- Role-based access: admin, manager, user with different permissions
+- Audit logs immutable (prevent tampering)
+- Stock movements immutable (prevent audit trail manipulation)
+- Service account access for backend jobs
+
+RLS POLICIES NEEDED:
+1. Companies: Only admins can view/edit their company
+2. Warehouses: Members can view, admins/managers can edit
+3. Products: Members can view, managers can edit
+4. Inventory: Members can view, managers can edit
+5. Stock Movements: All members can view, system can create, no updates/deletes
+6. Users: Members can view each other, admins can manage
+7. Audit Logs: All members can view, system creates, no updates/deletes
+
+PERFORMANCE REQUIREMENTS:
+- Composite indexes for common query patterns
+- Index for low stock alerts
+- Fast company-scoped queries
+- Efficient pagination support
+- Optimized for real-time dashboard queries
+
+PLEASE GUIDE ME THROUGH:
+1. Creating a Supabase project
+2. Creating the PostgreSQL database
+3. Running the schema SQL to create all tables
+4. Adding sample data
+5. Enabling and configuring RLS policies
+6. Getting connection strings and credentials
+7. Downloading the SQL files for future use
+
+Make sure to:
+- Use exact SQL syntax for table creation
+- Create all relationships (foreign keys) correctly
+- Set up proper indexes
+- Enable RLS on all tables
+- Configure policies for multi-tenancy
+- Provide sample data that follows the schema
+- Test that RLS policies work correctly
+- Generate API keys and connection strings
+
+Output should include:
+- Step-by-step instructions for Supabase console
+- Exact SQL commands to run
+- Sample data as SQL INSERT statements
+- RLS policy configurations
+- Environment variables to save (.env.local)
+- Connection string format
+- API key format
+
+START THE SETUP NOW - Guide me through creating this database step by step.

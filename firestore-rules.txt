@@ -1,0 +1,108 @@
+FIRESTORE SECURITY RULES - COPY AND PASTE INTO FIREBASE CONSOLE
+==============================================================
+
+Go to Firestore Database → Rules tab and replace with this:
+
+---
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user belongs to company
+    function userBelongsToCompany(companyId) {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId;
+    }
+
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Companies Collection
+    match /companies/{companyId} {
+      // Admins can read/write their company
+      allow read, write: if isAdmin() && userBelongsToCompany(companyId);
+      // Service account (on backend) can do everything
+      allow read, write: if request.auth.uid == 'SERVICE_ACCOUNT_UID';
+    }
+
+    // Warehouses Collection
+    match /warehouses/{warehouseId} {
+      allow read: if request.auth != null &&
+                     userBelongsToCompany(get(/databases/$(database)/documents/warehouses/$(warehouseId)).data.companyId);
+      allow create: if request.auth != null &&
+                       request.resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
+      allow update, delete: if isAdmin() &&
+                              userBelongsToCompany(resource.data.companyId);
+    }
+
+    // Products Collection
+    match /products/{productId} {
+      allow read: if request.auth != null &&
+                     userBelongsToCompany(get(/databases/$(database)/documents/products/$(productId)).data.companyId);
+      allow create: if request.auth != null &&
+                       request.resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
+      allow update: if isAdmin() &&
+                       userBelongsToCompany(resource.data.companyId);
+      allow delete: if isAdmin() &&
+                       userBelongsToCompany(resource.data.companyId);
+    }
+
+    // Inventory Collection
+    match /inventory/{inventoryId} {
+      allow read: if request.auth != null &&
+                     userBelongsToCompany(get(/databases/$(database)/documents/inventory/$(inventoryId)).data.companyId);
+      allow create, update: if request.auth != null &&
+                              request.resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
+      allow delete: if isAdmin() &&
+                       userBelongsToCompany(resource.data.companyId);
+    }
+
+    // Stock Movements Collection (Audit Trail - Read Only)
+    match /stock_movements/{movementId} {
+      allow read: if request.auth != null &&
+                     userBelongsToCompany(get(/databases/$(database)/documents/stock_movements/$(movementId)).data.companyId);
+      allow create: if request.auth != null &&
+                       request.resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
+      // Never allow update or delete (immutable audit trail)
+      allow update, delete: if false;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if request.auth != null &&
+                     (request.auth.uid == userId ||
+                      userBelongsToCompany(get(/databases/$(database)/documents/users/$(userId)).data.companyId));
+      allow create: if isAdmin() &&
+                       request.resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
+      allow update: if isAdmin() &&
+                       userBelongsToCompany(resource.data.companyId) &&
+                       request.resource.data.companyId == resource.data.companyId;
+      allow delete: if isAdmin() &&
+                       userBelongsToCompany(resource.data.companyId);
+    }
+
+    // Audit Logs (Read Only for Users, Create for System)
+    match /audit_logs/{logId} {
+      allow read: if request.auth != null &&
+                     userBelongsToCompany(get(/databases/$(database)/documents/audit_logs/$(logId)).data.companyId);
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+  }
+}
+
+---
+
+NOTES:
+- Replace 'SERVICE_ACCOUNT_UID' with actual service account UID after you get it
+- These rules enforce multi-tenancy isolation
+- Read operations are allowed for authorized users
+- Write operations require proper authorization
+- Audit logs are immutable (can't be edited/deleted after creation)
+- All operations are scoped by companyId for isolation
+

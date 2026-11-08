@@ -1,0 +1,277 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║         SUPABASE DATABASE SETUP - FILES FOR CLAUDE BROWSER EXTENSION        ║
+║                                                                            ║
+║  Complete guide to building production-ready Supabase PostgreSQL database  ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📁 FILES YOU NEED TO USE (4 files):
+═════════════════════════════════════════════════════════════════════════════
+
+1️⃣  SUPABASE_BROWSER_PROMPT.txt (PRIMARY) ⭐ START HERE
+    ├─ Main guidance prompt
+    ├─ Copy entire content
+    ├─ Paste into Claude Browser Extension
+    ├─ Let Claude guide you through setup
+    └─ Covers all 7 steps
+
+2️⃣  SUPABASE_SETUP_GUIDE.md (REFERENCE)
+    ├─ Detailed step-by-step instructions
+    ├─ Exact SQL commands to run
+    ├─ Sample data INSERT statements
+    ├─ Environment variables template
+    ├─ Verification checklist
+    └─ Reference during setup
+
+3️⃣  SUPABASE_SCHEMA.sql (SQL CODE)
+    ├─ All 7 tables defined
+    ├─ All fields with data types
+    ├─ Foreign key relationships
+    ├─ Composite indexes
+    ├─ Constraints
+    └─ Copy & paste into Supabase SQL Editor
+
+4️⃣  SUPABASE_RLS_POLICIES.sql (SECURITY)
+    ├─ Row Level Security policies
+    ├─ Multi-tenant isolation
+    ├─ Helper functions
+    ├─ Role-based access control
+    └─ Copy & paste after tables created
+
+═════════════════════════════════════════════════════════════════════════════
+
+🎯 QUICK START (3 PHASES):
+═════════════════════════════════════════════════════════════════════════════
+
+PHASE 1: COPY & PASTE PROMPT
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 1. Copy: SUPABASE_BROWSER_PROMPT.txt (entire file)                     │
+│ 2. Open: Claude Browser Extension                                      │
+│ 3. Paste: Into the chat input                                          │
+│ 4. Follow: Step-by-step guidance from Claude                           │
+│ 5. Claude will guide you through Supabase setup                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+PHASE 2: RUN SQL SCRIPTS (in Supabase)
+┌─────────────────────────────────────────────────────────────────────────┐
+│ When Claude says "create tables":                                       │
+│   1. Go to Supabase SQL Editor                                          │
+│   2. Copy: SUPABASE_SCHEMA.sql (entire file)                           │
+│   3. Paste into SQL Editor                                              │
+│   4. Click "Run"                                                         │
+│                                                                         │
+│ When Claude says "enable RLS":                                         │
+│   1. Go to Supabase SQL Editor                                          │
+│   2. Copy: SUPABASE_RLS_POLICIES.sql (entire file)                     │
+│   3. Paste into SQL Editor                                              │
+│   4. Click "Run"                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+PHASE 3: GET CREDENTIALS
+┌─────────────────────────────────────────────────────────────────────────┐
+│ After setup complete:                                                   │
+│   1. Go to Settings → API                                               │
+│   2. Copy anon key and service role key                                 │
+│   3. Go to Settings → Database                                          │
+│   4. Copy connection string                                             │
+│   5. Add to .env.local in project root                                  │
+│   6. Ready to connect from Next.js app!                                 │
+└─────────────────────────────────────────────────────────────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════
+
+📊 WHAT WILL BE CREATED:
+═════════════════════════════════════════════════════════════════════════════
+
+✅ 7 PostgreSQL Tables:
+   • companies - Multi-tenant root collection
+   • warehouses - Physical warehouse locations
+   • products - Product catalog
+   • inventory - Stock levels by product/warehouse
+   • stock_movements - Immutable audit trail of changes
+   • users - Application users linked to Supabase Auth
+   • audit_logs - Immutable system audit trail
+
+✅ Multi-Tenant Architecture:
+   • Company-level data isolation
+   • RLS (Row Level Security) enforced
+   • Secure access boundaries
+
+✅ PostgreSQL Features:
+   • Foreign key relationships
+   • Composite indexes for queries
+   • Computed columns (e.g., available = quantity - reserved)
+   • Constraints & validation
+   • Stored procedures ready
+
+✅ Security:
+   • RLS policies on all tables
+   • Role-based access (admin/manager/user)
+   • Immutable audit trails
+   • Company isolation
+
+═════════════════════════════════════════════════════════════════════════════
+
+🔧 DETAILED STEPS:
+═════════════════════════════════════════════════════════════════════════════
+
+STEP 1: Create Supabase Project
+- Go to supabase.com/dashboard
+- Create new project
+- Save database password
+- Get connection details
+
+STEP 2: Create Tables
+- Open Supabase SQL Editor
+- Copy SUPABASE_SCHEMA.sql
+- Paste & Run in SQL Editor
+- Verify 7 tables created
+
+STEP 3: Add Sample Data
+- Follow SUPABASE_SETUP_GUIDE.md (STEP 4)
+- Run INSERT statements one by one
+- Save IDs from each insert
+
+STEP 4: Setup Authentication
+- Create Supabase Auth user
+- Copy Auth UID
+- Link user to company in users table
+
+STEP 5: Enable RLS Policies
+- Open Supabase SQL Editor
+- Copy SUPABASE_RLS_POLICIES.sql
+- Paste & Run in SQL Editor
+- Verify RLS enabled on all tables
+
+STEP 6: Test RLS
+- Run test queries from SUPABASE_SETUP_GUIDE.md (STEP 6)
+- Verify policies work correctly
+
+STEP 7: Get Credentials
+- Copy API keys from Settings → API
+- Copy connection string from Settings → Database
+- Add to .env.local
+
+═════════════════════════════════════════════════════════════════════════════
+
+💾 CREDENTIALS TO SAVE:
+═════════════════════════════════════════════════════════════════════════════
+
+From Supabase, you'll get:
+
+NEXT_PUBLIC_SUPABASE_URL=[your-project].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[anon-key-here]
+SUPABASE_SERVICE_ROLE_KEY=[service-key-here]
+SUPABASE_DB_HOST=[host]
+SUPABASE_DB_PORT=5432
+SUPABASE_DB_NAME=postgres
+SUPABASE_DB_USER=postgres
+SUPABASE_DB_PASSWORD=[password]
+
+Add to: .env.local in project root
+
+═════════════════════════════════════════════════════════════════════════════
+
+📝 COLLECTION OVERVIEW:
+═════════════════════════════════════════════════════════════════════════════
+
+COMPANIES (Multi-tenant root):
+  Fields: name, email, industry, website, country, active, subscription
+  Purpose: Root collection for company segregation
+
+WAREHOUSES (Physical locations):
+  Fields: company_id, name, location, address, city, state, zip, capacity
+  Relationships: Belongs to company
+
+PRODUCTS (Product catalog):
+  Fields: company_id, sku, name, description, category, price, cost, margin
+  Relationships: Belongs to company
+
+INVENTORY (Stock levels):
+  Fields: company_id, product_id, warehouse_id, quantity, reserved, available
+  Relationships: Belongs to company, product, warehouse
+  Unique: (company_id, product_id, warehouse_id)
+
+STOCK_MOVEMENTS (Audit trail - IMMUTABLE):
+  Fields: company_id, inventory_id, type, quantity_before/after, reason
+  Relationships: Belongs to company, inventory, product, warehouse
+  Note: Can't be updated or deleted
+
+USERS (Application users):
+  Fields: company_id, email, name, role, active, permissions
+  Relationships: Linked to Supabase Auth, belongs to company
+
+AUDIT_LOGS (System logs - IMMUTABLE):
+  Fields: company_id, user_id, action, resource, resource_id, changes
+  Relationships: Belongs to company
+  Note: Can't be updated or deleted
+
+═════════════════════════════════════════════════════════════════════════════
+
+✅ VERIFICATION CHECKLIST:
+═════════════════════════════════════════════════════════════════════════════
+
+□ Supabase project created
+□ All 7 tables created and visible
+□ Foreign keys working
+□ Indexes created
+□ RLS enabled on all tables
+□ Helper functions created
+□ RLS policies applied
+□ Sample data in tables
+□ Auth user created
+□ User linked to company
+□ RLS policies tested (queries work)
+□ Environment variables saved
+□ Connection string verified
+□ API keys in .env.local
+□ Ready to connect from Next.js
+
+═════════════════════════════════════════════════════════════════════════════
+
+🎯 WHAT'S NEXT AFTER SETUP:
+═════════════════════════════════════════════════════════════════════════════
+
+1. ✅ Use Browser Extension with SUPABASE_BROWSER_PROMPT.txt
+2. ✅ Create Supabase project
+3. ✅ Run SUPABASE_SCHEMA.sql to create tables
+4. ✅ Run SUPABASE_RLS_POLICIES.sql for security
+5. ✅ Add sample data
+6. ✅ Get credentials
+7. ✅ Save to .env.local
+8. ✅ Then: Update Next.js code to use Supabase
+9. ✅ Then: Test inventory dashboard at /inventory-v2
+10. ✅ Then: Start building inventory features
+
+═════════════════════════════════════════════════════════════════════════════
+
+🚀 READY TO START?
+
+1. Open Claude Browser Extension
+2. Copy SUPABASE_BROWSER_PROMPT.txt
+3. Paste into Browser Extension chat
+4. Follow Claude's step-by-step guidance
+5. It will walk you through creating the database!
+
+═════════════════════════════════════════════════════════════════════════════
+
+📚 FILE REFERENCE:
+═════════════════════════════════════════════════════════════════════════════
+
+File                          | Size  | Purpose
+──────────────────────────────────────────────────────────────────────────
+SUPABASE_BROWSER_PROMPT.txt   | 3.8K  | Main prompt for Browser Extension
+SUPABASE_SETUP_GUIDE.md       | 11K   | Detailed step-by-step guide
+SUPABASE_SCHEMA.sql           | ~8K   | SQL schema to run
+SUPABASE_RLS_POLICIES.sql     | ~6K   | Security policies to run
+SUPABASE_README.md            | 5.8K  | Quick reference guide
+
+═════════════════════════════════════════════════════════════════════════════
+
+✨ YOU'RE READY TO BUILD!
+
+Everything needed to create your Supabase database is in these 4 files.
+Claude Browser Extension will guide you through each step.
+
+START HERE: SUPABASE_BROWSER_PROMPT.txt
+
+═════════════════════════════════════════════════════════════════════════════

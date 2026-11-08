@@ -341,6 +341,67 @@ export async function getInventoryByWarehouse(
   }
 }
 
+export async function getInventoryByProduct(
+  productId: string
+): Promise<Inventory[]> {
+  try {
+    const constraints: QueryConstraint[] = [
+      where('productId', '==', productId),
+    ];
+
+    return getDocuments<Inventory>(COLLECTIONS.INVENTORY, constraints);
+  } catch (error) {
+    console.error(`Error getting inventory by product: ${error}`);
+    throw error;
+  }
+}
+
+export async function getInventoryByCompany(
+  companyId: string,
+  pageNum: number = 1,
+  pageSize: number = 20
+): Promise<{
+  data: Inventory[];
+  total: number;
+  page: number;
+  pages: number;
+}> {
+  try {
+    const constraints: QueryConstraint[] = [
+      where('companyId', '==', companyId),
+      orderBy('updatedAt', 'desc' as OrderByDirection),
+    ];
+
+    return getPaginatedDocuments<Inventory>(
+      COLLECTIONS.INVENTORY,
+      pageNum,
+      pageSize,
+      constraints
+    );
+  } catch (error) {
+    console.error(`Error getting inventory by company: ${error}`);
+    throw error;
+  }
+}
+
+export async function getLowStockItems(
+  companyId: string
+): Promise<Inventory[]> {
+  try {
+    const constraints: QueryConstraint[] = [
+      where('companyId', '==', companyId),
+    ];
+
+    const items = await getDocuments<Inventory>(COLLECTIONS.INVENTORY, constraints);
+
+    // Filter client-side items where quantity <= reorderLevel
+    return items.filter(item => item.quantity <= (item.reorderLevel || 10));
+  } catch (error) {
+    console.error(`Error getting low stock items: ${error}`);
+    throw error;
+  }
+}
+
 export async function updateInventory(
   inventoryId: string,
   data: Partial<Inventory>
@@ -353,6 +414,216 @@ export async function updateInventory(
     });
   } catch (error) {
     console.error(`Error updating inventory: ${error}`);
+    throw error;
+  }
+}
+
+export async function adjustInventory(
+  inventoryId: string,
+  adjustmentType: 'add' | 'remove' | 'adjust',
+  quantity: number,
+  reason: string
+): Promise<Inventory> {
+  try {
+    return await runTransaction(db, async (transaction) => {
+      const inventoryRef = doc(db, COLLECTIONS.INVENTORY, inventoryId);
+      const inventorySnap = await transaction.get(inventoryRef);
+
+      if (!inventorySnap.exists()) {
+        throw new Error('Inventory item not found');
+      }
+
+      const current = inventorySnap.data() as Inventory;
+      let newQuantity = current.quantity;
+
+      if (adjustmentType === 'add') {
+        newQuantity += quantity;
+      } else if (adjustmentType === 'remove') {
+        newQuantity = Math.max(0, newQuantity - quantity);
+      } else {
+        newQuantity = quantity;
+      }
+
+      const reserved = current.reserved || 0;
+      const newAvailable = Math.max(0, newQuantity - reserved);
+      const now = Timestamp.now();
+
+      transaction.update(inventoryRef, {
+        quantity: newQuantity,
+        available: newAvailable,
+        updatedAt: now,
+        lastRestocked: adjustmentType === 'add' ? now : current.lastRestocked,
+      });
+
+      // Log movement
+      const movementRef = doc(collection(db, 'stock_movements'));
+      transaction.set(movementRef, {
+        companyId: current.companyId,
+        inventoryId,
+        productId: current.productId,
+        warehouseId: current.warehouseId,
+        type: adjustmentType,
+        quantityBefore: current.quantity,
+        quantityAfter: newQuantity,
+        quantityChanged: newQuantity - current.quantity,
+        reason,
+        createdAt: now,
+      });
+
+      return {
+        ...current,
+        id: inventoryId,
+        quantity: newQuantity,
+        available: newAvailable,
+        updatedAt: now,
+      } as Inventory;
+    });
+  } catch (error) {
+    console.error(`Error adjusting inventory: ${error}`);
+    throw error;
+  }
+}
+
+export async function transferInventory(
+  fromInventoryId: string,
+  toInventoryId: string,
+  quantity: number,
+  reason: string
+): Promise<{ from: Inventory; to: Inventory }> {
+  try {
+    return await runTransaction(db, async (transaction) => {
+      const fromRef = doc(db, COLLECTIONS.INVENTORY, fromInventoryId);
+      const toRef = doc(db, COLLECTIONS.INVENTORY, toInventoryId);
+
+      const fromSnap = await transaction.get(fromRef);
+      const toSnap = await transaction.get(toRef);
+
+      if (!fromSnap.exists() || !toSnap.exists()) {
+        throw new Error('Inventory items not found');
+      }
+
+      const fromData = fromSnap.data() as Inventory;
+      const toData = toSnap.data() as Inventory;
+
+      // Validate
+      if (fromData.productId !== toData.productId) {
+        throw new Error('Cannot transfer different products');
+      }
+
+      const available = Math.max(0, fromData.quantity - (fromData.reserved || 0));
+      if (quantity > available) {
+        throw new Error(`Insufficient quantity. Available: ${available}`);
+      }
+
+      const now = Timestamp.now();
+      const fromNewQty = fromData.quantity - quantity;
+      const toNewQty = toData.quantity + quantity;
+
+      transaction.update(fromRef, {
+        quantity: fromNewQty,
+        available: Math.max(0, fromNewQty - (fromData.reserved || 0)),
+        updatedAt: now,
+      });
+
+      transaction.update(toRef, {
+        quantity: toNewQty,
+        available: Math.max(0, toNewQty - (toData.reserved || 0)),
+        updatedAt: now,
+      });
+
+      // Log transfers
+      const outRef = doc(collection(db, 'stock_movements'));
+      const inRef = doc(collection(db, 'stock_movements'));
+
+      transaction.set(outRef, {
+        companyId: fromData.companyId,
+        inventoryId: fromInventoryId,
+        type: 'transfer_out',
+        quantityChanged: -quantity,
+        reason,
+        createdAt: now,
+      });
+
+      transaction.set(inRef, {
+        companyId: toData.companyId,
+        inventoryId: toInventoryId,
+        type: 'transfer_in',
+        quantityChanged: quantity,
+        reason,
+        createdAt: now,
+      });
+
+      return {
+        from: { ...fromData, id: fromInventoryId, quantity: fromNewQty },
+        to: { ...toData, id: toInventoryId, quantity: toNewQty },
+      };
+    });
+  } catch (error) {
+    console.error(`Error transferring inventory: ${error}`);
+    throw error;
+  }
+}
+
+// Warehouse operations
+export async function getWarehousesByCompany(
+  companyId: string
+): Promise<Warehouse[]> {
+  try {
+    const constraints: QueryConstraint[] = [
+      where('companyId', '==', companyId),
+      orderBy('createdAt', 'asc' as OrderByDirection),
+    ];
+
+    return getDocuments<Warehouse>(COLLECTIONS.WAREHOUSES, constraints);
+  } catch (error) {
+    console.error(`Error getting warehouses: ${error}`);
+    throw error;
+  }
+}
+
+export async function createWarehouse(
+  companyId: string,
+  warehouse: Omit<Warehouse, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<string> {
+  try {
+    const docRef = doc(collection(db, COLLECTIONS.WAREHOUSES));
+    const now = Timestamp.now();
+
+    await setDoc(docRef, {
+      ...warehouse,
+      companyId,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    return docRef.id;
+  } catch (error) {
+    console.error(`Error creating warehouse: ${error}`);
+    throw error;
+  }
+}
+
+export async function updateWarehouse(
+  warehouseId: string,
+  data: Partial<Warehouse>
+): Promise<void> {
+  try {
+    const now = Timestamp.now();
+    await updateDocument<Warehouse>(COLLECTIONS.WAREHOUSES, warehouseId, {
+      ...data,
+      updatedAt: now,
+    });
+  } catch (error) {
+    console.error(`Error updating warehouse: ${error}`);
+    throw error;
+  }
+}
+
+export async function deleteWarehouse(warehouseId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, COLLECTIONS.WAREHOUSES, warehouseId));
+  } catch (error) {
+    console.error(`Error deleting warehouse: ${error}`);
     throw error;
   }
 }

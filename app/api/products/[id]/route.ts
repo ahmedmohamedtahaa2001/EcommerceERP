@@ -1,58 +1,83 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import {
+  getUserContext,
+  getProduct,
+  updateProduct,
+  deleteProduct,
+} from '../supabase';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { data, error } = await supabaseAdmin
-      .from('products')
-      .select('*')
-      .eq('id', params.id)
-      .single();
+    const { user, org, error: authError } = await getUserContext(request);
+    if (authError || !user || !org) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (error) throw error;
+    const data = await getProduct(org.id, params.id);
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 404 });
+    console.error('Error fetching product:', error);
+    return NextResponse.json(
+      { error: error.message || 'Product not found' },
+      { status: 404 }
+    );
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
+    const { user, org, error: authError } = await getUserContext(request);
+    if (authError || !user || !org) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { name, sku, description, price, cost, categoryId, active } = body;
+    const { name, sku, description, price, category, image_url } = body;
 
-    const { data, error } = await supabaseAdmin
-      .from('products')
-      .update({
-        name,
-        sku,
-        description,
-        price,
-        cost,
-        category_id: categoryId,
-        active,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', params.id)
-      .select();
+    const data = await updateProduct(org.id, params.id, {
+      name,
+      sku,
+      description,
+      price,
+      category,
+      image_url,
+    });
 
-    if (error) throw error;
-
-    return NextResponse.json({ success: true, data: data?.[0] });
+    return NextResponse.json({ success: true, data });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error('Error updating product:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to update product' },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { error } = await supabaseAdmin.from('products').delete().eq('id', params.id);
+    const { user, org, error: authError } = await getUserContext(request);
+    if (authError || !user || !org) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (error) throw error;
+    await deleteProduct(org.id, params.id);
 
     return NextResponse.json({ success: true, message: 'Product deleted' });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error('Error deleting product:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to delete product' },
+      { status: 500 }
+    );
   }
 }

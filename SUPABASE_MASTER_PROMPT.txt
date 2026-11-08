@@ -1,0 +1,540 @@
+═══════════════════════════════════════════════════════════════════════════════
+OPERIX ERP - SUPABASE COMPREHENSIVE DATABASE SETUP PROMPT
+FOR CLAUDE BROWSER EXTENSION - COMPLETE PRODUCTION-READY BUILD
+═══════════════════════════════════════════════════════════════════════════════
+
+YOU ARE: A world-class database architect designing a scalable, multi-tenant ERP system.
+TASK: Guide me through building a complete Supabase PostgreSQL database from scratch.
+OUTPUT: Step-by-step instructions to create a production-ready, extensible database.
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 1: ARCHITECTURE OVERVIEW
+═══════════════════════════════════════════════════════════════════════════════
+
+MULTI-TENANT ARCHITECTURE:
+- Complete company isolation at all levels
+- Row Level Security (RLS) enforced
+- Role-based access control (RBAC)
+- Audit trails for compliance
+- Extensible for future modules
+
+KEY DESIGN PRINCIPLES:
+✓ Scalability: Handles growth without redesign
+✓ Extensibility: Add new features without breaking existing code
+✓ Security: Multi-tenant isolation at database level
+✓ Auditability: All changes logged immutably
+✓ Performance: Optimized indexes and queries
+✓ Maintainability: Clear relationships and constraints
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 2: COMPLETE DATABASE SCHEMA
+═══════════════════════════════════════════════════════════════════════════════
+
+CORE TABLES (7 tables):
+
+1. ORGANIZATIONS (Multi-tenant root - renamed from companies)
+   - Purpose: Root of multi-tenant hierarchy
+   - Fields:
+     * id (UUID, primary key, auto-generated)
+     * name (VARCHAR 255, NOT NULL, unique)
+     * email (VARCHAR 255, NOT NULL, unique)
+     * industry (VARCHAR 100)
+     * website (VARCHAR 255)
+     * country (VARCHAR 100, NOT NULL)
+     * timezone (VARCHAR 50, default 'UTC')
+     * active (BOOLEAN, default true)
+     * subscription_tier (VARCHAR 50: 'free', 'starter', 'pro', 'enterprise')
+     * subscription_start_date (TIMESTAMP)
+     * subscription_end_date (TIMESTAMP)
+     * max_users (INTEGER, based on tier)
+     * features (JSONB, array of enabled features)
+     * settings (JSONB, organization-wide settings)
+     * billing_address (JSONB)
+     * created_at (TIMESTAMP)
+     * updated_at (TIMESTAMP)
+   - Security: Admins only
+   - Indexes: UNIQUE(name), UNIQUE(email), (active), (created_at DESC)
+
+2. ROLES & PERMISSIONS (Define system roles once, reuse everywhere)
+   - Purpose: Centralized role and permission definitions
+   - Fields:
+     * id (UUID, primary key)
+     * organization_id (UUID, FK to organizations, NOT NULL)
+     * name (VARCHAR 100, NOT NULL) - e.g., 'admin', 'manager', 'user', 'viewer'
+     * display_name (VARCHAR 255)
+     * description (TEXT)
+     * permissions (JSONB array) - e.g., ['inventory.read', 'inventory.write', 'warehouse.admin']
+     * priority (INTEGER) - for hierarchy
+     * is_system_role (BOOLEAN) - cannot delete if true
+     * created_at (TIMESTAMP)
+     * updated_at (TIMESTAMP)
+   - Unique: (organization_id, name)
+   - Default System Roles:
+     * admin: All permissions
+     * manager: Operational permissions
+     * user: Basic permissions
+     * viewer: Read-only permissions
+   - Security: Admins only
+
+3. USERS (Application users linked to Supabase Auth)
+   - Purpose: User profiles and authentication
+   - Document ID: auth.uid() from Supabase Auth
+   - Fields:
+     * id (UUID, primary key, same as auth.uid())
+     * organization_id (UUID, FK to organizations, NOT NULL)
+     * email (VARCHAR 255, NOT NULL)
+     * full_name (VARCHAR 255)
+     * first_name (VARCHAR 100)
+     * last_name (VARCHAR 100)
+     * role_id (UUID, FK to roles, NOT NULL)
+     * department (VARCHAR 100)
+     * phone (VARCHAR 20)
+     * avatar_url (VARCHAR 255)
+     * active (BOOLEAN, default true)
+     * last_login (TIMESTAMP)
+     * last_activity (TIMESTAMP)
+     * preferences (JSONB) - UI preferences, theme, etc.
+     * metadata (JSONB) - custom user metadata
+     * created_at (TIMESTAMP)
+     * updated_at (TIMESTAMP)
+   - Unique: (organization_id, email)
+   - Indexes: (organization_id, active), (role_id), (created_at DESC)
+   - Security: Users can view/edit own profile, admins manage all
+
+4. WAREHOUSES (Physical locations)
+   - Purpose: Storage locations for inventory
+   - Fields:
+     * id (UUID, primary key)
+     * organization_id (UUID, FK to organizations, NOT NULL)
+     * code (VARCHAR 50, NOT NULL) - e.g., 'WH-001'
+     * name (VARCHAR 255, NOT NULL)
+     * description (TEXT)
+     * address (JSONB) - {street, city, state, zip, country}
+     * location_coordinates (GEOMETRY/POINT) - for mapping
+     * phone (VARCHAR 20)
+     * email (VARCHAR 100)
+     * manager_id (UUID, FK to users)
+     * is_default (BOOLEAN, default false)
+     * is_active (BOOLEAN, default true)
+     * warehouse_type (VARCHAR 50) - 'distribution', 'storage', 'retail'
+     * capacity (INTEGER) - total units
+     * current_utilization (INTEGER)
+     * utilization_percentage (NUMERIC, computed)
+     * opening_hours (JSONB) - operation schedule
+     * metadata (JSONB)
+     * created_by (UUID, FK to users)
+     * created_at (TIMESTAMP)
+     * updated_at (TIMESTAMP)
+   - Unique: (organization_id, code)
+   - Indexes: (organization_id, is_active), (organization_id, created_at DESC)
+   - Security: Members view, managers edit, admins delete
+
+5. PRODUCTS (Product catalog)
+   - Purpose: Product definitions and specifications
+   - Fields:
+     * id (UUID, primary key)
+     * organization_id (UUID, FK to organizations, NOT NULL)
+     * sku (VARCHAR 100, NOT NULL) - Stock Keeping Unit
+     * name (VARCHAR 255, NOT NULL)
+     * description (TEXT)
+     * category (VARCHAR 100, NOT NULL)
+     * subcategory (VARCHAR 100)
+     * manufacturer (VARCHAR 255)
+     * manufacturer_code (VARCHAR 100)
+     * brand (VARCHAR 100)
+     * pricing (JSONB) - {cost, retail_price, margin, currency}
+     * dimensions (JSONB) - {length, width, height, unit}
+     * weight (NUMERIC) - in kg
+     * volume (NUMERIC) - in liters
+     * barcode (VARCHAR 100)
+     * qr_code (VARCHAR 255)
+     * is_active (BOOLEAN, default true)
+     * is_discontinued (BOOLEAN, default false)
+     * is_hazardous (BOOLEAN, default false)
+     * storage_requirements (JSONB) - temperature, humidity, etc.
+     * tags (TEXT[]) - searchable tags
+     * metadata (JSONB)
+     * created_by (UUID, FK to users)
+     * created_at (TIMESTAMP)
+     * updated_at (TIMESTAMP)
+   - Unique: (organization_id, sku)
+   - Indexes: (organization_id, is_active), (organization_id, category), (sku), (barcode)
+   - Security: Members view, managers edit, admins delete
+
+6. INVENTORY (Stock levels by product and warehouse)
+   - Purpose: Real-time stock tracking
+   - Fields:
+     * id (UUID, primary key)
+     * organization_id (UUID, FK to organizations, NOT NULL)
+     * product_id (UUID, FK to products, NOT NULL)
+     * warehouse_id (UUID, FK to warehouses, NOT NULL)
+     * quantity_on_hand (INTEGER) - physical stock
+     * quantity_reserved (INTEGER) - allocated to orders
+     * quantity_damaged (INTEGER) - unusable
+     * quantity_available (INTEGER) - COMPUTED: quantity_on_hand - quantity_reserved
+     * quantity_on_order (INTEGER) - incoming
+     * reorder_point (INTEGER) - when to trigger reorder
+     * reorder_quantity (INTEGER) - how much to order
+     * lead_time_days (INTEGER) - supplier lead time
+     * turnover_rate (NUMERIC) - calculated from movements
+     * safety_stock_days (INTEGER)
+     * last_counted (TIMESTAMP) - last physical count
+     * last_restocked (TIMESTAMP)
+     * last_sold (TIMESTAMP)
+     * expiration_date (TIMESTAMP) - for perishables
+     * batch_number (VARCHAR 100)
+     * location_in_warehouse (VARCHAR 255) - aisle/shelf/bin
+     * is_active (BOOLEAN, default true)
+     * metadata (JSONB)
+     * created_at (TIMESTAMP)
+     * updated_at (TIMESTAMP)
+   - Unique: (organization_id, product_id, warehouse_id)
+   - Indexes:
+     * (organization_id, warehouse_id, quantity_available)
+     * (organization_id, product_id)
+     * (warehouse_id, product_id)
+     * (organization_id, updated_at DESC)
+     * Low stock: WHERE quantity_available <= reorder_point
+   - Security: Members view, managers edit
+
+7. STOCK_MOVEMENTS (Immutable audit trail)
+   - Purpose: Log every inventory change
+   - Fields:
+     * id (UUID, primary key)
+     * organization_id (UUID, FK to organizations, NOT NULL)
+     * inventory_id (UUID, FK to inventory, NOT NULL)
+     * product_id (UUID, FK to products, NOT NULL)
+     * warehouse_id (UUID, FK to warehouses, NOT NULL)
+     * movement_type (VARCHAR 50, NOT NULL) - 'add', 'remove', 'adjust', 'transfer_in', 'transfer_out', 'count', 'damage', 'return'
+     * quantity_before (INTEGER)
+     * quantity_after (INTEGER)
+     * quantity_changed (INTEGER)
+     * reason (VARCHAR 100) - 'purchase_order', 'sales_order', 'physical_count', 'adjustment', etc.
+     * reference_number (VARCHAR 100) - PO#, SO#, etc.
+     * notes (TEXT)
+     * from_warehouse_id (UUID, FK to warehouses) - for transfers
+     * to_warehouse_id (UUID, FK to warehouses) - for transfers
+     * initiated_by_user_id (UUID, FK to users)
+     * approved_by_user_id (UUID, FK to users)
+     * approval_timestamp (TIMESTAMP)
+     * document_url (VARCHAR 255)
+     * cost_impact (NUMERIC) - financial impact
+     * created_by (UUID, FK to users, NOT NULL)
+     * created_at (TIMESTAMP, NOT NULL)
+     * batch_id (UUID) - group related movements
+   - Indexes: (organization_id, created_at DESC), (warehouse_id, created_at DESC), (product_id, created_at DESC), (batch_id)
+   - CONSTRAINTS:
+     * IMMUTABLE: No updates or deletes allowed
+     * CHECK: quantity_changed = quantity_after - quantity_before
+   - Security: Members view, system creates, no updates/deletes
+
+8. AUDIT_LOGS (System audit trail)
+   - Purpose: Compliance and debugging
+   - Fields:
+     * id (UUID, primary key)
+     * organization_id (UUID, FK to organizations, NOT NULL)
+     * user_id (UUID, FK to users)
+     * action (VARCHAR 50) - 'create', 'read', 'update', 'delete', 'export', 'import'
+     * resource_type (VARCHAR 100) - 'inventory', 'warehouse', 'product', 'user', 'order'
+     * resource_id (UUID)
+     * resource_name (VARCHAR 255)
+     * old_values (JSONB) - before state
+     * new_values (JSONB) - after state
+     * changes (JSONB) - only changed fields
+     * status (VARCHAR 50) - 'success', 'failure'
+     * error_message (TEXT)
+     * ip_address (INET)
+     * user_agent (TEXT)
+     * session_id (VARCHAR 255)
+     * request_id (VARCHAR 255)
+     * created_at (TIMESTAMP, NOT NULL)
+   - Indexes: (organization_id, created_at DESC), (user_id, created_at DESC), (resource_type, resource_id)
+   - CONSTRAINTS:
+     * IMMUTABLE: No updates or deletes allowed
+   - Security: Members view, system creates, no updates/deletes
+
+FUTURE-READY TABLES (Foundation for expansion):
+
+9. ORDERS (For sales/purchase tracking)
+   - Foundation: Create empty table now, populate structure for future
+   - Will have: order_number, customer_id, status, items[], total, dates, etc.
+
+10. NOTIFICATIONS (For system alerts and user messages)
+    - Foundation: Create structure for real-time updates
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 3: ROLES & PERMISSIONS SYSTEM
+═══════════════════════════════════════════════════════════════════════════════
+
+PERMISSION FORMAT:
+"resource.action" e.g., "inventory.read", "warehouse.write", "audit.read"
+
+RESOURCES:
+- inventory, warehouse, product, user, role, organization, audit, order, notification
+
+ACTIONS:
+- read, write, delete, admin, approve, export, import
+
+SYSTEM ROLES (Pre-defined):
+
+1. ADMIN
+   - ALL permissions for organization
+   - Permissions: ['*.*'] (means all)
+   - Can: View all, edit all, manage roles/users, approve changes, access audit logs
+
+2. MANAGER
+   - Operational management
+   - Permissions:
+     * inventory.read, inventory.write
+     * warehouse.read, warehouse.write
+     * product.read, product.write
+     * user.read
+     * audit.read
+   - Can: Manage inventory, warehouses, products, view users
+
+3. USER
+   - Basic operations
+   - Permissions:
+     * inventory.read, inventory.write (limited)
+     * warehouse.read
+     * product.read
+   - Can: View and report inventory, view warehouses
+
+4. VIEWER
+   - Read-only access
+   - Permissions:
+     * inventory.read
+     * warehouse.read
+     * product.read
+     * audit.read (limited)
+   - Can: View reports and dashboards
+
+CUSTOM ROLES:
+- Organizations can create custom roles
+- Define specific permission combinations
+- Examples: "Warehouse Manager", "Inventory Clerk", "Sales Rep"
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 4: ROW LEVEL SECURITY (RLS) POLICIES
+═══════════════════════════════════════════════════════════════════════════════
+
+FUNDAMENTAL PRINCIPLE: No user can see data outside their organization.
+
+HELPER FUNCTIONS:
+1. auth_organization_id() - Get user's organization_id
+2. auth_user_role() - Get user's role
+3. auth_has_permission(permission) - Check if user has permission
+4. auth_user_id() - Get current user ID
+
+POLICY PATTERNS:
+
+ORGANIZATIONS TABLE:
+- SELECT: Only admins of own org
+- INSERT: Not allowed (admins only)
+- UPDATE: Only admins
+- DELETE: Not allowed (admins only)
+
+USERS TABLE:
+- SELECT: Users of same org (restricted fields for non-admin)
+- INSERT: Admins only
+- UPDATE: Admins + user can update own profile
+- DELETE: Admins only
+
+ROLES TABLE:
+- SELECT: Members of same org
+- INSERT: Admins only
+- UPDATE: Admins only
+- DELETE: Admins only (except system roles)
+
+WAREHOUSES TABLE:
+- SELECT: Members of same org
+- INSERT: Managers and admins
+- UPDATE: Managers and admins
+- DELETE: Admins only
+
+PRODUCTS TABLE:
+- SELECT: Members of same org
+- INSERT: Managers and admins
+- UPDATE: Managers and admins
+- DELETE: Admins only
+
+INVENTORY TABLE:
+- SELECT: Members of same org
+- INSERT: Members can add
+- UPDATE: Managers and admins
+- DELETE: Admins only
+
+STOCK_MOVEMENTS TABLE:
+- SELECT: Members of same org
+- INSERT: System only (via triggers)
+- UPDATE: NEVER (immutable)
+- DELETE: NEVER (immutable)
+
+AUDIT_LOGS TABLE:
+- SELECT: Members of same org (limited fields)
+- INSERT: System only (via triggers)
+- UPDATE: NEVER (immutable)
+- DELETE: NEVER (immutable)
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 5: TRIGGERS & AUTOMATION
+═══════════════════════════════════════════════════════════════════════════════
+
+TRIGGER 1: Auto-create default role for new organization
+- When: Organization created
+- Action: Create default admin, manager, user, viewer roles
+
+TRIGGER 2: Stock movement logging
+- When: Inventory quantity updated
+- Action: Create stock_movement record (immutable audit)
+
+TRIGGER 3: Audit logging
+- When: Any table updated (users, products, warehouses)
+- Action: Create audit_log entry (immutable)
+
+TRIGGER 4: Inventory calculation
+- When: Inventory record updated
+- Action: Recalculate quantity_available, turnover_rate
+
+TRIGGER 5: User activity tracking
+- When: User performs action
+- Action: Update last_activity timestamp
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 6: INDEXES FOR PERFORMANCE
+═══════════════════════════════════════════════════════════════════════════════
+
+HIGH-PRIORITY INDEXES:
+1. (organization_id) on all tables - multi-tenancy filtering
+2. (organization_id, is_active) on warehouses, products
+3. (organization_id, created_at DESC) on all audit tables
+4. (warehouse_id, quantity_available) - low stock queries
+5. (product_id, warehouse_id) - inventory lookups
+6. (organization_id, role_id) - user role queries
+7. (user_id, created_at DESC) - activity logs
+
+OPTIONAL: Full-text search indexes on name, description fields
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 7: SCALABILITY & EXTENSIBILITY
+═══════════════════════════════════════════════════════════════════════════════
+
+DESIGNED FOR:
+✓ Millions of inventory records per organization
+✓ Thousands of users per organization
+✓ Real-time updates and queries
+✓ Historical data retention (5+ years)
+✓ API rate limiting and caching
+✓ Multi-region deployment
+
+EXTENSION POINTS:
+1. Add new tables without breaking existing RLS
+2. Create custom roles with permission combinations
+3. Add new stock movement types easily
+4. Extend user metadata with custom fields
+5. Add organization features via JSONB columns
+6. Create views for complex queries
+
+FUTURE TABLES (Ready to add):
+- Orders: Customer orders with items
+- Suppliers: Vendor management
+- Purchase Requests: PO workflow
+- Stock Adjustment Approvals: Approval workflow
+- Notifications: Alert system
+- API Keys: Third-party integrations
+- Webhooks: Event subscriptions
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 8: SAMPLE DATA
+═══════════════════════════════════════════════════════════════════════════════
+
+For testing, create:
+1. Sample organization: "Demo Retail Co"
+2. Sample roles: admin, manager, user, viewer
+3. Sample users: 3 users with different roles
+4. Sample warehouses: 2 warehouses (main + distribution)
+5. Sample products: 5 products in different categories
+6. Sample inventory: Stock levels for products in warehouses
+7. Sample stock movements: 10 movements showing activity
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 9: SETUP INSTRUCTIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+STEP 1: Create Supabase Project
+- Go to supabase.com/dashboard
+- Click "New project"
+- Name: "operix-erp-prod"
+- Create project and wait
+
+STEP 2: Create Tables (using provided SQL schema)
+- Go to SQL Editor in Supabase
+- Run the complete schema SQL file
+- Verify all 8 tables created
+
+STEP 3: Create Helper Functions
+- Run the helper functions SQL
+- Test each function works
+
+STEP 4: Enable RLS
+- Enable RLS on all tables
+- Run RLS policies SQL
+- Verify policies applied
+
+STEP 5: Create Triggers (optional for advanced setup)
+- Run trigger SQL for auto-audit
+- Run trigger SQL for calculations
+
+STEP 6: Add Sample Data
+- Insert sample organization
+- Create roles for organization
+- Create sample users
+- Create sample warehouses and products
+- Create sample inventory
+- Create sample movements
+
+STEP 7: Test RLS
+- Login as different users
+- Verify data isolation
+- Verify permissions work
+
+STEP 8: Get Credentials
+- API URL: Settings → API → URL
+- Anon Key: Settings → API → Anon Key
+- Service Role Key: Settings → API → Service Role Key
+- Database URL: Settings → Database → Connection String
+
+STEP 9: Save to Environment
+- .env.local with all credentials
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 10: SECURITY CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+Before going to production:
+□ RLS enabled on all tables
+□ All RLS policies tested
+□ Audit logs immutable
+□ Stock movements immutable
+□ No direct access to auth.uid() bypass
+□ Service role key kept secret (backend only)
+□ Anon key in frontend only
+□ Rate limiting configured
+□ Backups scheduled
+□ Monitoring alerts setup
+□ Data encryption at rest (Supabase default)
+□ Data encryption in transit (SSL/TLS)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+NOW: Guide me through building this complete database step by step.
+
+Show me:
+1. Exact SQL to create each table
+2. Exact SQL for RLS policies
+3. Exact SQL for helper functions
+4. Sample data INSERT statements
+5. Step-by-step verification process
+6. Complete credentials extraction
+
+BE DETAILED: I need exact SQL, not descriptions.
