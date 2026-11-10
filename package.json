@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:db": "RUN_DB_TESTS=1 vitest run packages/db/tests",
     "build": "pnpm -r --if-present build",
     "db:ping": "tsx packages/db/src/ping.ts",
     "db:generate": "pnpm --filter @ops-hub/db generate",
