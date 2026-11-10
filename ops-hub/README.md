@@ -65,6 +65,14 @@ append-only `audit_log`, and grants the `ops_hub_app` role only `SELECT` and
 `INSERT` on `audit_log`. See
 [`docs/decisions/0001-tenancy-and-audit-model.md`](docs/decisions/0001-tenancy-and-audit-model.md).
 
+### Authentication
+
+`POST /v1/auth/login` takes `{ email, password }` and returns an opaque
+session token plus the public user. Send it as `Authorization: Bearer
+<token>` to `GET /v1/auth/me`; `POST /v1/auth/logout` revokes it. Sessions
+live in Redis (8-hour TTL) and failed logins are limited to 5 per 15 minutes
+per email. Passwords are hashed with argon2id and never returned.
+
 Tenant-scoped tables (`tenants`, `memberships`, `audit_log`) have RLS
 enabled. The application must set the tenant per transaction through
 the `withTenant(pool, tenantId, work)` helper; without a tenant setting,
