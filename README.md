@@ -39,6 +39,7 @@ Run these from this directory after `pnpm install`:
 | `pnpm typecheck`   | `tsc --noEmit` over every workspace package   |
 | `pnpm test`        | Vitest across the workspace                   |
 | `pnpm build`       | Runs each package's `build` script when it has one |
+| `pnpm dev:api`     | Starts the Fastify API on `PORT` (default 3001)   |
 
 All three of `lint`, `typecheck`, and `test` must pass before a task is
 committed, per the roadmap's global non-negotiables.
