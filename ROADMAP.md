@@ -138,7 +138,8 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T03
   - AC: every tenant-scoped table has RLS enabled; the app sets `app.tenant_id` per request via a transaction-scoped setting; integration test proves tenant A cannot read tenant B rows even with a raw query.
 
-- [ ] **P0-S1-T05** Shared package: `Money` (integer piastres + currency), `PhoneEG.normalize()`, `Clock` abstraction, error types, `i18n` keys with `ar` and `en`.
+- [x] **P0-S1-T05** Shared package: `Money` (integer piastres + currency), `PhoneEG.normalize()`, `Clock` abstraction, error types, `i18n` keys with `ar` and `en`.
+  - Owner: buffy (2026-11-10)
   - Deps: T01
   - AC: unit tests cover `01012345678`, `+201012345678`, `0020 10 1234 5678`, and invalid input. Money rejects float input.
 
@@ -765,6 +766,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-10 · P0-S1-T02 · compose services postgres 16.15, redis 7, mailpit healthy; `pnpm db:ping` connected · commit caece27
 - 2026-11-10 · P0-S1-T03 · Drizzle schema + migrations; 4 tables applied, audit_log INSERT/SELECT only, reset→migrate verified · commit 2347dfa
 - 2026-11-10 · P0-S1-T04 · RLS on tenants/memberships/audit_log, withTenant transaction scope, isolation test green · commit 0de7b3e
+- 2026-11-10 · P0-S1-T05 · Money/phone/clock/errors/i18n with 20 TDD tests; invalid phone and float money rejected · commit 9cd887f
 
 ---
 
