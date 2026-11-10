@@ -64,5 +64,11 @@ append-only `audit_log`, and grants the `ops_hub_app` role only `SELECT` and
 `INSERT` on `audit_log`. See
 [`docs/decisions/0001-tenancy-and-audit-model.md`](docs/decisions/0001-tenancy-and-audit-model.md).
 
+Tenant-scoped tables (`tenants`, `memberships`, `audit_log`) have RLS
+enabled. The application must set the tenant per transaction through
+the `withTenant(pool, tenantId, work)` helper; without a tenant setting,
+queries return no rows. `pnpm test:db` runs the RLS isolation integration
+test against the compose database (the default `pnpm test` skips it).
+
 If pnpm is not installed globally, prefix commands with `npx pnpm@10`
 (for example `npx pnpm@10 install`).
