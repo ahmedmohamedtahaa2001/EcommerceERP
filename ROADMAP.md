@@ -153,7 +153,8 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T04, T06
   - AC: wrong password returns generic error; session expires; password hash never returned; login attempts rate-limited (5 per 15 min per email).
 
-- [ ] **P0-S1-T08** Roles and permissions model (RBAC): roles `owner`, `manager`, `sales_agent`, `warehouse`, `finance`, `support`, `viewer`; permission strings like `orders:read`, `orders:write`, `refunds:approve`.
+- [x] **P0-S1-T08** Roles and permissions model (RBAC): roles `owner`, `manager`, `sales_agent`, `warehouse`, `finance`, `support`, `viewer`; permission strings like `orders:read`, `orders:write`, `refunds:approve`.
+  - Owner: buffy (2026-11-10)
   - Deps: T07
   - AC: a permission guard decorator/middleware; unit tests for each role's allowed and denied actions.
 
@@ -771,6 +772,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-10 · P0-S1-T05 · Money/phone/clock/errors/i18n with 20 TDD tests; invalid phone and float money rejected · commit 9cd887f
 - 2026-11-10 · P0-S1-T06 · Fastify app with request ids, RFC 7807 errors, redaction; 7 HTTP tests incl. canary log check · commit 341f798
 - 2026-11-10 · P0-S1-T07 · argon2id + Redis sessions; generic auth errors, expiry and 5/15min rate limit verified; 49 tests green · commit 9e7501a
+- 2026-11-10 · P0-S1-T08 · RBAC matrix + requirePermission guard; role allow/deny and 401/403 route tests · commit 130eedb
 
 ---
 
