@@ -759,8 +759,8 @@ P0 Foundation ──► P1 Core Ops MVP ──► P2 Reliability & Money ──�
 
 Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 
-- 2026-11-10 · P0-S1-T01 · pnpm workspace scaffolded in `ops-hub/`; `pnpm install`, `lint`, `typecheck`, `test` all green · commit f00e302
-- 2026-11-10 · P0-S1-T02 · compose services postgres 16.15, redis 7, mailpit healthy; `pnpm db:ping` connected · commit e580f15
+- 2026-11-10 · P0-S1-T01 · pnpm workspace scaffolded in `ops-hub/`; `pnpm install`, `lint`, `typecheck`, `test` all green · commit 56622da
+- 2026-11-10 · P0-S1-T02 · compose services postgres 16.15, redis 7, mailpit healthy; `pnpm db:ping` connected · commit caece27
 
 ---
 
