@@ -148,7 +148,8 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T05
   - AC: `GET /healthz` 200; error responses match RFC 7807 shape; logs never contain raw API keys (test with a canary value).
 
-- [ ] **P0-S1-T07** Staff authentication: email + password (argon2id), sessions in Redis, login/logout/me endpoints.
+- [x] **P0-S1-T07** Staff authentication: email + password (argon2id), sessions in Redis, login/logout/me endpoints.
+  - Owner: buffy (2026-11-10)
   - Deps: T04, T06
   - AC: wrong password returns generic error; session expires; password hash never returned; login attempts rate-limited (5 per 15 min per email).
 
@@ -769,6 +770,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-10 · P0-S1-T04 · RLS on tenants/memberships/audit_log, withTenant transaction scope, isolation test green · commit 0de7b3e
 - 2026-11-10 · P0-S1-T05 · Money/phone/clock/errors/i18n with 20 TDD tests; invalid phone and float money rejected · commit 9cd887f
 - 2026-11-10 · P0-S1-T06 · Fastify app with request ids, RFC 7807 errors, redaction; 7 HTTP tests incl. canary log check · commit 341f798
+- 2026-11-10 · P0-S1-T07 · argon2id + Redis sessions; generic auth errors, expiry and 5/15min rate limit verified; 49 tests green · commit 9e7501a
 
 ---
 
