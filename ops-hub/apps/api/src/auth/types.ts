@@ -1,3 +1,4 @@
+import type { Role } from "@ops-hub/domain";
 import type { Clock } from "@ops-hub/shared";
 
 export const SESSION_TTL_SECONDS = 8 * 60 * 60;
@@ -9,6 +10,7 @@ export interface AuthUser {
   email: string;
   fullName: string | null;
   tenantId: string | null;
+  role: Role | null;
 }
 
 export interface UserRecord extends AuthUser {

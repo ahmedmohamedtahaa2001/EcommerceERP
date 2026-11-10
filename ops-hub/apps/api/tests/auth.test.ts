@@ -120,6 +120,7 @@ const user: UserRecord = {
   email: "owner@example.com",
   fullName: "Owner",
   tenantId: "22222222-2222-4222-8222-222222222222",
+  role: "owner",
   passwordHash: "fake-hash:correct-horse",
 };
 

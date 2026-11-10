@@ -23,6 +23,7 @@ function toPublicUser(user: UserRecord): AuthUser {
     email: user.email,
     fullName: user.fullName,
     tenantId: user.tenantId,
+    role: user.role,
   };
 }
 
