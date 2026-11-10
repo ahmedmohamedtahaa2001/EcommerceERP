@@ -51,5 +51,18 @@ exits non-zero if either is unreachable. Connection strings default to the
 compose values; override them with `DATABASE_URL` and `REDIS_URL` (see
 `.env.example`).
 
+### Database
+
+| Command           | What it does                                              |
+| ----------------- | --------------------------------------------------------- |
+| `pnpm db:generate` | Generates a Drizzle migration from `packages/db/src/schema` |
+| `pnpm db:migrate`  | Applies pending migrations                                |
+| `pnpm db:reset`    | Drops `public` and `drizzle` schemas (development only)   |
+
+The first migration creates `tenants`, `users`, `memberships`, and the
+append-only `audit_log`, and grants the `ops_hub_app` role only `SELECT` and
+`INSERT` on `audit_log`. See
+[`docs/decisions/0001-tenancy-and-audit-model.md`](docs/decisions/0001-tenancy-and-audit-model.md).
+
 If pnpm is not installed globally, prefix commands with `npx pnpm@10`
 (for example `npx pnpm@10 install`).
