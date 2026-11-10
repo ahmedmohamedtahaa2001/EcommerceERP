@@ -123,7 +123,8 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: none
   - AC: `pnpm install`, `pnpm lint`, `pnpm typecheck`, `pnpm test` run green on empty packages. Root `README.md` explains how to run them.
 
-- [ ] **P0-S1-T02** Docker Compose for postgres 16, redis 7, mailpit.
+- [x] **P0-S1-T02** Docker Compose for postgres 16, redis 7, mailpit.
+  - Owner: buffy (2026-11-10)
   - Deps: T01
   - AC: `docker compose up -d` starts all services; a `pnpm db:ping` script connects successfully.
 
@@ -759,6 +760,7 @@ P0 Foundation ──► P1 Core Ops MVP ──► P2 Reliability & Money ──�
 Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 
 - 2026-11-10 · P0-S1-T01 · pnpm workspace scaffolded in `ops-hub/`; `pnpm install`, `lint`, `typecheck`, `test` all green · commit f00e302
+- 2026-11-10 · P0-S1-T02 · compose services postgres 16.15, redis 7, mailpit healthy; `pnpm db:ping` connected · commit e580f15
 
 ---
 

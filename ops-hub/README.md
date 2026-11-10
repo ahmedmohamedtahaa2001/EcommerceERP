@@ -43,5 +43,13 @@ Run these from this directory after `pnpm install`:
 All three of `lint`, `typecheck`, and `test` must pass before a task is
 committed, per the roadmap's global non-negotiables.
 
+## Local services
+
+`docker compose up -d` starts Postgres 16, Redis 7, and Mailpit (SMTP on
+1025, web UI on 8025). `pnpm db:ping` connects to Postgres and Redis and
+exits non-zero if either is unreachable. Connection strings default to the
+compose values; override them with `DATABASE_URL` and `REDIS_URL` (see
+`.env.example`).
+
 If pnpm is not installed globally, prefix commands with `npx pnpm@10`
 (for example `npx pnpm@10 install`).
