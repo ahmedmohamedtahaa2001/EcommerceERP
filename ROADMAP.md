@@ -143,7 +143,8 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T01
   - AC: unit tests cover `01012345678`, `+201012345678`, `0020 10 1234 5678`, and invalid input. Money rejects float input.
 
-- [ ] **P0-S1-T06** Fastify app skeleton: request ID, pino logging with redaction (phone, email, api keys), error handler returning RFC 7807 problem JSON, health endpoints `/healthz` and `/readyz`.
+- [x] **P0-S1-T06** Fastify app skeleton: request ID, pino logging with redaction (phone, email, api keys), error handler returning RFC 7807 problem JSON, health endpoints `/healthz` and `/readyz`.
+  - Owner: buffy (2026-11-10)
   - Deps: T05
   - AC: `GET /healthz` 200; error responses match RFC 7807 shape; logs never contain raw API keys (test with a canary value).
 
@@ -767,6 +768,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-10 · P0-S1-T03 · Drizzle schema + migrations; 4 tables applied, audit_log INSERT/SELECT only, reset→migrate verified · commit 2347dfa
 - 2026-11-10 · P0-S1-T04 · RLS on tenants/memberships/audit_log, withTenant transaction scope, isolation test green · commit 0de7b3e
 - 2026-11-10 · P0-S1-T05 · Money/phone/clock/errors/i18n with 20 TDD tests; invalid phone and float money rejected · commit 9cd887f
+- 2026-11-10 · P0-S1-T06 · Fastify app with request ids, RFC 7807 errors, redaction; 7 HTTP tests incl. canary log check · commit 341f798
 
 ---
 
