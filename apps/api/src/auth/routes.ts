@@ -1,16 +1,8 @@
-import type { FastifyInstance, FastifyRequest } from "fastify";
+import type { FastifyInstance } from "fastify";
 
 import { UnauthorizedError, ValidationError } from "./errors";
+import { bearerToken } from "./http";
 import type { AuthService } from "./service";
-
-function bearerToken(request: FastifyRequest): string | null {
-  const header = request.headers.authorization;
-  if (typeof header !== "string") {
-    return null;
-  }
-  const [scheme, token] = header.split(" ");
-  return scheme?.toLowerCase() === "bearer" && token ? token : null;
-}
 
 export function registerAuthRoutes(
   app: FastifyInstance,

@@ -21,6 +21,12 @@ export class UnauthorizedError extends AuthError {
   }
 }
 
+export class ForbiddenError extends AuthError {
+  constructor(permission: string) {
+    super("forbidden", `Missing permission: ${permission}`, 403);
+  }
+}
+
 export class ValidationError extends AuthError {
   constructor(message: string) {
     super("invalid-request", message, 422);

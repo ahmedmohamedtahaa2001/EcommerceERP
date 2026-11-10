@@ -56,6 +56,9 @@ importers:
       '@ops-hub/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@ops-hub/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@ops-hub/shared':
         specifier: workspace:*
         version: link:../../packages/shared

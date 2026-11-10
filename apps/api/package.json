@@ -13,6 +13,7 @@
   "dependencies": {
     "@node-rs/argon2": "^2.2.2",
     "@ops-hub/db": "workspace:*",
+    "@ops-hub/domain": "workspace:*",
     "@ops-hub/shared": "workspace:*",
     "fastify": "^5.2.0",
     "ioredis": "^5.11.1",
