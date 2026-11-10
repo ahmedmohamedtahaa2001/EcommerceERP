@@ -6,6 +6,9 @@ import Fastify, {
   type FastifyServerOptions,
 } from "fastify";
 
+import { registerAuthRoutes } from "./auth/routes";
+import type { AuthService } from "./auth/service";
+
 export const REDACT_PATHS = [
   "req.headers.authorization",
   'req.headers["x-api-key"]',
@@ -41,6 +44,7 @@ function problemType(code: string): string {
 
 export interface BuildAppOptions {
   logger?: FastifyServerOptions["logger"];
+  auth?: AuthService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -68,6 +72,10 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     uptimeSeconds: Math.round(process.uptime()),
   }));
 
+  if (options.auth) {
+    registerAuthRoutes(app, options.auth);
+  }
+
   app.setNotFoundHandler((request, reply) => {
     reply
       .status(404)
@@ -85,6 +93,11 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   app.setErrorHandler((error: FastifyError, request, reply) => {
     const status = error.statusCode ?? 500;
     const exposed = status < 500;
+    const retryAfterSeconds = (error as { retryAfterSeconds?: unknown })
+      .retryAfterSeconds;
+    if (typeof retryAfterSeconds === "number") {
+      reply.header("retry-after", String(retryAfterSeconds));
+    }
     reply
       .status(status)
       .type("application/problem+json")

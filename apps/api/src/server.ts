@@ -1,6 +1,43 @@
+import { createDb } from "@ops-hub/db";
+import { systemClock } from "@ops-hub/shared";
+import Redis from "ioredis";
+
 import { buildApp } from "./app";
+import { argon2Hasher } from "./auth/passwords";
+import { PgUserDirectory } from "./auth/pg-directory";
+import { RedisRateLimiter } from "./auth/redis-rate-limiter";
+import { RedisSessionStore } from "./auth/redis-session-store";
+import { AuthService } from "./auth/service";
+import {
+  LOGIN_ATTEMPT_LIMIT,
+  LOGIN_WINDOW_SECONDS,
+  SESSION_TTL_SECONDS,
+} from "./auth/types";
 
-const app = buildApp();
+const { pool } = createDb();
+const redis = new Redis(
+  process.env.REDIS_URL ?? "redis://localhost:6379",
+  { maxRetriesPerRequest: 1 },
+);
+
+const auth = new AuthService({
+  users: new PgUserDirectory(pool),
+  passwords: argon2Hasher,
+  sessions: new RedisSessionStore(redis),
+  limiter: new RedisRateLimiter(
+    redis,
+    LOGIN_ATTEMPT_LIMIT,
+    LOGIN_WINDOW_SECONDS,
+  ),
+  clock: systemClock,
+  sessionTtlSeconds: SESSION_TTL_SECONDS,
+});
+
+const app = buildApp({ auth });
+app.addHook("onClose", async () => {
+  await pool.end();
+  redis.disconnect();
+});
+
 const port = Number(process.env.PORT ?? 3001);
-
 await app.listen({ host: "0.0.0.0", port });
