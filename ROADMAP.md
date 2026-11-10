@@ -128,7 +128,8 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T01
   - AC: `docker compose up -d` starts all services; a `pnpm db:ping` script connects successfully.
 
-- [ ] **P0-S1-T03** Drizzle setup and first migration: `tenants`, `users`, `memberships`, `audit_log`.
+- [x] **P0-S1-T03** Drizzle setup and first migration: `tenants`, `users`, `memberships`, `audit_log`.
+  - Owner: buffy (2026-11-10)
   - Deps: T02
   - AC: `pnpm db:migrate` creates the tables; `audit_log` is append-only (UPDATE and DELETE revoked for app role); migration is reversible in dev.
 
@@ -761,6 +762,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 
 - 2026-11-10 · P0-S1-T01 · pnpm workspace scaffolded in `ops-hub/`; `pnpm install`, `lint`, `typecheck`, `test` all green · commit 56622da
 - 2026-11-10 · P0-S1-T02 · compose services postgres 16.15, redis 7, mailpit healthy; `pnpm db:ping` connected · commit caece27
+- 2026-11-10 · P0-S1-T03 · Drizzle schema + migrations; 4 tables applied, audit_log INSERT/SELECT only, reset→migrate verified · commit 2347dfa
 
 ---
 
