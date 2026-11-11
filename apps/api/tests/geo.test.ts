@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { buildApp } from "../src/app";
-import { resolveGovernorate, listGovernorates, listDistricts } from "@ops-hub/shared";
+import { resolveGovernorate } from "@ops-hub/shared";
 import { AuthService } from "../src/auth/service";
 import type { UserRecord } from "../src/auth/types";
 import {
