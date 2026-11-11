@@ -104,6 +104,9 @@ export const bundleComponents = pgTable(
  * catalog can enforce "SKU immutable once a movement exists" and foreign-key
  * the movement to its variant. Extended, never replaced, by T05.
  */
+export const BUCKETS = ["on_hand", "reserved", "quarantined", "damaged", "in_transit"] as const;
+export type Bucket = (typeof BUCKETS)[number];
+
 export const stockMovements = pgTable(
   "stock_movements",
   {
@@ -117,8 +120,10 @@ export const stockMovements = pgTable(
     locationId: uuid("location_id").references(() => locations.id, {
       onDelete: "restrict",
     }),
+    bucket: text("bucket").notNull().default("on_hand"),
     delta: integer("delta").notNull(),
     reason: text("reason").notNull(),
+    reference: text("reference"),
     actorType: text("actor_type"),
     actorId: uuid("actor_id"),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -127,6 +132,42 @@ export const stockMovements = pgTable(
   },
   (table) => [
     index("stock_movements_tenant_variant_idx").on(
+      table.tenantId,
+      table.variantId,
+    ),
+    index("stock_movements_tenant_location_idx").on(
+      table.tenantId,
+      table.locationId,
+    ),
+  ],
+);
+
+export const stockBalances = pgTable(
+  "stock_balances",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    variantId: uuid("variant_id")
+      .notNull()
+      .references(() => variants.id, { onDelete: "restrict" }),
+    locationId: uuid("location_id")
+      .notNull()
+      .references(() => locations.id, { onDelete: "restrict" }),
+    bucket: text("bucket").notNull(),
+    quantity: integer("quantity").notNull().default(0),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("stock_balances_variant_location_bucket_key").on(
+      table.variantId,
+      table.locationId,
+      table.bucket,
+    ),
+    index("stock_balances_tenant_variant_idx").on(
       table.tenantId,
       table.variantId,
     ),

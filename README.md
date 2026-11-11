@@ -107,7 +107,14 @@ becomes immutable once any stock movement references the variant (409 on
 attempted change). Bundles attach components via `PUT /v1/products/:id/components`
 (full replace) and `GET /v1/products/:id/components`.
 
-### Geo reference data
+### Stock ledger
+
+`StockService.recordMovement(...)` is the only way to change stock: it inserts an
+append-only `stock_movements` row and upserts the derived `stock_balances` row
+in the same transaction. Buckets: `on_hand`, `reserved`, `quarantined`,
+`damaged`, `in_transit`. Read: `GET /v1/stock/balances?variantId=&locationId=`
+and `GET /v1/stock/movements`. Movements are append-only (UPDATE/DELETE revoked
+for the app role).
 
 `GET /v1/geo/governorates` returns all 27 Egyptian governorates with canonical
 codes, AR/EN names, and spelling variants. `GET /v1/geo/districts?governorate=`

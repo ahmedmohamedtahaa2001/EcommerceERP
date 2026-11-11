@@ -197,7 +197,7 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T01
   - AC: `GET /v1/geo/governorates` and `/v1/geo/districts` exist; `resolveGovernorate("gizeh")` returns the canonical code (unit tests).
 
-- [ ] **P0-S2-T05** Stock ledger: `stock_movements` (append-only), `stock_balances` (derived per sku+location+bucket), buckets: on_hand, reserved, quarantined, damaged, in_transit.
+- [x] **P0-S2-T05** Stock ledger: `stock_movements` (append-only), `stock_balances` (derived per sku+location+bucket), buckets: on_hand, reserved, quarantined, damaged, in_transit.
   - Deps: T01, T03
   - AC: no endpoint updates balances directly; every change creates a movement with reason code and actor; balances equal the sum of movements (property test with random sequences).
 

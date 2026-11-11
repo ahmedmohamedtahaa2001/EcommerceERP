@@ -9,6 +9,8 @@ import { PgCatalogStore } from "./catalog/pg-store";
 import { CatalogService } from "./catalog/service";
 import { PgLocationStore } from "./locations/pg-store";
 import { LocationService } from "./locations/service";
+import { PgStockStore } from "./stock/pg-store";
+import { StockService } from "./stock/service";
 import { PgAuditReader, PgAuditWriter } from "./audit/pg";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
@@ -52,6 +54,10 @@ const locations = new LocationService({
   store: new PgLocationStore(pool),
   clock: systemClock,
 });
+const stock = new StockService({
+  store: new PgStockStore(pool),
+  clock: systemClock,
+});
 const audit = new PgAuditWriter(pool);
 
 const app = buildApp({
@@ -59,6 +65,7 @@ const app = buildApp({
   apiKeys,
   catalog,
   locations,
+  stock,
   audit,
   auditReader: new PgAuditReader(pool),
 });

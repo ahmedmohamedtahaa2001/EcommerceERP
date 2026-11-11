@@ -18,6 +18,8 @@ import type { CatalogService } from "./catalog/service";
 import { registerGeoRoutes } from "./geo/routes";
 import { registerLocationRoutes } from "./locations/routes";
 import type { LocationService } from "./locations/service";
+import { registerStockRoutes } from "./stock/routes";
+import type { StockService } from "./stock/service";
 import {
   CompositeRequestAuthenticator,
 } from "./auth/request-authenticator";
@@ -61,6 +63,7 @@ export interface BuildAppOptions {
   apiKeys?: ApiKeyService;
   catalog?: CatalogService;
   locations?: LocationService;
+  stock?: StockService;
   audit?: AuditWriter;
   auditReader?: AuditReader;
 }
@@ -137,6 +140,12 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       });
     }
     registerGeoRoutes(app, { requestAuth });
+    if (options.stock) {
+      registerStockRoutes(app, {
+        service: options.stock,
+        requestAuth,
+      });
+    }
     if (options.audit && options.auditReader) {
       registerAuditRoutes(app, {
         reader: options.auditReader,
