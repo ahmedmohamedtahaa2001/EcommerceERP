@@ -97,9 +97,9 @@ describe.skipIf(!runDbTests)("Stock store against Postgres", () => {
     const buckets: Bucket[] = ["on_hand", "reserved", "quarantined", "damaged", "in_transit"];
     const expected: Record<Bucket, number> = { on_hand: 5, reserved: 0, quarantined: 0, damaged: 0, in_transit: 0 };
     for (let i = 0; i < 50; i++) {
-      const b = buckets[i % buckets.length];
+      const b = buckets[i % buckets.length]!;
       const d = (i % 7) - 3;
-      expected[b] += d;
+      expected[b] = (expected[b] ?? 0) + d;
       await service.recordMovement(
         { variantId, locationId, bucket: b, delta: d, reason: "TEST" },
         tenantA,
