@@ -16,6 +16,8 @@ export const PERMISSIONS = [
   "api_keys:read",
   "api_keys:write",
   "settings:write",
+  "catalog:read",
+  "catalog:write",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -47,6 +49,8 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "reports:read",
     "audit:read",
     "users:read",
+    "catalog:read",
+    "catalog:write",
   ],
   sales_agent: [
     "orders:read",
@@ -55,6 +59,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "refunds:read",
     "customers:read",
     "customers:write",
+    "catalog:read",
   ],
   warehouse: [
     "orders:read",
@@ -62,6 +67,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "inventory:write",
     "shipments:read",
     "shipments:write",
+    "catalog:read",
   ],
   finance: [
     "orders:read",
@@ -69,6 +75,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "refunds:approve",
     "reports:read",
     "audit:read",
+    "catalog:read",
   ],
   support: [
     "orders:read",
@@ -76,12 +83,14 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "refunds:read",
     "customers:read",
     "customers:write",
+    "catalog:read",
   ],
   viewer: [
     "orders:read",
     "inventory:read",
     "shipments:read",
     "reports:read",
+    "catalog:read",
   ],
 };
 

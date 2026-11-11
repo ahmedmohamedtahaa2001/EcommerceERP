@@ -12,6 +12,8 @@ import { registerAuditRoutes } from "./audit/routes";
 import type { AuditReader, AuditWriter } from "./audit/types";
 import { registerAuthRoutes } from "./auth/routes";
 import type { AuthService } from "./auth/service";
+import { registerCatalogRoutes } from "./catalog/routes";
+import type { CatalogService } from "./catalog/service";
 import {
   CompositeRequestAuthenticator,
 } from "./auth/request-authenticator";
@@ -53,6 +55,7 @@ export interface BuildAppOptions {
   logger?: FastifyServerOptions["logger"];
   auth?: AuthService;
   apiKeys?: ApiKeyService;
+  catalog?: CatalogService;
   audit?: AuditWriter;
   auditReader?: AuditReader;
 }
@@ -99,6 +102,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       }
       registerApiKeyRoutes(app, {
         service: options.apiKeys,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.catalog) {
+      if (!options.audit) {
+        throw new Error(
+          "catalog routes mutate state and require an audit writer.",
+        );
+      }
+      registerCatalogRoutes(app, {
+        service: options.catalog,
         requestAuth,
         audit: options.audit,
       });

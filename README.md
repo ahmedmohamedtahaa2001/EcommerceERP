@@ -92,7 +92,20 @@ optionally be restricted to specific client IPs. `DELETE /v1/api-keys/:id`
 revokes, `last_used_at` is stamped on every successful authentication, and
 secrets are redacted from logs.
 
-### Audit trail
+### Catalog
+
+`POST /v1/products` creates a product (`simple` or `bundle`) with AR/EN names,
+descriptions, images, and status (`draft`/`active`/`archived`); `GET /v1/products`
+lists with `limit`/`offset`; `GET /v1/products/:id` returns the product with its
+variants and (for bundles) components; `PATCH`/`DELETE` update or remove. A
+product that still has stock movements cannot be deleted (409).
+
+Variants hang off a product: `POST /v1/products/:id/variants` with a unique
+`sku` (unique per tenant — duplicate returns 409) plus optional `attributes`
+and `images`; `PATCH /v1/variants/:id` and `DELETE /v1/variants/:id`. A SKU
+becomes immutable once any stock movement references the variant (409 on
+attempted change). Bundles attach components via `PUT /v1/products/:id/components`
+(full replace) and `GET /v1/products/:id/components`.
 
 Every mutating route appends to the append-only `audit_log` (actor, action,
 object, before, after) through `recordAudit`; successful logins are audited

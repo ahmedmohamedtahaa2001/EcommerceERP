@@ -5,6 +5,8 @@ import Redis from "ioredis";
 import { buildApp } from "./app";
 import { PgApiKeyStore } from "./api-keys/pg-store";
 import { ApiKeyService } from "./api-keys/service";
+import { PgCatalogStore } from "./catalog/pg-store";
+import { CatalogService } from "./catalog/service";
 import { PgAuditReader, PgAuditWriter } from "./audit/pg";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
@@ -40,11 +42,16 @@ const apiKeys = new ApiKeyService({
   store: new PgApiKeyStore(pool),
   clock: systemClock,
 });
+const catalog = new CatalogService({
+  store: new PgCatalogStore(pool),
+  clock: systemClock,
+});
 const audit = new PgAuditWriter(pool);
 
 const app = buildApp({
   auth,
   apiKeys,
+  catalog,
   audit,
   auditReader: new PgAuditReader(pool),
 });
