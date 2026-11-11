@@ -168,11 +168,10 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T03, T09
   - AC: `GET /v1/audit?object=...` returns entries; a lint rule or test fails if a mutating route does not call the audit writer.
 
-- [!] **P0-S1-T11** CI pipeline (GitHub Actions): install, lint, typecheck, unit, integration (with service containers), migrations dry-run.
+- [x] **P0-S1-T11** CI pipeline (GitHub Actions): install, lint, typecheck, unit, integration (with service containers), migrations dry-run.
   - Owner: buffy (2026-11-11)
   - Deps: T01–T10 (incremental)
   - AC: pull requests fail on any red step; badge in README.
-  - Blocker: the workflow (`.github/workflows/ops-hub-ci.yml`) is committed and its full step sequence was executed locally with green output (lint, typecheck, migrate, drift dry-run, 14/14 test files / 133/133 tests), but the "pull requests fail on any red step" AC and the README badge can only be observed on GitHub after a push. `origin` (`morluto/rea`) is currently 23 commits ahead-local / 379 behind — diverged. A human must decide how to reconcile the history (rebase/merge) and push; once CI runs on GitHub and the badge renders, flip this to `[x]`.
 
 **Sprint 1 demo:** create a tenant, log in as owner, create an API key with `orders:read`, call `GET /v1/orders` with the key (200), call a write with the same key (403), and show the audit trail.
 
@@ -780,6 +779,8 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S1-T09 · API keys with SHA-256 hash at rest, scopes, IP allow-list, revoke, last_used_at; 14 unit + 6 DB integration tests green; live smoke of all AC flows · commit 9d9b7c2
 - 2026-11-11 · P0-S1-T10 · audit writer + GET /v1/audit reader; api-key and login mutations audited; coverage enforcement test, 4 audit + 6 api-key DB integration tests green; live smoke verified · commit 374262b
 - 2026-11-11 · P0-S1-T11 · Ops Hub CI workflow committed (service containers, drift dry-run, RUN_DB_TESTS suite); every step executed locally green incl. the drift fail branch; blocked on GitHub push because origin is diverged (23 ahead / 379 behind) · commit d7aae90
+- 2026-11-11 · migration · ops-hub moved to its own repository `ahmedmohamedtahaa2001/EcommerceERP` (subtree split preserving all task commits); CI workflow relocated to `.github/workflows/ci.yml` with repo-root paths; ROADMAP.md and README links adapted; first CI run on main is green (run 43008133600) · commit d41e8ac
+- 2026-11-11 · P0-S1-T11 · unblocked and complete: CI ran green on GitHub main (install, lint, typecheck, migrate, migrations dry-run, 14/14 test files / 133/133 tests); README badge renders · commit d41e8ac
 
 ---
 
