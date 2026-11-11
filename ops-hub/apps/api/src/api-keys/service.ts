@@ -128,8 +128,26 @@ export class ApiKeyService {
     return this.deps.store.list(tenantId);
   }
 
-  /** Returns whether a key was revoked; false means it did not exist. */
-  async revoke(tenantId: string, id: string): Promise<boolean> {
-    return this.deps.store.revoke(tenantId, id, this.deps.clock.now());
+  /**
+   * Revokes a key. Returns the pre-revocation summary (for the audit trail)
+   * and the revocation timestamp; null when the key does not exist in this
+   * tenant or was already revoked.
+   */
+  async revoke(
+    tenantId: string,
+    id: string,
+  ): Promise<{ before: ApiKeySummary; revokedAt: Date } | null> {
+    const before = await this.deps.store.getById(tenantId, id);
+    if (!before || before.revokedAt !== null) {
+      return null;
+    }
+
+    const revokedAt = this.deps.clock.now();
+    const revoked = await this.deps.store.revoke(tenantId, id, revokedAt);
+    if (!revoked) {
+      // A concurrent request revoked it first.
+      return null;
+    }
+    return { before, revokedAt };
   }
 }

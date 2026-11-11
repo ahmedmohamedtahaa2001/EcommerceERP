@@ -104,6 +104,19 @@ export class PgApiKeyStore implements ApiKeyStore {
     });
   }
 
+  async getById(tenantId: string, id: string): Promise<ApiKeySummary | null> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const result = await client.query<ApiKeyRow>(
+        `select * from api_keys
+          where tenant_id = $1
+            and id = $2`,
+        [tenantId, id],
+      );
+      const row = result.rows[0];
+      return row ? toSummary(row) : null;
+    });
+  }
+
   async revoke(
     tenantId: string,
     id: string,

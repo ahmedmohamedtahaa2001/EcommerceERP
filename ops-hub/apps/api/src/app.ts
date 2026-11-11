@@ -8,6 +8,8 @@ import Fastify, {
 
 import { registerApiKeyRoutes } from "./api-keys/routes";
 import type { ApiKeyService } from "./api-keys/service";
+import { registerAuditRoutes } from "./audit/routes";
+import type { AuditReader, AuditWriter } from "./audit/types";
 import { registerAuthRoutes } from "./auth/routes";
 import type { AuthService } from "./auth/service";
 import {
@@ -51,6 +53,8 @@ export interface BuildAppOptions {
   logger?: FastifyServerOptions["logger"];
   auth?: AuthService;
   apiKeys?: ApiKeyService;
+  audit?: AuditWriter;
+  auditReader?: AuditReader;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -78,17 +82,32 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     uptimeSeconds: Math.round(process.uptime()),
   }));
 
-  if (options.auth || options.apiKeys) {
+  if (options.auth || options.apiKeys || options.audit) {
     const requestAuth = new CompositeRequestAuthenticator(
       options.auth,
       options.apiKeys,
     );
 
     if (options.auth) {
-      registerAuthRoutes(app, options.auth);
+      registerAuthRoutes(app, options.auth, options.audit);
     }
     if (options.apiKeys) {
-      registerApiKeyRoutes(app, { service: options.apiKeys, requestAuth });
+      if (!options.audit) {
+        throw new Error(
+          "api-keys routes mutate state and require an audit writer.",
+        );
+      }
+      registerApiKeyRoutes(app, {
+        service: options.apiKeys,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.audit && options.auditReader) {
+      registerAuditRoutes(app, {
+        reader: options.auditReader,
+        requestAuth,
+      });
     }
   }
 

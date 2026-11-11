@@ -1,21 +1,16 @@
 import type { FastifyInstance } from "fastify";
 
 import {
+  actorAndTenant,
   requirePermission,
-  type Principal,
+  requirePrincipal,
   type RequestAuthenticator,
 } from "../auth/context";
-import { ForbiddenError, UnauthorizedError, ValidationError } from "../auth/errors";
+import { ValidationError } from "../auth/errors";
+import { recordAudit } from "../audit/record";
+import type { AuditWriter } from "../audit/types";
 import { ApiKeyNotFoundError } from "./errors";
 import type { ApiKeyService } from "./service";
-import type { ApiKeyActor } from "./types";
-
-function requirePrincipal(request: { principal?: Principal }): Principal {
-  if (!request.principal) {
-    throw new UnauthorizedError();
-  }
-  return request.principal;
-}
 
 function requireStringArray(value: unknown, field: string): string[] {
   if (
@@ -27,28 +22,15 @@ function requireStringArray(value: unknown, field: string): string[] {
   return value as string[];
 }
 
-function actorAndTenant(principal: Principal): {
-  actor: ApiKeyActor;
-  tenantId: string;
-} {
-  if (principal.kind === "apiKey") {
-    return {
-      actor: { kind: "apiKey", id: principal.apiKey.id },
-      tenantId: principal.apiKey.tenantId,
-    };
-  }
-  const user = principal.user;
-  if (!user.tenantId) {
-    throw new ForbiddenError("tenant membership");
-  }
-  return { actor: { kind: "user", id: user.id }, tenantId: user.tenantId };
-}
-
 export function registerApiKeyRoutes(
   app: FastifyInstance,
-  options: { service: ApiKeyService; requestAuth: RequestAuthenticator },
+  options: {
+    service: ApiKeyService;
+    requestAuth: RequestAuthenticator;
+    audit: AuditWriter;
+  },
 ): void {
-  const { service, requestAuth } = options;
+  const { service, requestAuth, audit } = options;
 
   app.post(
     "/v1/api-keys",
@@ -80,6 +62,13 @@ export function registerApiKeyRoutes(
         tenantId,
       );
 
+      await recordAudit(request, audit, {
+        action: "api_key.created",
+        objectType: "api_key",
+        objectId: created.summary.id,
+        after: created.summary,
+      });
+
       reply.status(201);
       return { ...created.summary, secret: created.secret };
     },
@@ -101,12 +90,19 @@ export function registerApiKeyRoutes(
       const { id } = request.params as { id?: string };
       const { tenantId } = actorAndTenant(requirePrincipal(request));
 
-      const revoked = id
-        ? await service.revoke(tenantId, id)
-        : false;
+      const revoked = id ? await service.revoke(tenantId, id) : null;
       if (!revoked) {
         throw new ApiKeyNotFoundError();
       }
+
+      await recordAudit(request, audit, {
+        action: "api_key.revoked",
+        objectType: "api_key",
+        objectId: id ?? null,
+        before: revoked.before,
+        after: { ...revoked.before, revokedAt: revoked.revokedAt },
+      });
+
       reply.status(204);
     },
   );

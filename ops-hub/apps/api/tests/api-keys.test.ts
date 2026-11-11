@@ -1,4 +1,3 @@
-import type { Clock } from "@ops-hub/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -13,89 +12,20 @@ import type {
 import { requirePermission } from "../src/auth/context";
 import { AuthService } from "../src/auth/service";
 import { CompositeRequestAuthenticator } from "../src/auth/request-authenticator";
-import type {
-  PasswordHasher,
-  RateLimiter,
-  SessionRecord,
-  SessionStore,
-  UserDirectory,
-  UserRecord,
-} from "../src/auth/types";
-
-const SESSION_TTL_SECONDS = 8 * 60 * 60;
-const TENANT_A = "22222222-2222-4222-8222-222222222222";
-const OWNER_ID = "11111111-1111-4111-8111-111111111111";
-const VIEWER_ID = "33333333-3333-4333-8333-333333333333";
-
-class FakeClock implements Clock {
-  private current = Date.parse("2026-01-01T00:00:00.000Z");
-
-  now(): Date {
-    return new Date(this.current);
-  }
-
-  advance(seconds: number): void {
-    this.current += seconds * 1000;
-  }
-}
-
-class FakeHasher implements PasswordHasher {
-  async hash(password: string): Promise<string> {
-    return `fake-hash:${password}`;
-  }
-
-  async verify(digest: string, password: string): Promise<boolean> {
-    return digest === `fake-hash:${password}`;
-  }
-}
-
-class FakeDirectory implements UserDirectory {
-  constructor(private readonly users: UserRecord[]) {}
-
-  async findByEmail(email: string): Promise<UserRecord | null> {
-    return (
-      this.users.find((user) => user.email === email.toLowerCase()) ?? null
-    );
-  }
-
-  async findById(id: string): Promise<UserRecord | null> {
-    return this.users.find((user) => user.id === id) ?? null;
-  }
-}
-
-class FakeSessions implements SessionStore {
-  private readonly sessions = new Map<string, SessionRecord>();
-
-  constructor(private readonly clock: FakeClock) {}
-
-  async create(session: SessionRecord): Promise<void> {
-    this.sessions.set(session.token, session);
-  }
-
-  async get(token: string): Promise<SessionRecord | null> {
-    const session = this.sessions.get(token);
-    if (!session) {
-      return null;
-    }
-    return session.expiresAt.getTime() > this.clock.now().getTime()
-      ? session
-      : null;
-  }
-
-  async delete(token: string): Promise<void> {
-    this.sessions.delete(token);
-  }
-}
-
-class FakeLimiter implements RateLimiter {
-  async blockedFor(): Promise<number> {
-    return 0;
-  }
-
-  async recordFailure(): Promise<void> {}
-
-  async reset(): Promise<void> {}
-}
+import type { UserRecord } from "../src/auth/types";
+import {
+  FakeAuditWriter,
+  FakeClock,
+  FakeDirectory,
+  FakeHasher,
+  FakeLimiter,
+  FakeSessions,
+  NoopAuditReader,
+  SESSION_TTL_SECONDS,
+  TENANT_A,
+  ownerUser,
+  viewerUser,
+} from "./fakes";
 
 /**
  * Mirrors the store contract, including the `find_api_key_by_hash` behavior
@@ -120,6 +50,23 @@ class FakeApiKeyStore implements ApiKeyStore {
       }
     }
     return null;
+  }
+
+  async getById(tenantId: string, id: string): Promise<ApiKeySummary | null> {
+    const record = this.records.get(id);
+    if (!record || record.tenantId !== tenantId) {
+      return null;
+    }
+    return {
+      id: record.id,
+      name: record.name,
+      keyPrefix: record.keyPrefix,
+      scopes: record.scopes,
+      ipAllowlist: record.ipAllowlist,
+      createdAt: record.createdAt,
+      lastUsedAt: record.lastUsedAt,
+      revokedAt: record.revokedAt,
+    };
   }
 
   async list(tenantId: string): Promise<ApiKeySummary[]> {
@@ -152,33 +99,20 @@ class FakeApiKeyStore implements ApiKeyStore {
   }
 }
 
-const owner: UserRecord = {
-  id: OWNER_ID,
-  email: "owner@example.com",
-  fullName: "Owner",
-  tenantId: TENANT_A,
-  role: "owner",
-  passwordHash: "fake-hash:correct-horse",
-};
-
-const viewer: UserRecord = {
-  id: VIEWER_ID,
-  email: "viewer@example.com",
-  fullName: "Viewer",
-  tenantId: TENANT_A,
-  role: "viewer",
-  passwordHash: "fake-hash:correct-horse",
-};
+const owner: UserRecord = ownerUser;
+const viewer: UserRecord = viewerUser;
 
 let app: FastifyInstance;
 let clock: FakeClock;
 let store: FakeApiKeyStore;
 let auth: AuthService;
 let apiKeyService: ApiKeyService;
+let auditWriter: FakeAuditWriter;
 
 beforeEach(() => {
   clock = new FakeClock();
   store = new FakeApiKeyStore(clock);
+  auditWriter = new FakeAuditWriter();
   auth = new AuthService({
     users: new FakeDirectory([owner, viewer]),
     passwords: new FakeHasher(),
@@ -193,6 +127,8 @@ beforeEach(() => {
     logger: false,
     auth,
     apiKeys: apiKeyService,
+    audit: auditWriter,
+    auditReader: new NoopAuditReader(),
   });
 
   const requestAuth = new CompositeRequestAuthenticator(auth, apiKeyService);
@@ -544,6 +480,8 @@ describe("API keys never reach the logs", () => {
       logger: { level: "info", stream, redact: { paths: REDACT_PATHS, censor: CENSOR } },
       auth,
       apiKeys: apiKeyService,
+      audit: auditWriter,
+      auditReader: new NoopAuditReader(),
     });
     loggingApp.get(
       "/v1/orders",
@@ -566,5 +504,79 @@ describe("API keys never reach the logs", () => {
     expect(output).not.toContain(created.secret);
     expect(output).toContain(CENSOR);
     await loggingApp.close();
+  });
+});
+
+describe("audit trail", () => {
+  it("records api_key.created with a secret-free after state", async () => {
+    const token = await loginAs(owner);
+    const { body } = await createKey(token, {
+      name: "storefront",
+      scopes: ["orders:read"],
+    });
+
+    const created = auditWriter.entries.filter(
+      (entry) => entry.action === "api_key.created",
+    );
+    expect(created).toHaveLength(1);
+    const entry = created[0];
+    expect(entry).toMatchObject({
+      actorType: "user",
+      actorId: owner.id,
+      objectType: "api_key",
+    });
+    expect((entry?.after as { name: string }).name).toBe("storefront");
+    // Neither the plaintext secret nor its digest may reach the audit trail.
+    const payload = JSON.stringify(entry);
+    expect(payload).not.toContain(body.secret as string);
+    expect(payload).not.toContain(hashApiKey(body.secret as string));
+  });
+
+  it("records api_key.revoked with before and after states", async () => {
+    const token = await loginAs(owner);
+    const key = await createOrdersReadKey(token);
+
+    const response = await app.inject({
+      method: "DELETE",
+      url: `/v1/api-keys/${key.id}`,
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(response.statusCode).toBe(204);
+
+    const revoked = auditWriter.entries.filter(
+      (entry) => entry.action === "api_key.revoked",
+    );
+    expect(revoked).toHaveLength(1);
+    const entry = revoked[0];
+    expect(entry?.objectId).toBe(key.id);
+    expect((entry?.before as { revokedAt: null }).revokedAt).toBeNull();
+    expect(entry?.after).toMatchObject({ name: "storefront" });
+    expect((entry?.after as { revokedAt: unknown }).revokedAt).toBeTruthy();
+  });
+
+  it("records successful logins without the session token", async () => {
+    await loginAs(owner);
+
+    const logins = auditWriter.entries.filter(
+      (entry) => entry.action === "auth.login",
+    );
+    expect(logins).toHaveLength(1);
+    expect(logins[0]).toMatchObject({
+      actorType: "user",
+      actorId: owner.id,
+      objectType: "session",
+      objectId: null,
+    });
+    expect((logins[0]?.after as { userId: string }).userId).toBe(owner.id);
+  });
+
+  it("does not record failed logins", async () => {
+    await app.inject({
+      method: "POST",
+      url: "/v1/auth/login",
+      payload: { email: owner.email, password: "wrong" },
+    });
+
+    expect(auditWriter.entries).toHaveLength(0);
   });
 });

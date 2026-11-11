@@ -46,6 +46,7 @@ export interface ApiKeyStore {
   create(key: ApiKeyRecord): Promise<void>;
   /** Auth lookup: no tenant context exists yet, so this is global by hash. */
   findByHash(keyHash: string): Promise<ApiKeyRecord | null>;
+  getById(tenantId: string, id: string): Promise<ApiKeySummary | null>;
   list(tenantId: string): Promise<ApiKeySummary[]>;
   /** Revokes only when not already revoked; returns whether it revoked. */
   revoke(tenantId: string, id: string, revokedAt: Date): Promise<boolean>;
