@@ -212,9 +212,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: no endpoint updates balances directly; every change creates a movement with reason code and actor; balances equal the sum of movements (property test with random sequences).
   - Note: `reason` here is a free-text required string, not yet the fixed enum from P0-S2-T08 (adjustments) — this task is the general-purpose ledger primitive other tasks (receiving, adjustments, reservations) will call with their own reason codes. No `fast-check`-style library is in the repo; the property test hand-rolls 200 random movements and checks both an in-memory tally and a direct re-sum from `stock_movements`.
 
-- [ ] **P0-S2-T06** Availability API: `available_to_promise = on_hand − reserved − quarantined − damaged`, per SKU and location, plus a total across locations.
+- [x] **P0-S2-T06** Availability API: `available_to_promise = on_hand − reserved − quarantined − damaged`, per SKU and location, plus a total across locations.
+  - Owner: claude (2026-11-11)
   - Deps: T05
   - AC: `GET /v1/inventory/availability?sku=&location=`; unit test for each bucket combination; never returns a negative ATP unless negative-stock policy is set to allow.
+  - Note: added `tenants.allow_negative_stock` (migration 0005, default `false`) as the policy flag; no tenant-settings endpoint to change it yet, so it can only be flipped directly in the DB for now.
 
 - [ ] **P0-S2-T07** Reservations: create, release, expire (Redis-backed lock per sku+location during allocation; expiry job).
   - Deps: T05, T06
@@ -795,6 +797,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S2-T03 · Locations and bins API (create/list/get, location delete). Bin code uniqueness and the stock-on-delete rejection both ride on existing DB constraints (unique index, FK restrict) rather than app-level pre-checks. 172/172 tests green, lint + typecheck clean · commit e699fbe
 - 2026-11-11 · P0-S2-T04 · Geo reference data: pure resolveGovernorate/resolveDistrict in packages/domain (diacritic- and case-insensitive, matches EN/AR/aliases) plus GET /v1/geo/governorates and /v1/geo/districts. 183/183 tests green, lint + typecheck clean · commit 40295da
 - 2026-11-11 · P0-S2-T05 · Stock ledger: stock_movements + derived stock_balances, five buckets, single transaction per movement (insert + upsert). 190/190 tests green incl. a 200-step randomized property test, lint + typecheck clean · commit 3329af0
+- 2026-11-11 · P0-S2-T06 · Availability API (ATP) over the stock ledger; added tenants.allow_negative_stock (migration 0005, default false) as the clamp policy. 204/204 tests green, lint + typecheck clean · commit e9a040e
 
 ---
 
