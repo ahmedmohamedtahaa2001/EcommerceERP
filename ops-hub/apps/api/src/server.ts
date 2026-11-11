@@ -15,6 +15,12 @@ import { PgStockStore } from "./stock/pg-store";
 import { StockService } from "./stock/service";
 import { PgTenantPolicyReader } from "./availability/pg-tenant-policy";
 import { AvailabilityService } from "./availability/service";
+import {
+  PgReservationBalanceReader,
+  PgReservationStore,
+} from "./stock/pg-reservation-store";
+import { RedisLock } from "./stock/redis-lock";
+import { ReservationService } from "./stock/reservation-service";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
 import { RedisRateLimiter } from "./auth/redis-rate-limiter";
@@ -71,6 +77,14 @@ const availability = new AvailabilityService({
   policy: new PgTenantPolicyReader(pool),
 });
 
+const reservations = new ReservationService({
+  store: new PgReservationStore(pool),
+  balances: new PgReservationBalanceReader(pool),
+  movements: stock,
+  lock: new RedisLock(redis),
+  clock: systemClock,
+});
+
 const app = buildApp({
   auth,
   apiKeys,
@@ -81,6 +95,7 @@ const app = buildApp({
   inventory,
   stock,
   availability,
+  reservations,
 });
 app.addHook("onClose", async () => {
   await pool.end();

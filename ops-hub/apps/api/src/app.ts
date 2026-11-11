@@ -23,6 +23,8 @@ import { registerStockRoutes } from "./stock/routes";
 import type { StockService } from "./stock/service";
 import { registerAvailabilityRoutes } from "./availability/routes";
 import type { AvailabilityService } from "./availability/service";
+import { registerReservationRoutes } from "./stock/reservation-routes";
+import type { ReservationService } from "./stock/reservation-service";
 
 export const REDACT_PATHS = [
   "req.headers.authorization",
@@ -68,6 +70,7 @@ export interface BuildAppOptions {
   inventory?: InventoryService;
   stock?: StockService;
   availability?: AvailabilityService;
+  reservations?: ReservationService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -166,6 +169,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       }
       registerStockRoutes(app, {
         service: options.stock,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.reservations) {
+      if (!options.audit) {
+        throw new Error(
+          "reservation routes mutate state and require an audit writer.",
+        );
+      }
+      registerReservationRoutes(app, {
+        service: options.reservations,
         requestAuth,
         audit: options.audit,
       });
