@@ -1,5 +1,7 @@
 import type { FastifyInstance } from "fastify";
 
+import { recordAudit } from "../audit/record";
+import type { AuditWriter } from "../audit/types";
 import { UnauthorizedError, ValidationError } from "./errors";
 import { bearerToken } from "./http";
 import type { AuthService } from "./service";
@@ -7,6 +9,7 @@ import type { AuthService } from "./service";
 export function registerAuthRoutes(
   app: FastifyInstance,
   service: AuthService,
+  audit?: AuditWriter,
 ): void {
   app.post("/v1/auth/login", async (request, reply) => {
     const body = request.body;
@@ -29,6 +32,25 @@ export function registerAuthRoutes(
 
     const result = await service.login(email, password);
     reply.header("cache-control", "no-store");
+
+    if (audit && result.user.tenantId) {
+      await recordAudit(
+        request,
+        audit,
+        {
+          action: "auth.login",
+          objectType: "session",
+          objectId: null,
+          after: { userId: result.user.id, email: result.user.email },
+        },
+        {
+          tenantId: result.user.tenantId,
+          actorType: "user",
+          actorId: result.user.id,
+        },
+      );
+    }
+
     return {
       token: result.token,
       expiresAt: result.expiresAt.toISOString(),

@@ -91,5 +91,14 @@ optionally be restricted to specific client IPs. `DELETE /v1/api-keys/:id`
 revokes, `last_used_at` is stamped on every successful authentication, and
 secrets are redacted from logs.
 
+### Audit trail
+
+Every mutating route appends to the append-only `audit_log` (actor, action,
+object, before, after) through `recordAudit`; successful logins are audited
+too, and the enforcement test in `apps/api/tests/audit-coverage.test.ts`
+fails if a mutating route skips it. `GET /v1/audit?object=<type>[:<id>]`
+(role `audit:read`) returns entries newest first with a `limit` between 1
+and 200.
+
 If pnpm is not installed globally, prefix commands with `npx pnpm@10`
 (for example `npx pnpm@10 install`).

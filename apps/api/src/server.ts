@@ -5,6 +5,7 @@ import Redis from "ioredis";
 import { buildApp } from "./app";
 import { PgApiKeyStore } from "./api-keys/pg-store";
 import { ApiKeyService } from "./api-keys/service";
+import { PgAuditReader, PgAuditWriter } from "./audit/pg";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
 import { RedisRateLimiter } from "./auth/redis-rate-limiter";
@@ -39,8 +40,14 @@ const apiKeys = new ApiKeyService({
   store: new PgApiKeyStore(pool),
   clock: systemClock,
 });
+const audit = new PgAuditWriter(pool);
 
-const app = buildApp({ auth, apiKeys });
+const app = buildApp({
+  auth,
+  apiKeys,
+  audit,
+  auditReader: new PgAuditReader(pool),
+});
 app.addHook("onClose", async () => {
   await pool.end();
   redis.disconnect();

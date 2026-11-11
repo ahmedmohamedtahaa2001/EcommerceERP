@@ -2,8 +2,8 @@ import { can, type Permission } from "@ops-hub/domain";
 import type { FastifyRequest } from "fastify";
 
 import { ApiKeyScopeError } from "../api-keys/errors";
-import type { ApiKeyPrincipal } from "../api-keys/types";
-import { ForbiddenError } from "./errors";
+import type { ApiKeyActor, ApiKeyPrincipal } from "../api-keys/types";
+import { ForbiddenError, UnauthorizedError } from "./errors";
 import type { AuthUser } from "./types";
 
 declare module "fastify" {
@@ -51,4 +51,30 @@ export function requirePermission(
     }
     request.currentApiKey = principal.apiKey;
   };
+}
+
+/** The principal set by `requirePermission`; throws when it is absent. */
+export function requirePrincipal(request: FastifyRequest): Principal {
+  if (!request.principal) {
+    throw new UnauthorizedError();
+  }
+  return request.principal;
+}
+
+/** Who acted, and within which tenant, for audit and scoping purposes. */
+export function actorAndTenant(principal: Principal): {
+  actor: ApiKeyActor;
+  tenantId: string;
+} {
+  if (principal.kind === "apiKey") {
+    return {
+      actor: { kind: "apiKey", id: principal.apiKey.id },
+      tenantId: principal.apiKey.tenantId,
+    };
+  }
+  const user = principal.user;
+  if (!user.tenantId) {
+    throw new ForbiddenError("tenant membership");
+  }
+  return { actor: { kind: "user", id: user.id }, tenantId: user.tenantId };
 }

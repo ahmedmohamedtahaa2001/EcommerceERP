@@ -1,139 +1,33 @@
-import type { Clock } from "@ops-hub/shared";
 import type { FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { buildApp } from "../src/app";
 import { AuthService } from "../src/auth/service";
-import type {
-  AuthUser,
-  PasswordHasher,
-  RateLimiter,
-  SessionRecord,
-  SessionStore,
-  UserDirectory,
-  UserRecord,
-} from "../src/auth/types";
-
-const SESSION_TTL_SECONDS = 8 * 60 * 60;
-const LIMIT = 5;
-const WINDOW_SECONDS = 15 * 60;
-
-class FakeClock implements Clock {
-  private current = Date.parse("2026-01-01T00:00:00.000Z");
-
-  now(): Date {
-    return new Date(this.current);
-  }
-
-  advance(seconds: number): void {
-    this.current += seconds * 1000;
-  }
-}
-
-class FakeHasher implements PasswordHasher {
-  async hash(password: string): Promise<string> {
-    return `fake-hash:${password}`;
-  }
-
-  async verify(digest: string, password: string): Promise<boolean> {
-    return digest === `fake-hash:${password}`;
-  }
-}
-
-class FakeDirectory implements UserDirectory {
-  constructor(private readonly users: UserRecord[]) {}
-
-  async findByEmail(email: string): Promise<UserRecord | null> {
-    return (
-      this.users.find((user) => user.email === email.toLowerCase()) ?? null
-    );
-  }
-
-  async findById(id: string): Promise<UserRecord | null> {
-    return this.users.find((user) => user.id === id) ?? null;
-  }
-}
-
-class FakeSessions implements SessionStore {
-  private readonly sessions = new Map<string, SessionRecord>();
-
-  constructor(private readonly clock: FakeClock) {}
-
-  async create(session: SessionRecord): Promise<void> {
-    this.sessions.set(session.token, session);
-  }
-
-  async get(token: string): Promise<SessionRecord | null> {
-    const session = this.sessions.get(token);
-    if (!session) {
-      return null;
-    }
-    return session.expiresAt.getTime() > this.clock.now().getTime()
-      ? session
-      : null;
-  }
-
-  async delete(token: string): Promise<void> {
-    this.sessions.delete(token);
-  }
-}
-
-class FakeLimiter implements RateLimiter {
-  private readonly attempts = new Map<
-    string,
-    { count: number; resetAt: number }
-  >();
-
-  constructor(private readonly clock: FakeClock) {}
-
-  async blockedFor(identifier: string): Promise<number> {
-    const entry = this.attempts.get(identifier);
-    const now = this.clock.now().getTime();
-    if (!entry || entry.resetAt <= now) {
-      return 0;
-    }
-    return entry.count >= LIMIT
-      ? Math.ceil((entry.resetAt - now) / 1000)
-      : 0;
-  }
-
-  async recordFailure(identifier: string): Promise<void> {
-    const now = this.clock.now().getTime();
-    const entry = this.attempts.get(identifier);
-    if (!entry || entry.resetAt <= now) {
-      this.attempts.set(identifier, {
-        count: 1,
-        resetAt: now + WINDOW_SECONDS * 1000,
-      });
-      return;
-    }
-    entry.count += 1;
-  }
-
-  async reset(identifier: string): Promise<void> {
-    this.attempts.delete(identifier);
-  }
-}
-
-const user: UserRecord = {
-  id: "11111111-1111-4111-8111-111111111111",
-  email: "owner@example.com",
-  fullName: "Owner",
-  tenantId: "22222222-2222-4222-8222-222222222222",
-  role: "owner",
-  passwordHash: "fake-hash:correct-horse",
-};
+import type { AuthUser } from "../src/auth/types";
+import {
+  FakeClock,
+  FakeDirectory,
+  FakeHasher,
+  FakeLoginLimiter,
+  FakeSessions,
+  LOGIN_ATTEMPT_LIMIT,
+  LOGIN_WINDOW_SECONDS,
+  SESSION_TTL_SECONDS,
+  ownerUser as user,
+} from "./fakes";
 
 let app: FastifyInstance;
 let clock: FakeClock;
+let limiter: FakeLoginLimiter;
 
 beforeEach(() => {
   clock = new FakeClock();
+  limiter = new FakeLoginLimiter(clock);
   const auth = new AuthService({
     users: new FakeDirectory([user]),
     passwords: new FakeHasher(),
     sessions: new FakeSessions(clock),
-    limiter: new FakeLimiter(clock),
+    limiter,
     clock,
     sessionTtlSeconds: SESSION_TTL_SECONDS,
   });
@@ -264,7 +158,7 @@ describe("POST /v1/auth/logout", () => {
 
 describe("login rate limiting", () => {
   it("blocks the sixth attempt for the rest of the window", async () => {
-    for (let attempt = 0; attempt < LIMIT; attempt += 1) {
+    for (let attempt = 0; attempt < LOGIN_ATTEMPT_LIMIT; attempt += 1) {
       const response = await login({ email: user.email, password: "wrong" });
       expect(response.statusCode).toBe(401);
     }
@@ -275,9 +169,9 @@ describe("login rate limiting", () => {
     });
 
     expect(blocked.statusCode).toBe(429);
-    expect(blocked.headers["retry-after"]).toBe(String(WINDOW_SECONDS));
+    expect(blocked.headers["retry-after"]).toBe(String(LOGIN_WINDOW_SECONDS));
 
-    clock.advance(WINDOW_SECONDS + 1);
+    clock.advance(LOGIN_WINDOW_SECONDS + 1);
     const allowedAgain = await login({
       email: user.email,
       password: "correct-horse",

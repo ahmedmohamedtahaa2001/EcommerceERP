@@ -12,8 +12,10 @@ const databaseUrl =
   "postgres://ops_hub:ops_hub@localhost:5432/ops_hub";
 const runDbTests = process.env.RUN_DB_TESTS === "1";
 
-const tenantA = "00000000-0000-4000-8000-00000000000a";
-const tenantB = "00000000-0000-4000-8000-00000000000b";
+// Distinct from the other integration suites so parallel workers never
+// clobber each other's fixture tenants.
+const tenantA = "00000000-0000-4000-8000-000000000101";
+const tenantB = "00000000-0000-4000-8000-000000000102";
 
 const pool = new Pool({ connectionString: databaseUrl });
 const client = new Client({ connectionString: databaseUrl });
@@ -140,7 +142,9 @@ describe.skipIf(!runDbTests)("API key store against Postgres", () => {
     expect(created).toBeDefined();
 
     const revoked = await service.revoke(tenantA, created!.id);
-    expect(revoked).toBe(true);
+    expect(revoked).not.toBeNull();
+    expect(revoked?.before.name).toBe("storefront");
+    expect(revoked?.revokedAt).toBeInstanceOf(Date);
 
     await expect(
       service.authenticate(created!.secret, null),
@@ -152,9 +156,9 @@ describe.skipIf(!runDbTests)("API key store against Postgres", () => {
 
   it("rejects re-revocation with 404 semantics", async () => {
     expect(created).toBeDefined();
-    await expect(service.revoke(tenantA, created!.id)).resolves.toBe(false);
+    await expect(service.revoke(tenantA, created!.id)).resolves.toBeNull();
     await expect(
       service.revoke(tenantB, created!.id),
-    ).resolves.toBe(false);
+    ).resolves.toBeNull();
   });
 });
