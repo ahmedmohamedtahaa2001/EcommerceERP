@@ -181,7 +181,7 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 **Sprint goal:** products and stock exist per location, every stock change is a movement, and available-to-promise is correct.
 
-- [ ] **P0-S2-T01** Catalog tables and API: `products`, `variants` (SKU unique per tenant), `bundles` (components), with AR/EN names and images.
+- [x] **P0-S2-T01** Catalog tables and API: `products`, `variants` (SKU unique per tenant), `bundles` (components), with AR/EN names and images.
   - Deps: S1 complete
   - AC: CRUD endpoints with validation; SKU immutable after first stock movement (enforced + tested); duplicate SKU returns 409.
 
@@ -781,6 +781,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S1-T11 · Ops Hub CI workflow committed (service containers, drift dry-run, RUN_DB_TESTS suite); every step executed locally green incl. the drift fail branch; blocked on GitHub push because origin is diverged (23 ahead / 379 behind) · commit d7aae90
 - 2026-11-11 · migration · ops-hub moved to its own repository `ahmedmohamedtahaa2001/EcommerceERP` (subtree split preserving all task commits); CI workflow relocated to `.github/workflows/ci.yml` with repo-root paths; ROADMAP.md and README links adapted; first CI run on main is green (run 43008133600) · commit d41e8ac
 - 2026-11-11 · P0-S1-T11 · unblocked and complete: CI ran green on GitHub main (install, lint, typecheck, migrate, migrations dry-run, 14/14 test files / 133/133 tests); README badge renders · commit d41e8ac
+- 2026-11-11 · P0-S2-T01 · catalog tables (products, variants, bundle_components, stock_movements skeleton) with RLS + append-only ledger; CRUD API with validation, duplicate SKU 409, SKU immutability after movement, bundle components; unit 18 + integration 7 tests green; lint/typecheck green · commit 746c0f0
 
 ---
 
