@@ -194,9 +194,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: import 1,000-row fixture in under 10 seconds; invalid rows reported with row number and reason; dry-run writes nothing.
   - Note: each row creates one product plus its implicit variant (no linking to an existing product by name/id). Endpoint takes `{ format: "csv"|"xlsx", content, dryRun }` as JSON (base64 content for xlsx) rather than multipart upload, since no multipart plugin is wired up yet.
 
-- [ ] **P0-S2-T03** Locations and bins: `locations` (warehouse, 3PL, shop, transit) with governorate code; `bins` with zone, code, capacity.
+- [x] **P0-S2-T03** Locations and bins: `locations` (warehouse, 3PL, shop, transit) with governorate code; `bins` with zone, code, capacity.
+  - Owner: claude (2026-11-11)
   - Deps: T01
   - AC: bin code unique per location; deleting a location with stock is rejected.
+  - Note: the stock-on-delete check isn't re-implemented in the service — `stock_balances`/`stock_movements`/`stock_reservations` already reference `location_id` with `ON DELETE RESTRICT` (from the reverse-engineered migration 0004), so the service just translates Postgres's own FK violation into a 409.
 
 - [ ] **P0-S2-T04** Geo reference data: Egyptian governorates and common districts with canonical codes, AR and EN names, and spelling variants (e.g., "Giza", "الجيزة", "Gizeh").
   - Deps: T01
@@ -786,6 +788,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S1-T11 · Ops Hub CI workflow committed (service containers, drift dry-run, RUN_DB_TESTS suite); every step executed locally green incl. the drift fail branch; blocked on GitHub push because origin is diverged (23 ahead / 379 behind) · commit d7aae90
 - 2026-11-11 · P0-S2-T01 · Catalog CRUD API (products/variants) with permission guards, audit, SKU-immutable updates, 409 on duplicate SKU. Discovered the dev DB already had a more-advanced, uncommitted schema (catalog + locations/bins + stock ledger) from a prior session; reverse-engineered it into `schema/catalog.ts`, `schema/inventory.ts`, and migration 0004, and reconciled drizzle's migration journal against the DB's already-applied state. 151/151 tests green (incl. 9 new DB integration tests), lint + typecheck clean · commit d6992bd
 - 2026-11-11 · P0-S2-T02 · Bulk product import (CSV/XLSX) with dry-run default, row-level error reporting, one bulk multi-row INSERT per table. 1,000-row fixture imports in well under a second. 164/164 tests green, lint + typecheck clean · commit a2de462
+- 2026-11-11 · P0-S2-T03 · Locations and bins API (create/list/get, location delete). Bin code uniqueness and the stock-on-delete rejection both ride on existing DB constraints (unique index, FK restrict) rather than app-level pre-checks. 172/172 tests green, lint + typecheck clean · commit e699fbe
 
 ---
 
