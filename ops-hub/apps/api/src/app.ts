@@ -21,6 +21,8 @@ import type { InventoryService } from "./inventory/service";
 import { registerGeoRoutes } from "./geo/routes";
 import { registerStockRoutes } from "./stock/routes";
 import type { StockService } from "./stock/service";
+import { registerAvailabilityRoutes } from "./availability/routes";
+import type { AvailabilityService } from "./availability/service";
 
 export const REDACT_PATHS = [
   "req.headers.authorization",
@@ -65,6 +67,7 @@ export interface BuildAppOptions {
   catalogImport?: CatalogImportService;
   inventory?: InventoryService;
   stock?: StockService;
+  availability?: AvailabilityService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -99,6 +102,13 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     );
 
     registerGeoRoutes(app, { requestAuth });
+
+    if (options.availability) {
+      registerAvailabilityRoutes(app, {
+        service: options.availability,
+        requestAuth,
+      });
+    }
 
     if (options.auth) {
       registerAuthRoutes(app, options.auth, options.audit);

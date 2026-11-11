@@ -1,0 +1,1 @@
+ALTER TABLE "tenants" ADD COLUMN "allow_negative_stock" boolean DEFAULT false NOT NULL;
