@@ -782,7 +782,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · migration · ops-hub moved to its own repository `ahmedmohamedtahaa2001/EcommerceERP` (subtree split preserving all task commits); CI workflow relocated to `.github/workflows/ci.yml` with repo-root paths; ROADMAP.md and README links adapted; first CI run on main is green (run 43008133600) · commit d41e8ac
 - 2026-11-11 · P0-S1-T11 · unblocked and complete: CI ran green on GitHub main (install, lint, typecheck, migrate, migrations dry-run, 14/14 test files / 133/133 tests); README badge renders · commit d41e8ac
 - 2026-11-11 · P0-S2-T01 · catalog tables (products, variants, bundle_components, stock_movements skeleton) with RLS + append-only ledger; CRUD API with validation, duplicate SKU 409, SKU immutability after movement, bundle components; unit 18 + integration 7 tests green; lint/typecheck green · commit 746c0f0
-- 2026-11-11 · P0-S2-T03 · locations + bins tables with RLS, location type validation, bin code unique per location, location delete blocked on stock movements; 15 unit + 3 integration tests green · commit c4fee59
+- 2026-11-11 · P0-S2-T04 · 27 governorates + districts reference data in shared/geo with spelling variants; resolveGovernorate/resolveDistrict; geo endpoints; unit tests green · commit 5ef31ae
 
 ---
 
