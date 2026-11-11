@@ -107,6 +107,13 @@ becomes immutable once any stock movement references the variant (409 on
 attempted change). Bundles attach components via `PUT /v1/products/:id/components`
 (full replace) and `GET /v1/products/:id/components`.
 
+### Geo reference data
+
+`GET /v1/geo/governorates` returns all 27 Egyptian governorates with canonical
+codes, AR/EN names, and spelling variants. `GET /v1/geo/districts?governorate=`
+filters districts by governorate (code or any spelling). `GET /v1/geo/resolve?q=`
+resolves free-text (e.g. "gizeh", "الجيزة") to a canonical governorate code.
+
 ### Locations and bins
 
 `POST /v1/locations` creates a location (`warehouse`, `3pl`, `shop`, `transit`)

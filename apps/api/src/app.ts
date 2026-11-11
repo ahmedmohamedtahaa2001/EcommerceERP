@@ -15,6 +15,7 @@ import { registerAuthRoutes } from "./auth/routes";
 import type { AuthService } from "./auth/service";
 import { registerCatalogRoutes } from "./catalog/routes";
 import type { CatalogService } from "./catalog/service";
+import { registerGeoRoutes } from "./geo/routes";
 import { registerLocationRoutes } from "./locations/routes";
 import type { LocationService } from "./locations/service";
 import {
@@ -135,6 +136,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
         audit: options.audit,
       });
     }
+    registerGeoRoutes(app, { requestAuth });
     if (options.audit && options.auditReader) {
       registerAuditRoutes(app, {
         reader: options.auditReader,

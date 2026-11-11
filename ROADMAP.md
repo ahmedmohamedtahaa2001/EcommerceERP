@@ -193,7 +193,7 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T01
   - AC: bin code unique per location; deleting a location with stock is rejected.
 
-- [ ] **P0-S2-T04** Geo reference data: Egyptian governorates and common districts with canonical codes, AR and EN names, and spelling variants (e.g., "Giza", "الجيزة", "Gizeh").
+- [x] **P0-S2-T04** Geo reference data: Egyptian governorates and common districts with canonical codes, AR and EN names, and spelling variants (e.g., "Giza", "الجيزة", "Gizeh").
   - Deps: T01
   - AC: `GET /v1/geo/governorates` and `/v1/geo/districts` exist; `resolveGovernorate("gizeh")` returns the canonical code (unit tests).
 

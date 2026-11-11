@@ -18,6 +18,7 @@ export const PERMISSIONS = [
   "settings:write",
   "catalog:read",
   "catalog:write",
+  "geo:read",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -51,6 +52,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "users:read",
     "catalog:read",
     "catalog:write",
+    "geo:read",
   ],
   sales_agent: [
     "orders:read",
@@ -60,6 +62,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "customers:read",
     "customers:write",
     "catalog:read",
+    "geo:read",
   ],
   warehouse: [
     "orders:read",
@@ -68,6 +71,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "shipments:read",
     "shipments:write",
     "catalog:read",
+    "geo:read",
   ],
   finance: [
     "orders:read",
@@ -76,6 +80,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "reports:read",
     "audit:read",
     "catalog:read",
+    "geo:read",
   ],
   support: [
     "orders:read",
@@ -84,6 +89,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "customers:read",
     "customers:write",
     "catalog:read",
+    "geo:read",
   ],
   viewer: [
     "orders:read",
@@ -91,6 +97,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "shipments:read",
     "reports:read",
     "catalog:read",
+    "geo:read",
   ],
 };
 
