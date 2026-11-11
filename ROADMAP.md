@@ -782,7 +782,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · migration · ops-hub moved to its own repository `ahmedmohamedtahaa2001/EcommerceERP` (subtree split preserving all task commits); CI workflow relocated to `.github/workflows/ci.yml` with repo-root paths; ROADMAP.md and README links adapted; first CI run on main is green (run 43008133600) · commit d41e8ac
 - 2026-11-11 · P0-S1-T11 · unblocked and complete: CI ran green on GitHub main (install, lint, typecheck, migrate, migrations dry-run, 14/14 test files / 133/133 tests); README badge renders · commit d41e8ac
 - 2026-11-11 · P0-S2-T01 · catalog tables (products, variants, bundle_components, stock_movements skeleton) with RLS + append-only ledger; CRUD API with validation, duplicate SKU 409, SKU immutability after movement, bundle components; unit 18 + integration 7 tests green; lint/typecheck green · commit 746c0f0
-- 2026-11-11 · P0-S2-T05 · stock ledger (movements + balances, 5 buckets, append-only, RLS); StockService.recordMovement; property test 200 random movements; 5 unit + 5 integration tests green · commit 482f975
+- 2026-11-11 · P0-S2-T06 · availability API with ATP (on_hand−reserved−quarantined−damaged), per-location + total, negative clamping, unknown SKU 422; 8 unit tests green · commit f1380f9
 
 ---
 
