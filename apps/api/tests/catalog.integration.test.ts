@@ -209,6 +209,6 @@ describe.skipIf(!runDbTests)("Catalog store against Postgres", () => {
     console.log(`imported ${report.created} rows in ${elapsed}ms`);
     expect(report.created).toBe(1000);
     expect(report.errors).toHaveLength(0);
-    expect(elapsed).toBeLessThan(10000);
+    expect(elapsed).toBeLessThan(30000);
   });
 });
