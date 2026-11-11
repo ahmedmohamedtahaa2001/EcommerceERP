@@ -6,6 +6,7 @@ import { buildApp } from "./app";
 import { PgApiKeyStore } from "./api-keys/pg-store";
 import { ApiKeyService } from "./api-keys/service";
 import { PgAuditReader, PgAuditWriter } from "./audit/pg";
+import { CatalogImportService } from "./catalog/import-service";
 import { PgProductStore, PgVariantStore } from "./catalog/pg-store";
 import { CatalogService } from "./catalog/service";
 import { argon2Hasher } from "./auth/passwords";
@@ -48,6 +49,7 @@ const catalog = new CatalogService({
   variants: new PgVariantStore(pool),
   clock: systemClock,
 });
+const catalogImport = new CatalogImportService(pool);
 
 const app = buildApp({
   auth,
@@ -55,6 +57,7 @@ const app = buildApp({
   audit,
   auditReader: new PgAuditReader(pool),
   catalog,
+  catalogImport,
 });
 app.addHook("onClose", async () => {
   await pool.end();

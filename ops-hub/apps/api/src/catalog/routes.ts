@@ -9,6 +9,8 @@ import {
 import { recordAudit } from "../audit/record";
 import type { AuditWriter } from "../audit/types";
 import { CatalogValidationError } from "./errors";
+import type { CatalogImportService } from "./import-service";
+import { parseCsv, parseXlsx } from "./import-parse";
 import type { CatalogService } from "./service";
 import type {
   CreateProductRequest,
@@ -45,9 +47,10 @@ export function registerCatalogRoutes(
     service: CatalogService;
     requestAuth: RequestAuthenticator;
     audit: AuditWriter;
+    importService?: CatalogImportService;
   },
 ): void {
-  const { service, requestAuth, audit } = options;
+  const { service, requestAuth, audit, importService } = options;
 
   app.post(
     "/v1/products",
@@ -219,4 +222,49 @@ export function registerCatalogRoutes(
       return updated;
     },
   );
+
+  if (importService) {
+    app.post(
+      "/v1/products/import",
+      { preHandler: requirePermission(requestAuth, "products:write") },
+      async (request) => {
+        const body = asObject(request.body);
+        const { tenantId } = actorAndTenant(requirePrincipal(request));
+
+        const format = body.format;
+        if (format !== "csv" && format !== "xlsx") {
+          throw new CatalogValidationError('format must be "csv" or "xlsx".');
+        }
+        if (typeof body.content !== "string" || body.content === "") {
+          throw new CatalogValidationError("content is required.");
+        }
+        const dryRun = body.dryRun !== false;
+
+        const rows =
+          format === "csv"
+            ? parseCsv(body.content)
+            : parseXlsx(Buffer.from(body.content, "base64"));
+
+        const result = await importService.import(rows, tenantId, {
+          dryRun,
+          now: new Date(),
+        });
+
+        if (!dryRun && result.createdCount > 0) {
+          await recordAudit(request, audit, {
+            action: "product.imported",
+            objectType: "product",
+            objectId: null,
+            after: {
+              totalRows: result.totalRows,
+              createdCount: result.createdCount,
+              errorCount: result.errors.length,
+            },
+          });
+        }
+
+        return result;
+      },
+    );
+  }
 }

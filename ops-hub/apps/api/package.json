@@ -17,7 +17,8 @@
     "@ops-hub/shared": "workspace:*",
     "fastify": "^5.2.0",
     "ioredis": "^5.11.1",
-    "pg": "^8.23.1"
+    "pg": "^8.23.1",
+    "xlsx": "0.18.5"
   },
   "devDependencies": {
     "@types/pg": "^8.23.1",
