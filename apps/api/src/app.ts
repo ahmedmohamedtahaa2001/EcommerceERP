@@ -6,8 +6,13 @@ import Fastify, {
   type FastifyServerOptions,
 } from "fastify";
 
+import { registerApiKeyRoutes } from "./api-keys/routes";
+import type { ApiKeyService } from "./api-keys/service";
 import { registerAuthRoutes } from "./auth/routes";
 import type { AuthService } from "./auth/service";
+import {
+  CompositeRequestAuthenticator,
+} from "./auth/request-authenticator";
 
 export const REDACT_PATHS = [
   "req.headers.authorization",
@@ -45,6 +50,7 @@ function problemType(code: string): string {
 export interface BuildAppOptions {
   logger?: FastifyServerOptions["logger"];
   auth?: AuthService;
+  apiKeys?: ApiKeyService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -72,8 +78,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     uptimeSeconds: Math.round(process.uptime()),
   }));
 
-  if (options.auth) {
-    registerAuthRoutes(app, options.auth);
+  if (options.auth || options.apiKeys) {
+    const requestAuth = new CompositeRequestAuthenticator(
+      options.auth,
+      options.apiKeys,
+    );
+
+    if (options.auth) {
+      registerAuthRoutes(app, options.auth);
+    }
+    if (options.apiKeys) {
+      registerApiKeyRoutes(app, { service: options.apiKeys, requestAuth });
+    }
   }
 
   app.setNotFoundHandler((request, reply) => {

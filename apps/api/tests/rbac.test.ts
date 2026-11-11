@@ -1,11 +1,13 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { buildApp } from "../src/app";
 import {
   requirePermission,
-  type Authenticator,
+  type Principal,
+  type RequestAuthenticator,
 } from "../src/auth/context";
+import { bearerToken } from "../src/auth/http";
 import { UnauthorizedError } from "../src/auth/errors";
 import type { AuthUser } from "../src/auth/types";
 
@@ -24,15 +26,16 @@ const salesAgent: AuthUser = {
   role: "sales_agent",
 };
 
-class FakeAuthenticator implements Authenticator {
+class FakeAuthenticator implements RequestAuthenticator {
   constructor(private readonly users: Record<string, AuthUser>) {}
 
-  async authenticate(token: string): Promise<AuthUser> {
-    const user = this.users[token];
+  async authenticate(request: FastifyRequest): Promise<Principal> {
+    const token = bearerToken(request);
+    const user = token ? this.users[token] : undefined;
     if (!user) {
       throw new UnauthorizedError();
     }
-    return user;
+    return { kind: "user", user };
   }
 }
 

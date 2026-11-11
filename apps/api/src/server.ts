@@ -3,6 +3,8 @@ import { systemClock } from "@ops-hub/shared";
 import Redis from "ioredis";
 
 import { buildApp } from "./app";
+import { PgApiKeyStore } from "./api-keys/pg-store";
+import { ApiKeyService } from "./api-keys/service";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
 import { RedisRateLimiter } from "./auth/redis-rate-limiter";
@@ -33,7 +35,12 @@ const auth = new AuthService({
   sessionTtlSeconds: SESSION_TTL_SECONDS,
 });
 
-const app = buildApp({ auth });
+const apiKeys = new ApiKeyService({
+  store: new PgApiKeyStore(pool),
+  clock: systemClock,
+});
+
+const app = buildApp({ auth, apiKeys });
 app.addHook("onClose", async () => {
   await pool.end();
   redis.disconnect();

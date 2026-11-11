@@ -22,6 +22,13 @@
       "when": 1794310022052,
       "tag": "0002_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794389404423,
+      "tag": "0003_neat_whizzer",
+      "breakpoints": true
     }
   ]
 }

@@ -73,11 +73,23 @@ session token plus the public user. Send it as `Authorization: Bearer
 live in Redis (8-hour TTL) and failed logins are limited to 5 per 15 minutes
 per email. Passwords are hashed with argon2id and never returned.
 
-Tenant-scoped tables (`tenants`, `memberships`, `audit_log`) have RLS
-enabled. The application must set the tenant per transaction through
+Tenant-scoped tables (`tenants`, `memberships`, `audit_log`, `api_keys`) have
+RLS enabled. The application must set the tenant per transaction through
 the `withTenant(pool, tenantId, work)` helper; without a tenant setting,
 queries return no rows. `pnpm test:db` runs the RLS isolation integration
 test against the compose database (the default `pnpm test` skips it).
+
+### API keys
+
+`POST /v1/api-keys` (staff session with `api_keys:write`) takes `{ name,
+scopes, ipAllowlist? }` and returns the plaintext secret exactly once; only a
+SHA-256 hash is stored at rest. Requests authenticate with either
+`Authorization: Bearer <secret>` or `X-API-Key: <secret>`; a key acts as a
+principal whose permissions come from its scopes, so a call outside its
+scopes gets 403 while an unknown or revoked key gets a generic 401. Keys can
+optionally be restricted to specific client IPs. `DELETE /v1/api-keys/:id`
+revokes, `last_used_at` is stamped on every successful authentication, and
+secrets are redacted from logs.
 
 If pnpm is not installed globally, prefix commands with `npx pnpm@10`
 (for example `npx pnpm@10 install`).
