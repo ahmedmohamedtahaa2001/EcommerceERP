@@ -9,6 +9,8 @@ import { PgAuditReader, PgAuditWriter } from "./audit/pg";
 import { CatalogImportService } from "./catalog/import-service";
 import { PgProductStore, PgVariantStore } from "./catalog/pg-store";
 import { CatalogService } from "./catalog/service";
+import { PgBinStore, PgLocationStore } from "./inventory/pg-store";
+import { InventoryService } from "./inventory/service";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
 import { RedisRateLimiter } from "./auth/redis-rate-limiter";
@@ -51,6 +53,12 @@ const catalog = new CatalogService({
 });
 const catalogImport = new CatalogImportService(pool);
 
+const inventory = new InventoryService({
+  locations: new PgLocationStore(pool),
+  bins: new PgBinStore(pool),
+  clock: systemClock,
+});
+
 const app = buildApp({
   auth,
   apiKeys,
@@ -58,6 +66,7 @@ const app = buildApp({
   auditReader: new PgAuditReader(pool),
   catalog,
   catalogImport,
+  inventory,
 });
 app.addHook("onClose", async () => {
   await pool.end();

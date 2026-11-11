@@ -16,6 +16,8 @@ import type { CatalogImportService } from "./catalog/import-service";
 import type { CatalogService } from "./catalog/service";
 import type { AuthService } from "./auth/service";
 import { CompositeRequestAuthenticator } from "./auth/request-authenticator";
+import { registerInventoryRoutes } from "./inventory/routes";
+import type { InventoryService } from "./inventory/service";
 
 export const REDACT_PATHS = [
   "req.headers.authorization",
@@ -58,6 +60,7 @@ export interface BuildAppOptions {
   auditReader?: AuditReader;
   catalog?: CatalogService;
   catalogImport?: CatalogImportService;
+  inventory?: InventoryService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -125,6 +128,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
         ...(options.catalogImport
           ? { importService: options.catalogImport }
           : {}),
+      });
+    }
+    if (options.inventory) {
+      if (!options.audit) {
+        throw new Error(
+          "inventory routes mutate state and require an audit writer.",
+        );
+      }
+      registerInventoryRoutes(app, {
+        service: options.inventory,
+        requestAuth,
+        audit: options.audit,
       });
     }
   }
