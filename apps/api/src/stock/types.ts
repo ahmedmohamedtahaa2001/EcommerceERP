@@ -49,6 +49,7 @@ export interface StockStore {
     variantId: string,
     locationId: string,
   ): Promise<Record<Bucket, number>>;
+  listLocationsWithBalance(tenantId: string, variantId: string): Promise<string[]>;
   listMovements(
     tenantId: string,
     filters: { variantId?: string; locationId?: string },

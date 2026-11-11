@@ -221,6 +221,17 @@ export class PgCatalogStore implements CatalogStore {
     });
   }
 
+  async getVariantBySku(tenantId: string, sku: string): Promise<VariantRecord | null> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const result = await client.query<VariantRow>(
+        `select * from variants where tenant_id = $1 and sku = $2`,
+        [tenantId, sku],
+      );
+      const row = result.rows[0];
+      return row ? toVariant(row) : null;
+    });
+  }
+
   async listVariantsByProduct(
     tenantId: string,
     productId: string,

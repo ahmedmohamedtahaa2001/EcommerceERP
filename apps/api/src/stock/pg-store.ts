@@ -119,6 +119,17 @@ export class PgStockStore implements StockStore {
     });
   }
 
+  async listLocationsWithBalance(tenantId: string, variantId: string): Promise<string[]> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const res = await client.query<{ location_id: string }>(
+        `select distinct location_id from stock_balances
+          where tenant_id = $1 and variant_id = $2`,
+        [tenantId, variantId],
+      );
+      return res.rows.map((r) => r.location_id);
+    });
+  }
+
   async listMovements(
     tenantId: string,
     filters: { variantId?: string; locationId?: string },

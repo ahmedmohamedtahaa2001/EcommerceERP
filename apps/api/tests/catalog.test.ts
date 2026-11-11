@@ -99,6 +99,13 @@ class FakeCatalogStore implements CatalogStore {
     return v ? { ...v } : null;
   }
 
+  async getVariantBySku(tenantId: string, sku: string): Promise<VariantRecord | null> {
+    const v = [...this.variants.values()].find(
+      (x) => x.tenantId === tenantId && x.sku === sku,
+    );
+    return v ? { ...v } : null;
+  }
+
   async listVariantsByProduct(
     tenantId: string,
     productId: string,

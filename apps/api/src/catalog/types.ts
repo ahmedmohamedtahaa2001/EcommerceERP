@@ -88,6 +88,7 @@ export interface CatalogStore {
 
   createVariant(variant: VariantRecord): Promise<void>;
   getVariant(tenantId: string, id: string): Promise<VariantRecord | null>;
+  getVariantBySku(tenantId: string, sku: string): Promise<VariantRecord | null>;
   listVariantsByProduct(
     tenantId: string,
     productId: string,

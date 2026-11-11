@@ -47,6 +47,15 @@ class FakeStockStore implements StockStore {
     return result as Record<"on_hand" | "reserved" | "quarantined" | "damaged" | "in_transit", number>;
   }
 
+  async listLocationsWithBalance(tenantId: string, variantId: string): Promise<string[]> {
+    const set = new Set<string>();
+    for (const k of this.balances.keys()) {
+      const [t, v, loc] = k.split(":");
+      if (t === tenantId && v === variantId) set.add(loc!);
+    }
+    return [...set];
+  }
+
   async listMovements(tenantId: string, filters: { variantId?: string; locationId?: string }): Promise<StockMovementRecord[]> {
     return this.movements
       .filter((m) => m.tenantId === tenantId)

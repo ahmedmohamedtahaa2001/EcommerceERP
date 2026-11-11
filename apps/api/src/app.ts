@@ -13,6 +13,8 @@ import { registerAuditRoutes } from "./audit/routes";
 import type { AuditReader, AuditWriter } from "./audit/types";
 import { registerAuthRoutes } from "./auth/routes";
 import type { AuthService } from "./auth/service";
+import { registerAvailabilityRoutes } from "./availability/routes";
+import type { AvailabilityService } from "./availability/service";
 import { registerCatalogRoutes } from "./catalog/routes";
 import type { CatalogService } from "./catalog/service";
 import { registerGeoRoutes } from "./geo/routes";
@@ -64,6 +66,7 @@ export interface BuildAppOptions {
   catalog?: CatalogService;
   locations?: LocationService;
   stock?: StockService;
+  availability?: AvailabilityService;
   audit?: AuditWriter;
   auditReader?: AuditReader;
 }
@@ -143,6 +146,12 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     if (options.stock) {
       registerStockRoutes(app, {
         service: options.stock,
+        requestAuth,
+      });
+    }
+    if (options.availability) {
+      registerAvailabilityRoutes(app, {
+        service: options.availability,
         requestAuth,
       });
     }

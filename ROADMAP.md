@@ -201,7 +201,7 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T01, T03
   - AC: no endpoint updates balances directly; every change creates a movement with reason code and actor; balances equal the sum of movements (property test with random sequences).
 
-- [ ] **P0-S2-T06** Availability API: `available_to_promise = on_hand − reserved − quarantined − damaged`, per SKU and location, plus a total across locations.
+- [x] **P0-S2-T06** Availability API: `available_to_promise = on_hand − reserved − quarantined − damaged`, per SKU and location, plus a total across locations.
   - Deps: T05
   - AC: `GET /v1/inventory/availability?sku=&location=`; unit test for each bucket combination; never returns a negative ATP unless negative-stock policy is set to allow.
 

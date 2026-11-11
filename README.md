@@ -107,7 +107,13 @@ becomes immutable once any stock movement references the variant (409 on
 attempted change). Bundles attach components via `PUT /v1/products/:id/components`
 (full replace) and `GET /v1/products/:id/components`.
 
-### Stock ledger
+### Availability
+
+`GET /v1/inventory/availability?sku=&location=` returns
+`available_to_promise = on_hand − reserved − quarantined − damaged` for the
+SKU (resolved to a variant) per location, plus `totalAvailable` across
+locations and a `byLocation` breakdown. ATP is clamped to 0 unless
+`allowNegative=true`. Unknown SKUs return 422.
 
 `StockService.recordMovement(...)` is the only way to change stock: it inserts an
 append-only `stock_movements` row and upserts the derived `stock_balances` row

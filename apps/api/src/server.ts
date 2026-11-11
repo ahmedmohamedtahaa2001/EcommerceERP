@@ -7,6 +7,7 @@ import { PgApiKeyStore } from "./api-keys/pg-store";
 import { ApiKeyService } from "./api-keys/service";
 import { PgCatalogStore } from "./catalog/pg-store";
 import { CatalogService } from "./catalog/service";
+import { AvailabilityService } from "./availability/service";
 import { PgLocationStore } from "./locations/pg-store";
 import { LocationService } from "./locations/service";
 import { PgStockStore } from "./stock/pg-store";
@@ -58,6 +59,10 @@ const stock = new StockService({
   store: new PgStockStore(pool),
   clock: systemClock,
 });
+const availability = new AvailabilityService({
+  stock: new PgStockStore(pool),
+  catalog: new PgCatalogStore(pool),
+});
 const audit = new PgAuditWriter(pool);
 
 const app = buildApp({
@@ -66,6 +71,7 @@ const app = buildApp({
   catalog,
   locations,
   stock,
+  availability,
   audit,
   auditReader: new PgAuditReader(pool),
 });
