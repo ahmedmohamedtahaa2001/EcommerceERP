@@ -25,6 +25,9 @@ import { registerAvailabilityRoutes } from "./availability/routes";
 import type { AvailabilityService } from "./availability/service";
 import { registerReservationRoutes } from "./stock/reservation-routes";
 import type { ReservationService } from "./stock/reservation-service";
+import { registerAdjustmentRoutes } from "./stock/adjustment-routes";
+import type { AdjustmentService } from "./stock/adjustment-service";
+import { registerMetaRoutes } from "./meta/routes";
 
 export const REDACT_PATHS = [
   "req.headers.authorization",
@@ -71,6 +74,7 @@ export interface BuildAppOptions {
   stock?: StockService;
   availability?: AvailabilityService;
   reservations?: ReservationService;
+  adjustments?: AdjustmentService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -105,6 +109,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     );
 
     registerGeoRoutes(app, { requestAuth });
+    registerMetaRoutes(app, { requestAuth });
 
     if (options.availability) {
       registerAvailabilityRoutes(app, {
@@ -181,6 +186,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       }
       registerReservationRoutes(app, {
         service: options.reservations,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.adjustments) {
+      if (!options.audit) {
+        throw new Error(
+          "adjustment routes mutate state and require an audit writer.",
+        );
+      }
+      registerAdjustmentRoutes(app, {
+        service: options.adjustments,
         requestAuth,
         audit: options.audit,
       });
