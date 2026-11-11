@@ -6,6 +6,8 @@ import { buildApp } from "./app";
 import { PgApiKeyStore } from "./api-keys/pg-store";
 import { ApiKeyService } from "./api-keys/service";
 import { PgAuditReader, PgAuditWriter } from "./audit/pg";
+import { PgProductStore, PgVariantStore } from "./catalog/pg-store";
+import { CatalogService } from "./catalog/service";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
 import { RedisRateLimiter } from "./auth/redis-rate-limiter";
@@ -18,10 +20,9 @@ import {
 } from "./auth/types";
 
 const { pool } = createDb();
-const redis = new Redis(
-  process.env.REDIS_URL ?? "redis://localhost:6379",
-  { maxRetriesPerRequest: 1 },
-);
+const redis = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
+  maxRetriesPerRequest: 1,
+});
 
 const auth = new AuthService({
   users: new PgUserDirectory(pool),
@@ -42,11 +43,18 @@ const apiKeys = new ApiKeyService({
 });
 const audit = new PgAuditWriter(pool);
 
+const catalog = new CatalogService({
+  products: new PgProductStore(pool),
+  variants: new PgVariantStore(pool),
+  clock: systemClock,
+});
+
 const app = buildApp({
   auth,
   apiKeys,
   audit,
   auditReader: new PgAuditReader(pool),
+  catalog,
 });
 app.addHook("onClose", async () => {
   await pool.end();

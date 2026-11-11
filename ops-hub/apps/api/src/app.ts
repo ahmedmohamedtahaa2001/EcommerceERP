@@ -11,10 +11,10 @@ import type { ApiKeyService } from "./api-keys/service";
 import { registerAuditRoutes } from "./audit/routes";
 import type { AuditReader, AuditWriter } from "./audit/types";
 import { registerAuthRoutes } from "./auth/routes";
+import { registerCatalogRoutes } from "./catalog/routes";
+import type { CatalogService } from "./catalog/service";
 import type { AuthService } from "./auth/service";
-import {
-  CompositeRequestAuthenticator,
-} from "./auth/request-authenticator";
+import { CompositeRequestAuthenticator } from "./auth/request-authenticator";
 
 export const REDACT_PATHS = [
   "req.headers.authorization",
@@ -55,6 +55,7 @@ export interface BuildAppOptions {
   apiKeys?: ApiKeyService;
   audit?: AuditWriter;
   auditReader?: AuditReader;
+  catalog?: CatalogService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -107,6 +108,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       registerAuditRoutes(app, {
         reader: options.auditReader,
         requestAuth,
+      });
+    }
+    if (options.catalog) {
+      if (!options.audit) {
+        throw new Error(
+          "catalog routes mutate state and require an audit writer.",
+        );
+      }
+      registerCatalogRoutes(app, {
+        service: options.catalog,
+        requestAuth,
+        audit: options.audit,
       });
     }
   }
