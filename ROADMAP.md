@@ -224,9 +224,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: two concurrent reservations for the last unit: exactly one succeeds (integration test with parallel requests); expired reservation returns stock to available.
   - Note: "expiry job" is `ReservationService.expireDue(tenantId, now)`, a callable sweep — not a running background worker. No job runner (pg-boss) exists yet; wire a scheduled call to it once P0-S2-T09 lands.
 
-- [ ] **P0-S2-T08** Adjustments endpoint with mandatory reason codes (`COUNT_VARIANCE`, `DAMAGE`, `LOSS`, `FOUND`, `CORRECTION`) and enum from `GET /v1/meta/enums`.
+- [x] **P0-S2-T08** Adjustments endpoint with mandatory reason codes (`COUNT_VARIANCE`, `DAMAGE`, `LOSS`, `FOUND`, `CORRECTION`) and enum from `GET /v1/meta/enums`.
+  - Owner: claude (2026-11-11)
   - Deps: T05
   - AC: adjustment without reason returns 422; reason enum is served from one source used by both API and validation.
+  - Note: `GET /v1/meta/enums` also serves `stockBuckets` (from T05) alongside `adjustmentReasons`, since both are the kind of fixed vocabulary P4-S13-T07 later wants machine-readable.
 
 - [ ] **P0-S2-T09** Outbox and event dispatcher: `outbox_events` written in the same transaction as domain changes; a worker publishes to pg-boss with at-least-once delivery and consumer idempotency via `event_id`.
   - Deps: T03
@@ -801,6 +803,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S2-T05 · Stock ledger: stock_movements + derived stock_balances, five buckets, single transaction per movement (insert + upsert). 190/190 tests green incl. a 200-step randomized property test, lint + typecheck clean · commit 3329af0
 - 2026-11-11 · P0-S2-T06 · Availability API (ATP) over the stock ledger; added tenants.allow_negative_stock (migration 0005, default false) as the clamp policy. 204/204 tests green, lint + typecheck clean · commit e9a040e
 - 2026-11-11 · P0-S2-T07 · Stock reservations: Redis SET-NX-PX lock serializes allocation per tenant+variant+location; reserve/release/expireDue all go through the existing ledger. 209/209 tests green incl. a parallel-requests race test (stable across repeated runs), lint + typecheck clean · commit 58aec54
+- 2026-11-11 · P0-S2-T08 · Adjustments endpoint (fixed reason enum) + GET /v1/meta/enums, both reading ADJUSTMENT_REASONS from one module so they can't drift. 215/215 tests green, lint + typecheck clean · commit e19d100
 
 ---
 
