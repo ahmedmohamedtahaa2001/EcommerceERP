@@ -18,6 +18,7 @@ import type { AuthService } from "./auth/service";
 import { CompositeRequestAuthenticator } from "./auth/request-authenticator";
 import { registerInventoryRoutes } from "./inventory/routes";
 import type { InventoryService } from "./inventory/service";
+import { registerGeoRoutes } from "./geo/routes";
 
 export const REDACT_PATHS = [
   "req.headers.authorization",
@@ -93,6 +94,8 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       options.auth,
       options.apiKeys,
     );
+
+    registerGeoRoutes(app, { requestAuth });
 
     if (options.auth) {
       registerAuthRoutes(app, options.auth, options.audit);
