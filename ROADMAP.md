@@ -804,6 +804,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S2-T06 · Availability API (ATP) over the stock ledger; added tenants.allow_negative_stock (migration 0005, default false) as the clamp policy. 204/204 tests green, lint + typecheck clean · commit e9a040e
 - 2026-11-11 · P0-S2-T07 · Stock reservations: Redis SET-NX-PX lock serializes allocation per tenant+variant+location; reserve/release/expireDue all go through the existing ledger. 209/209 tests green incl. a parallel-requests race test (stable across repeated runs), lint + typecheck clean · commit 58aec54
 - 2026-11-11 · P0-S2-T08 · Adjustments endpoint (fixed reason enum) + GET /v1/meta/enums, both reading ADJUSTMENT_REASONS from one module so they can't drift. 215/215 tests green, lint + typecheck clean · commit e19d100
+- 2026-11-11 · smoke test · Ran the live API end-to-end (real Postgres + Redis, via Playwright against the running server) over everything from S1+S2: auth, products/variants, import, locations/bins, geo, stock ledger, availability, reservations, adjustments, audit. Found and fixed a real bug: Fastify's default JSON parser 400'd any bodiless POST (e.g. reservation release) when the client set `Content-Type: application/json` with no body; now treated as `{}`. Regression test added, 217/217 tests green · commit d2dd670
 
 ---
 
