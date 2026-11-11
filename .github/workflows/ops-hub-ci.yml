@@ -1,0 +1,86 @@
+name: Ops Hub CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ops-hub/**"
+      - ".github/workflows/ops-hub-ci.yml"
+  pull_request:
+    paths:
+      - "ops-hub/**"
+      - ".github/workflows/ops-hub-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: lint, typecheck, tests, migrations
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ops-hub
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ops_hub
+          POSTGRES_PASSWORD: ops_hub
+          POSTGRES_DB: ops_hub
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ops_hub"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://ops_hub:ops_hub@localhost:5432/ops_hub
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ops-hub/pnpm-lock.yaml
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Apply migrations to the service database
+        run: pnpm db:migrate
+
+      - name: Migrations dry-run (schema must match committed migrations)
+        run: |
+          pnpm db:generate
+          if [ -n "$(git status --porcelain -- packages/db)" ]; then
+            echo "::error::Drizzle schema and committed migrations are out of sync. Run 'pnpm db:generate' and commit the result."
+            git status --short -- packages/db
+            exit 1
+          fi
+
+      - name: Unit and integration tests
+        run: RUN_DB_TESTS=1 pnpm test

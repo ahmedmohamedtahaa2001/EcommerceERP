@@ -1,5 +1,7 @@
 # Ops Hub
 
+[![Ops Hub CI](https://github.com/morluto/rea/actions/workflows/ops-hub-ci.yml/badge.svg)](https://github.com/morluto/rea/actions/workflows/ops-hub-ci.yml)
+
 Multi-tenant e-commerce operations platform. The task board, phases, and
 technical baseline live in [`../ROADMAP.md`](../ROADMAP.md); this directory is
 the monorepo root described in its "Repository layout" section.
