@@ -163,7 +163,8 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T08
   - AC: `POST /v1/api-keys` returns the secret once; `Authorization: Bearer` and `X-API-Key` both work; revoked key gets 401; scope violation gets 403; keys never appear in logs.
 
-- [ ] **P0-S1-T10** Audit writer: a single `audit.record(ctx, action, object, before, after)` used by every mutating service.
+- [x] **P0-S1-T10** Audit writer: a single `audit.record(ctx, action, object, before, after)` used by every mutating service.
+  - Owner: buffy (2026-11-11)
   - Deps: T03, T09
   - AC: `GET /v1/audit?object=...` returns entries; a lint rule or test fails if a mutating route does not call the audit writer.
 
@@ -775,6 +776,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-10 · P0-S1-T07 · argon2id + Redis sessions; generic auth errors, expiry and 5/15min rate limit verified; 49 tests green · commit 9e7501a
 - 2026-11-10 · P0-S1-T08 · RBAC matrix + requirePermission guard; role allow/deny and 401/403 route tests · commit 130eedb
 - 2026-11-11 · P0-S1-T09 · API keys with SHA-256 hash at rest, scopes, IP allow-list, revoke, last_used_at; 14 unit + 6 DB integration tests green; live smoke of all AC flows · commit 9d9b7c2
+- 2026-11-11 · P0-S1-T10 · audit writer + GET /v1/audit reader; api-key and login mutations audited; coverage enforcement test, 4 audit + 6 api-key DB integration tests green; live smoke verified · commit 374262b
 
 ---
 
