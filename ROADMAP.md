@@ -200,9 +200,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: bin code unique per location; deleting a location with stock is rejected.
   - Note: the stock-on-delete check isn't re-implemented in the service — `stock_balances`/`stock_movements`/`stock_reservations` already reference `location_id` with `ON DELETE RESTRICT` (from the reverse-engineered migration 0004), so the service just translates Postgres's own FK violation into a 409.
 
-- [ ] **P0-S2-T04** Geo reference data: Egyptian governorates and common districts with canonical codes, AR and EN names, and spelling variants (e.g., "Giza", "الجيزة", "Gizeh").
+- [x] **P0-S2-T04** Geo reference data: Egyptian governorates and common districts with canonical codes, AR and EN names, and spelling variants (e.g., "Giza", "الجيزة", "Gizeh").
+  - Owner: claude (2026-11-11)
   - Deps: T01
   - AC: `GET /v1/geo/governorates` and `/v1/geo/districts` exist; `resolveGovernorate("gizeh")` returns the canonical code (unit tests).
+  - Note: codes are project-chosen mnemonics (not a claim of ISO 3166-2:EG conformance — verify against an authoritative source before any integration depends on exact codes). Districts are a small representative starter set, not exhaustive; add more as real order data demands.
 
 - [ ] **P0-S2-T05** Stock ledger: `stock_movements` (append-only), `stock_balances` (derived per sku+location+bucket), buckets: on_hand, reserved, quarantined, damaged, in_transit.
   - Deps: T01, T03
@@ -789,6 +791,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S2-T01 · Catalog CRUD API (products/variants) with permission guards, audit, SKU-immutable updates, 409 on duplicate SKU. Discovered the dev DB already had a more-advanced, uncommitted schema (catalog + locations/bins + stock ledger) from a prior session; reverse-engineered it into `schema/catalog.ts`, `schema/inventory.ts`, and migration 0004, and reconciled drizzle's migration journal against the DB's already-applied state. 151/151 tests green (incl. 9 new DB integration tests), lint + typecheck clean · commit d6992bd
 - 2026-11-11 · P0-S2-T02 · Bulk product import (CSV/XLSX) with dry-run default, row-level error reporting, one bulk multi-row INSERT per table. 1,000-row fixture imports in well under a second. 164/164 tests green, lint + typecheck clean · commit a2de462
 - 2026-11-11 · P0-S2-T03 · Locations and bins API (create/list/get, location delete). Bin code uniqueness and the stock-on-delete rejection both ride on existing DB constraints (unique index, FK restrict) rather than app-level pre-checks. 172/172 tests green, lint + typecheck clean · commit e699fbe
+- 2026-11-11 · P0-S2-T04 · Geo reference data: pure resolveGovernorate/resolveDistrict in packages/domain (diacritic- and case-insensitive, matches EN/AR/aliases) plus GET /v1/geo/governorates and /v1/geo/districts. 183/183 tests green, lint + typecheck clean · commit 40295da
 
 ---
 
