@@ -30,6 +30,42 @@ function appWithoutLogging(): FastifyInstance {
   return app;
 }
 
+describe("empty JSON body handling", () => {
+  it("treats a POST with Content-Type: application/json and no body as {}", async () => {
+    const instance = appWithoutLogging();
+    instance.post("/probe-empty-body", async (request) => ({
+      body: request.body,
+    }));
+
+    // Some HTTP clients set this header out of habit even when they send no
+    // body at all; Fastify's default parser throws on that (regression: a
+    // bodiless POST like reservation release returned 400 for such
+    // clients). It must parse as `{}`, not error.
+    const response = await instance.inject({
+      method: "POST",
+      url: "/probe-empty-body",
+      headers: { "content-type": "application/json" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ body: {} });
+  });
+
+  it("still rejects a genuinely malformed JSON body", async () => {
+    const instance = appWithoutLogging();
+    instance.post("/probe-bad-body", async () => ({ ok: true }));
+
+    const response = await instance.inject({
+      method: "POST",
+      url: "/probe-bad-body",
+      headers: { "content-type": "application/json" },
+      payload: "{not valid json",
+    });
+
+    expect(response.statusCode).toBe(400);
+  });
+});
+
 describe("health endpoints", () => {
   it("returns 200 from /healthz", async () => {
     const response = await appWithoutLogging().inject({

@@ -95,6 +95,33 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     reply.header("x-request-id", request.id);
   });
 
+  // Fastify's default JSON parser rejects an empty body outright
+  // (FST_ERR_CTP_EMPTY_JSON_BODY), which breaks any bodiless POST (e.g.
+  // reservation release) whenever the caller still sets
+  // `Content-Type: application/json` out of habit. Treat an empty body as
+  // `{}` instead; routes that need fields still validate them themselves.
+  app.addContentTypeParser(
+    "application/json",
+    { parseAs: "string" },
+    (_request, body: string, done) => {
+      if (body.length === 0) {
+        done(null, {});
+        return;
+      }
+      try {
+        done(null, JSON.parse(body));
+      } catch {
+        done(
+          Object.assign(new Error("Body is not valid JSON."), {
+            statusCode: 400,
+            code: "FST_ERR_CTP_INVALID_JSON_BODY",
+          }),
+          undefined,
+        );
+      }
+    },
+  );
+
   app.get("/healthz", async () => ({ status: "ok" }));
 
   app.get("/readyz", async () => ({
