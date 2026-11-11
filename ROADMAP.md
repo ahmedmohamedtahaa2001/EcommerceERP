@@ -158,7 +158,8 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T07
   - AC: a permission guard decorator/middleware; unit tests for each role's allowed and denied actions.
 
-- [ ] **P0-S1-T09** API keys: create (shown once), hash at rest, scopes, optional IP allow-list, revoke, `last_used_at`.
+- [x] **P0-S1-T09** API keys: create (shown once), hash at rest, scopes, optional IP allow-list, revoke, `last_used_at`.
+  - Owner: buffy (2026-11-11)
   - Deps: T08
   - AC: `POST /v1/api-keys` returns the secret once; `Authorization: Bearer` and `X-API-Key` both work; revoked key gets 401; scope violation gets 403; keys never appear in logs.
 
@@ -773,6 +774,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-10 · P0-S1-T06 · Fastify app with request ids, RFC 7807 errors, redaction; 7 HTTP tests incl. canary log check · commit 341f798
 - 2026-11-10 · P0-S1-T07 · argon2id + Redis sessions; generic auth errors, expiry and 5/15min rate limit verified; 49 tests green · commit 9e7501a
 - 2026-11-10 · P0-S1-T08 · RBAC matrix + requirePermission guard; role allow/deny and 401/403 route tests · commit 130eedb
+- 2026-11-11 · P0-S1-T09 · API keys with SHA-256 hash at rest, scopes, IP allow-list, revoke, last_used_at; 14 unit + 6 DB integration tests green; live smoke of all AC flows · commit 9d9b7c2
 
 ---
 
