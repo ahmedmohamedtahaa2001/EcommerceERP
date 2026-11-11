@@ -11,6 +11,8 @@ import { PgProductStore, PgVariantStore } from "./catalog/pg-store";
 import { CatalogService } from "./catalog/service";
 import { PgBinStore, PgLocationStore } from "./inventory/pg-store";
 import { InventoryService } from "./inventory/service";
+import { PgStockStore } from "./stock/pg-store";
+import { StockService } from "./stock/service";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
 import { RedisRateLimiter } from "./auth/redis-rate-limiter";
@@ -58,6 +60,10 @@ const inventory = new InventoryService({
   bins: new PgBinStore(pool),
   clock: systemClock,
 });
+const stock = new StockService({
+  store: new PgStockStore(pool),
+  clock: systemClock,
+});
 
 const app = buildApp({
   auth,
@@ -67,6 +73,7 @@ const app = buildApp({
   catalog,
   catalogImport,
   inventory,
+  stock,
 });
 app.addHook("onClose", async () => {
   await pool.end();

@@ -19,6 +19,8 @@ import { CompositeRequestAuthenticator } from "./auth/request-authenticator";
 import { registerInventoryRoutes } from "./inventory/routes";
 import type { InventoryService } from "./inventory/service";
 import { registerGeoRoutes } from "./geo/routes";
+import { registerStockRoutes } from "./stock/routes";
+import type { StockService } from "./stock/service";
 
 export const REDACT_PATHS = [
   "req.headers.authorization",
@@ -62,6 +64,7 @@ export interface BuildAppOptions {
   catalog?: CatalogService;
   catalogImport?: CatalogImportService;
   inventory?: InventoryService;
+  stock?: StockService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -141,6 +144,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       }
       registerInventoryRoutes(app, {
         service: options.inventory,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.stock) {
+      if (!options.audit) {
+        throw new Error(
+          "stock routes mutate state and require an audit writer.",
+        );
+      }
+      registerStockRoutes(app, {
+        service: options.stock,
         requestAuth,
         audit: options.audit,
       });
