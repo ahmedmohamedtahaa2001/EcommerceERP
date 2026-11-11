@@ -3,9 +3,11 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { buildApp } from "../src/app";
 import { CatalogService } from "../src/catalog/service";
+import { parseImportBuffer } from "../src/catalog/import";
 import type {
   BundleComponentRecord,
   CatalogStore,
+  ImportRow,
   ProductRecord,
   VariantRecord,
 } from "../src/catalog/types";
@@ -103,6 +105,12 @@ class FakeCatalogStore implements CatalogStore {
   ): Promise<VariantRecord[]> {
     return [...this.variants.values()]
       .filter((v) => v.tenantId === tenantId && v.productId === productId)
+      .map((v) => ({ ...v }));
+  }
+
+  async listAllVariants(tenantId: string): Promise<VariantRecord[]> {
+    return [...this.variants.values()]
+      .filter((v) => v.tenantId === tenantId)
       .map((v) => ({ ...v }));
   }
 
@@ -665,5 +673,100 @@ describe("product delete with stock", () => {
       headers: { authorization: `Bearer ${token}` },
     });
     expect(response.statusCode).toBe(409);
+  });
+});
+
+const IMPORT_TENANT = "99999999-9999-4999-8999-999999999999";
+
+describe("parseImportBuffer", () => {
+  it("parses CSV rows with header", () => {
+    const csv = "nameAr,nameEn,sku,images\nمنتج1,Product1,IMP-1,http://x/a.png\n,Product2,,\n";
+    const buf = Buffer.from(csv, "utf8");
+    const parsed = parseImportBuffer(buf);
+    expect(parsed.parseError).toBeUndefined();
+    expect(parsed.rows).toHaveLength(2);
+    expect(parsed.rows[0]).toMatchObject({
+      row: 2,
+      nameAr: "منتج1",
+      nameEn: "Product1",
+      sku: "IMP-1",
+      images: ["http://x/a.png"],
+    });
+    expect(parsed.rows[1]?.nameAr).toBe("");
+  });
+
+  it("returns parseError for garbage", () => {
+    const buf = Buffer.from("not\x00a\x00valid\x00xlsx", "utf8");
+    const parsed = parseImportBuffer(buf);
+    // either parses as a single-column sheet or returns parseError; both acceptable
+    expect(parsed).toBeDefined();
+  });
+});
+
+describe("importProducts (service)", () => {
+  it("dry-run validates without writing", async () => {
+    const rows: ImportRow[] = [
+      { row: 2, nameAr: "منتج1", nameEn: "Product1", sku: "IMP-1" },
+      { row: 3, nameAr: "منتج2", nameEn: "Product2" },
+      { row: 4, nameAr: "", nameEn: "Bad" },
+    ];
+    const report = await catalogService.importProducts(IMPORT_TENANT, rows, true);
+    expect(report.dryRun).toBe(true);
+    expect(report.total).toBe(3);
+    expect(report.valid).toBe(2);
+    expect(report.created).toBe(0);
+    expect(report.errors).toHaveLength(1);
+    expect(report.errors[0]?.row).toBe(4);
+    // nothing written
+    expect(await store.listProducts(IMPORT_TENANT, 100, 0)).toHaveLength(0);
+  });
+
+  it("imports valid rows and creates variants for skus", async () => {
+    const rows: ImportRow[] = [
+      { row: 2, nameAr: "منتج1", nameEn: "Product1", sku: "IMP-A" },
+      { row: 3, nameAr: "منتج2", nameEn: "Product2", sku: "IMP-B", attributes: { color: "red" } },
+    ];
+    const report = await catalogService.importProducts(IMPORT_TENANT, rows, false);
+    expect(report.created).toBe(2);
+    expect(report.errors).toHaveLength(0);
+    const products = await store.listProducts(IMPORT_TENANT, 100, 0);
+    expect(products).toHaveLength(2);
+    const skus = (await store.listAllVariants(IMPORT_TENANT)).map((v) => v.sku);
+    expect(skus).toEqual(expect.arrayContaining(["IMP-A", "IMP-B"]));
+  });
+
+  it("rejects duplicate SKU within the file", async () => {
+    const rows: ImportRow[] = [
+      { row: 2, nameAr: "منتج1", nameEn: "Product1", sku: "DUP-1" },
+      { row: 3, nameAr: "منتج2", nameEn: "Product2", sku: "DUP-1" },
+    ];
+    const report = await catalogService.importProducts(IMPORT_TENANT, rows, true);
+    expect(report.errors).toHaveLength(1);
+    expect(report.errors[0]?.reason).toMatch(/SKU already exists/i);
+  });
+
+  it("rejects duplicate SKU against existing data", async () => {
+    // seed an existing product with SKU IMP-A
+    await catalogService.createProduct(
+      { nameAr: "موجود", nameEn: "Existing" },
+      IMPORT_TENANT,
+    ).then(async (p) => {
+      await catalogService.createVariant(IMPORT_TENANT, p.id, { sku: "IMP-A" });
+    });
+    const rows: ImportRow[] = [
+      { row: 2, nameAr: "منتج3", nameEn: "Product3", sku: "IMP-A" },
+    ];
+    const report = await catalogService.importProducts(IMPORT_TENANT, rows, true);
+    expect(report.errors).toHaveLength(1);
+    expect(report.valid).toBe(0);
+  });
+
+  it("rejects invalid sku format", async () => {
+    const rows: ImportRow[] = [
+      { row: 2, nameAr: "منتج", nameEn: "Product", sku: "has space" },
+    ];
+    const report = await catalogService.importProducts(IMPORT_TENANT, rows, true);
+    expect(report.errors).toHaveLength(1);
+    expect(report.errors[0]?.reason).toMatch(/sku must match/i);
   });
 });

@@ -15,6 +15,7 @@ import {
 } from "./errors";
 import { CatalogService } from "./service";
 import type { BundleComponentInput } from "./types";
+import { parseImportBuffer } from "./import";
 
 function requireObject(body: unknown): Record<string, unknown> {
   if (typeof body !== "object" || body === null || Array.isArray(body)) {
@@ -306,6 +307,38 @@ export function registerCatalogRoutes(
       const { tenantId } = actorAndTenant(requirePrincipal(request));
       const components = await service.listComponents(tenantId, id);
       return { components };
+    },
+  );
+
+  app.post(
+    "/v1/products/import",
+    { preHandler: requirePermission(requestAuth, "catalog:write") },
+    async (request) => {
+      const file = await request.file();
+      if (!file) {
+        throw new ValidationError("file is required.");
+      }
+      const buffer = await file.toBuffer();
+      const parsed = parseImportBuffer(buffer);
+      if (parsed.parseError) {
+        throw new ValidationError(parsed.parseError);
+      }
+      const query = request.query as Record<string, unknown>;
+      const dryRun =
+        query.dryRun === true ||
+        query.dryRun === "true" ||
+        query.dryRun === "1";
+      const { tenantId } = actorAndTenant(requirePrincipal(request));
+      const report = await service.importProducts(tenantId, parsed.rows, dryRun);
+
+      await recordAudit(request, audit, {
+        action: "product.imported",
+        objectType: "product",
+        objectId: null,
+        after: report,
+      });
+
+      return report;
     },
   );
 }

@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { PgCatalogStore } from "../src/catalog/pg-store";
 import { CatalogService } from "../src/catalog/service";
+import type { ImportRow } from "../src/catalog/types";
 
 const databaseUrl =
   process.env.DATABASE_URL ??
@@ -190,5 +191,24 @@ describe.skipIf(!runDbTests)("Catalog store against Postgres", () => {
         ),
       ).rejects.toThrow();
     });
+  });
+
+  it("imports 1000 rows in under 10 seconds", async () => {
+    const rows: ImportRow[] = [];
+    for (let i = 0; i < 1000; i++) {
+      rows.push({
+        row: i + 2,
+        nameAr: `منتج${i}`,
+        nameEn: `Product${i}`,
+        sku: `PERF-${i}`,
+      });
+    }
+    const start = Date.now();
+    const report = await service.importProducts(tenantA, rows, false);
+    const elapsed = Date.now() - start;
+    console.log(`imported ${report.created} rows in ${elapsed}ms`);
+    expect(report.created).toBe(1000);
+    expect(report.errors).toHaveLength(0);
+    expect(elapsed).toBeLessThan(10000);
   });
 });

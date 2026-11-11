@@ -92,6 +92,7 @@ export interface CatalogStore {
     tenantId: string,
     productId: string,
   ): Promise<VariantRecord[]>;
+  listAllVariants(tenantId: string): Promise<VariantRecord[]>;
   updateVariant(variant: VariantRecord): Promise<boolean>;
   deleteVariant(
     tenantId: string,
@@ -115,7 +116,28 @@ export interface CatalogServiceDeps {
   clock: Clock;
 }
 
-export interface CatalogActor {
-  kind: "user" | "api_key";
-  id: string;
+export interface ParsedImport {
+  rows: ImportRow[];
+  parseError?: string;
+}
+
+export interface ImportRow {
+  row: number;
+  nameAr: string;
+  nameEn: string;
+  kind?: ProductKind;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  status?: ProductStatus;
+  sku?: string;
+  attributes?: Record<string, string>;
+  images?: string[];
+}
+
+export interface ImportReport {
+  dryRun: boolean;
+  total: number;
+  valid: number;
+  created: number;
+  errors: { row: number; reason: string }[];
 }

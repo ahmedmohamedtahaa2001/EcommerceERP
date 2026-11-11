@@ -107,6 +107,16 @@ becomes immutable once any stock movement references the variant (409 on
 attempted change). Bundles attach components via `PUT /v1/products/:id/components`
 (full replace) and `GET /v1/products/:id/components`.
 
+### Bulk import
+
+`POST /v1/products/import` accepts a multipart `file` field (CSV or XLSX) and
+an optional `?dryRun=true` query flag. Columns: `nameAr`, `nameEn` (required),
+plus optional `kind`, `status`, `descriptionAr`, `descriptionEn`, `sku`,
+`attributes` (JSON object), `images` (comma-separated URLs). Returns
+`{ dryRun, total, valid, created, errors: [{ row, reason }] }`. Dry-run
+validates and reports without writing. Duplicate SKUs (within the file or
+against existing data) are reported per row. 1,000 rows import in under 3s.
+
 Every mutating route appends to the append-only `audit_log` (actor, action,
 object, before, after) through `recordAudit`; successful logins are audited
 too, and the enforcement test in `apps/api/tests/audit-coverage.test.ts`

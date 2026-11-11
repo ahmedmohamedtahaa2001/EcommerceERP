@@ -442,6 +442,112 @@ export class CatalogService {
     return this.deps.store.listComponents(tenantId, bundleProductId);
   }
 
+  async importProducts(
+    tenantId: string,
+    rows: import("./types").ImportRow[],
+    dryRun: boolean,
+  ): Promise<import("./types").ImportReport> {
+    const existing = await this.deps.store.listAllVariants(tenantId);
+    const existingSkus = new Set(existing.map((v) => v.sku));
+    const seenSkus = new Set<string>();
+
+    const validRows: {
+      row: number;
+      sku?: string;
+      attributes?: Record<string, string>;
+      input: import("./types").CreateProductInput & {
+        sku?: string;
+        attributes?: Record<string, string>;
+        images?: string[];
+      };
+    }[] = [];
+    const errors: { row: number; reason: string }[] = [];
+
+    for (const r of rows) {
+      try {
+        const nameAr = validateName(r.nameAr, "nameAr");
+        const nameEn = validateName(r.nameEn, "nameEn");
+        const kind = validateKind(r.kind);
+        const status = validateStatus(r.status);
+        const descriptionAr = validateDescription(r.descriptionAr, "descriptionAr");
+        const descriptionEn = validateDescription(r.descriptionEn, "descriptionEn");
+        const images = validateImages(r.images ?? []);
+        const attributes = validateAttributes(r.attributes ?? {});
+
+        let sku: string | undefined;
+        if (r.sku !== undefined && r.sku !== null && String(r.sku).trim() !== "") {
+          sku = validateSku(r.sku);
+          if (existingSkus.has(sku) || seenSkus.has(sku)) {
+            throw new DuplicateSkuError(sku);
+          }
+          seenSkus.add(sku);
+        }
+
+        const entry: {
+          row: number;
+          sku?: string;
+          attributes?: Record<string, string>;
+          input: import("./types").CreateProductInput & {
+            sku?: string;
+            attributes?: Record<string, string>;
+            images?: string[];
+          };
+        } = {
+          row: r.row,
+          input: {
+            nameAr,
+            nameEn,
+            kind,
+            status,
+            descriptionAr,
+            descriptionEn,
+            images,
+          },
+        };
+        if (sku !== undefined) entry.sku = sku;
+        if (attributes && Object.keys(attributes).length > 0) {
+          entry.attributes = attributes;
+        }
+        validRows.push(entry);
+      } catch (error) {
+        errors.push({
+          row: r.row,
+          reason: (error as Error).message,
+        });
+      }
+    }
+
+    let created = 0;
+    if (!dryRun) {
+      for (const entry of validRows) {
+        try {
+          const product = await this.createProduct(entry.input, tenantId);
+          if (entry.sku) {
+            await this.createVariant(tenantId, product.id, {
+              sku: entry.sku,
+              attributes: entry.attributes ?? {},
+              images: entry.input.images ?? [],
+            });
+          }
+          created += 1;
+        } catch (error) {
+          errors.push({
+            row: entry.row,
+            reason: (error as Error).message,
+          });
+        }
+      }
+    }
+
+    return {
+      dryRun,
+      total: rows.length,
+      valid: validRows.length,
+      created,
+      errors,
+    };
+  }
+
   static parsePagination(limit: unknown, offset: unknown): {
     limit: number | undefined;
     offset: number | undefined;

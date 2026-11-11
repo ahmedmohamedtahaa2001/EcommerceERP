@@ -185,7 +185,7 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: S1 complete
   - AC: CRUD endpoints with validation; SKU immutable after first stock movement (enforced + tested); duplicate SKU returns 409.
 
-- [ ] **P0-S2-T02** Bulk product import from CSV/XLSX with dry-run and row-level error report.
+- [x] **P0-S2-T02** Bulk product import from CSV/XLSX with dry-run and row-level error report.
   - Deps: T01
   - AC: import 1,000-row fixture in under 10 seconds; invalid rows reported with row number and reason; dry-run writes nothing.
 

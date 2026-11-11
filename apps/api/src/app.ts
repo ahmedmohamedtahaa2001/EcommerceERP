@@ -5,6 +5,7 @@ import Fastify, {
   type FastifyInstance,
   type FastifyServerOptions,
 } from "fastify";
+import multipart from "@fastify/multipart";
 
 import { registerApiKeyRoutes } from "./api-keys/routes";
 import type { ApiKeyService } from "./api-keys/service";
@@ -112,6 +113,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
           "catalog routes mutate state and require an audit writer.",
         );
       }
+      app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
       registerCatalogRoutes(app, {
         service: options.catalog,
         requestAuth,

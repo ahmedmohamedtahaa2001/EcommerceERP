@@ -236,6 +236,18 @@ export class PgCatalogStore implements CatalogStore {
     });
   }
 
+  async listAllVariants(tenantId: string): Promise<VariantRecord[]> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const result = await client.query<VariantRow>(
+        `select * from variants
+          where tenant_id = $1
+          order by created_at asc, id asc`,
+        [tenantId],
+      );
+      return result.rows.map(toVariant);
+    });
+  }
+
   async updateVariant(variant: VariantRecord): Promise<boolean> {
     return withTenant(this.pool, variant.tenantId, async (client) => {
       const result = await client.query<{ id: string }>(
