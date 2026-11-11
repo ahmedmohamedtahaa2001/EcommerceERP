@@ -12,6 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { tenants } from "./core";
+import { locations } from "./locations";
 
 export const products = pgTable(
   "products",
@@ -113,6 +114,9 @@ export const stockMovements = pgTable(
     variantId: uuid("variant_id")
       .notNull()
       .references(() => variants.id, { onDelete: "restrict" }),
+    locationId: uuid("location_id").references(() => locations.id, {
+      onDelete: "restrict",
+    }),
     delta: integer("delta").notNull(),
     reason: text("reason").notNull(),
     actorType: text("actor_type"),

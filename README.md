@@ -107,6 +107,19 @@ becomes immutable once any stock movement references the variant (409 on
 attempted change). Bundles attach components via `PUT /v1/products/:id/components`
 (full replace) and `GET /v1/products/:id/components`.
 
+### Locations and bins
+
+`POST /v1/locations` creates a location (`warehouse`, `3pl`, `shop`, `transit`)
+with optional `code`, `governorateCode`, and `address`; `GET /v1/locations` and
+`GET /v1/locations/:id` (with its bins); `PATCH`/`DELETE`. A location that
+still has stock movements cannot be deleted (409). Duplicate location codes
+return 409.
+
+Bins: `POST /v1/locations/:id/bins` with a unique `code` per location, plus
+optional `zone` and `capacity`; `GET /v1/locations/:id/bins`,
+`GET /v1/bins/:id`, `PATCH /v1/bins/:id`, `DELETE /v1/bins/:id`. Duplicate
+bin code within a location returns 409.
+
 ### Bulk import
 
 `POST /v1/products/import` accepts a multipart `file` field (CSV or XLSX) and

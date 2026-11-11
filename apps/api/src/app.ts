@@ -15,6 +15,8 @@ import { registerAuthRoutes } from "./auth/routes";
 import type { AuthService } from "./auth/service";
 import { registerCatalogRoutes } from "./catalog/routes";
 import type { CatalogService } from "./catalog/service";
+import { registerLocationRoutes } from "./locations/routes";
+import type { LocationService } from "./locations/service";
 import {
   CompositeRequestAuthenticator,
 } from "./auth/request-authenticator";
@@ -57,6 +59,7 @@ export interface BuildAppOptions {
   auth?: AuthService;
   apiKeys?: ApiKeyService;
   catalog?: CatalogService;
+  locations?: LocationService;
   audit?: AuditWriter;
   auditReader?: AuditReader;
 }
@@ -116,6 +119,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
       registerCatalogRoutes(app, {
         service: options.catalog,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.locations) {
+      if (!options.audit) {
+        throw new Error(
+          "location routes mutate state and require an audit writer.",
+        );
+      }
+      registerLocationRoutes(app, {
+        service: options.locations,
         requestAuth,
         audit: options.audit,
       });

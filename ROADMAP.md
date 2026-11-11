@@ -189,7 +189,7 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T01
   - AC: import 1,000-row fixture in under 10 seconds; invalid rows reported with row number and reason; dry-run writes nothing.
 
-- [ ] **P0-S2-T03** Locations and bins: `locations` (warehouse, 3PL, shop, transit) with governorate code; `bins` with zone, code, capacity.
+- [x] **P0-S2-T03** Locations and bins: `locations` (warehouse, 3PL, shop, transit) with governorate code; `bins` with zone, code, capacity.
   - Deps: T01
   - AC: bin code unique per location; deleting a location with stock is rejected.
 
@@ -781,6 +781,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S1-T11 · Ops Hub CI workflow committed (service containers, drift dry-run, RUN_DB_TESTS suite); every step executed locally green incl. the drift fail branch; blocked on GitHub push because origin is diverged (23 ahead / 379 behind) · commit d7aae90
 - 2026-11-11 · migration · ops-hub moved to its own repository `ahmedmohamedtahaa2001/EcommerceERP` (subtree split preserving all task commits); CI workflow relocated to `.github/workflows/ci.yml` with repo-root paths; ROADMAP.md and README links adapted; first CI run on main is green (run 43008133600) · commit d41e8ac
 - 2026-11-11 · P0-S1-T11 · unblocked and complete: CI ran green on GitHub main (install, lint, typecheck, migrate, migrations dry-run, 14/14 test files / 133/133 tests); README badge renders · commit d41e8ac
+- 2026-11-11 · P0-S2-T01 · catalog tables (products, variants, bundle_components, stock_movements skeleton) with RLS + append-only ledger; CRUD API with validation, duplicate SKU 409, SKU immutability after movement, bundle components; unit 18 + integration 7 tests green; lint/typecheck green · commit 746c0f0
 - 2026-11-11 · P0-S2-T02 · bulk CSV/XLSX import endpoint with dry-run, row-level errors, duplicate-SKU detection, multipart upload; 1000 rows in 2.8s; unit + integration tests green · commit 6c24c41
 
 ---
