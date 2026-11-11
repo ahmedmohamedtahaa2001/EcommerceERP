@@ -36,20 +36,20 @@
 
 ## 1. Tech baseline (decided, do not re-debate)
 
-| Concern | Choice |
-|---|---|
-| Language | TypeScript everywhere (Node 20+) |
-| Monorepo | pnpm workspaces |
-| Backend | Fastify + Zod for validation |
-| ORM / migrations | Drizzle ORM + drizzle-kit |
-| Database | PostgreSQL 16 (RLS enabled) |
-| Queue / jobs | pg-boss (Postgres-backed) |
-| Cache / locks | Redis (idempotency keys, short locks) |
-| Frontend | React + Vite + Tailwind + TanStack Query |
-| API docs | OpenAPI 3.1 generated from Zod schemas |
-| Testing | Vitest (unit + integration), Supertest for HTTP, Playwright for E2E (from Phase 1) |
-| Logging / errors | pino (structured JSON), Sentry-compatible error tracking |
-| Local dev | Docker Compose: postgres, redis, mailpit, and a fake courier server |
+| Concern          | Choice                                                                             |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| Language         | TypeScript everywhere (Node 20+)                                                   |
+| Monorepo         | pnpm workspaces                                                                    |
+| Backend          | Fastify + Zod for validation                                                       |
+| ORM / migrations | Drizzle ORM + drizzle-kit                                                          |
+| Database         | PostgreSQL 16 (RLS enabled)                                                        |
+| Queue / jobs     | pg-boss (Postgres-backed)                                                          |
+| Cache / locks    | Redis (idempotency keys, short locks)                                              |
+| Frontend         | React + Vite + Tailwind + TanStack Query                                           |
+| API docs         | OpenAPI 3.1 generated from Zod schemas                                             |
+| Testing          | Vitest (unit + integration), Supertest for HTTP, Playwright for E2E (from Phase 1) |
+| Logging / errors | pino (structured JSON), Sentry-compatible error tracking                           |
+| Local dev        | Docker Compose: postgres, redis, mailpit, and a fake courier server                |
 
 ### Repository layout (target)
 
@@ -78,35 +78,35 @@ ops-hub/
 
 ## 2. Phase overview
 
-| Phase | Name | Sprints | Exit criteria (all must be true) |
-|---|---|---|---|
-| **P0** | Foundation | S1–S2 | Tenants, auth, API keys, audit, outbox, catalog, stock ledger, OpenAPI published |
-| **P1** | Core Ops MVP | S3–S5 | Shopify orders in, state machine + exception queue, Bosta shipments with idempotent labels, tracking page, COD basics, one pilot brand live |
-| **P2** | Reliability & Money | S6–S8 | Receiving with PO match, putaway, cycle counts, COD confirmation + risk score, returns/refunds, daily reconciliation, DLQ replay, Posta + J&T adapters |
-| **P3** | Growth | S9–S12 | Reorder engine, POs, supplier scorecards, landed cost, unified inbox (WhatsApp/IG/email), CRM profiles, segments, automations, KPI dashboards |
-| **P4** | Intelligence & Ecosystem | S13–S15 | MCP server, agent playbooks, n8n/Make templates, accounting export, public API hardening |
+| Phase  | Name                     | Sprints | Exit criteria (all must be true)                                                                                                                       |
+| ------ | ------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **P0** | Foundation               | S1–S2   | Tenants, auth, API keys, audit, outbox, catalog, stock ledger, OpenAPI published                                                                       |
+| **P1** | Core Ops MVP             | S3–S5   | Shopify orders in, state machine + exception queue, Bosta shipments with idempotent labels, tracking page, COD basics, one pilot brand live            |
+| **P2** | Reliability & Money      | S6–S8   | Receiving with PO match, putaway, cycle counts, COD confirmation + risk score, returns/refunds, daily reconciliation, DLQ replay, Posta + J&T adapters |
+| **P3** | Growth                   | S9–S12  | Reorder engine, POs, supplier scorecards, landed cost, unified inbox (WhatsApp/IG/email), CRM profiles, segments, automations, KPI dashboards          |
+| **P4** | Intelligence & Ecosystem | S13–S15 | MCP server, agent playbooks, n8n/Make templates, accounting export, public API hardening                                                               |
 
 ### Sprint calendar
 
 Each sprint is 2 weeks. Dates are relative; set real dates when the sprint starts.
 
-| Sprint | Phase | Theme |
-|---|---|---|
-| S1 | P0 | Repo, platform, tenants, auth, API keys |
-| S2 | P0 | Catalog, locations, stock ledger, OpenAPI |
-| S3 | P1 | Order intake, validation, duplicates, state machine |
-| S4 | P1 | Bosta adapter, shipments, tracking normalization, outbound webhooks |
-| S5 | P1 | Shopify connector, COD basics, tracking page, pilot launch |
-| S6 | P2 | Receiving, PO matching, putaway, quarantine, cycle counts |
-| S7 | P2 | COD confirmation, risk scoring, returns and refunds |
-| S8 | P2 | Settlement reconciliation, reconciler, DLQ replay, Posta + J&T |
-| S9 | P3 | Purchase orders, reorder engine, supplier master |
-| S10 | P3 | Supplier scorecards, landed cost, carrier scorecards |
-| S11 | P3 | Unified inbox, WhatsApp channel, tickets, macros |
-| S12 | P3 | CRM profiles, segments, automations, KPI dashboards and alerts |
-| S13 | P4 | Public API hardening, rate limits, API docs site, sandbox |
-| S14 | P4 | MCP server for Claude and other agents |
-| S15 | P4 | Agent playbooks, n8n/Make templates, accounting export |
+| Sprint | Phase | Theme                                                               |
+| ------ | ----- | ------------------------------------------------------------------- |
+| S1     | P0    | Repo, platform, tenants, auth, API keys                             |
+| S2     | P0    | Catalog, locations, stock ledger, OpenAPI                           |
+| S3     | P1    | Order intake, validation, duplicates, state machine                 |
+| S4     | P1    | Bosta adapter, shipments, tracking normalization, outbound webhooks |
+| S5     | P1    | Shopify connector, COD basics, tracking page, pilot launch          |
+| S6     | P2    | Receiving, PO matching, putaway, quarantine, cycle counts           |
+| S7     | P2    | COD confirmation, risk scoring, returns and refunds                 |
+| S8     | P2    | Settlement reconciliation, reconciler, DLQ replay, Posta + J&T      |
+| S9     | P3    | Purchase orders, reorder engine, supplier master                    |
+| S10    | P3    | Supplier scorecards, landed cost, carrier scorecards                |
+| S11    | P3    | Unified inbox, WhatsApp channel, tickets, macros                    |
+| S12    | P3    | CRM profiles, segments, automations, KPI dashboards and alerts      |
+| S13    | P4    | Public API hardening, rate limits, API docs site, sandbox           |
+| S14    | P4    | MCP server for Claude and other agents                              |
+| S15    | P4    | Agent playbooks, n8n/Make templates, accounting export              |
 
 ---
 
@@ -182,9 +182,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 **Sprint goal:** products and stock exist per location, every stock change is a movement, and available-to-promise is correct.
 
-- [ ] **P0-S2-T01** Catalog tables and API: `products`, `variants` (SKU unique per tenant), `bundles` (components), with AR/EN names and images.
+- [x] **P0-S2-T01** Catalog tables and API: `products`, `variants` (SKU unique per tenant), `bundles` (components), with AR/EN names and images.
+  - Owner: claude (2026-11-11)
   - Deps: S1 complete
   - AC: CRUD endpoints with validation; SKU immutable after first stock movement (enforced + tested); duplicate SKU returns 409.
+  - Note: `bundles` is modeled as `products.kind = 'bundle'` + `bundle_components` (no separate `bundles` table) — a prior, uncommitted session had already built this shape directly against the dev DB. SKU is immutable unconditionally (not just after a stock movement), since the stock ledger doesn't exist yet as an API; tighten later if needed. Pricing is intentionally not modeled on variants yet (not in this AC).
 
 - [ ] **P0-S2-T02** Bulk product import from CSV/XLSX with dry-run and row-level error report.
   - Deps: T01
@@ -741,16 +743,16 @@ P0 Foundation ──► P1 Core Ops MVP ──► P2 Reliability & Money ──�
 
 ## 13. Risks and mitigations
 
-| Risk | Impact | Mitigation | Task |
-|---|---|---|---|
-| Courier APIs differ from assumptions | Adapter rework | Verify endpoints in S4 before coding; contract suite | P1-S4-T03, P0 decision docs |
-| COD settlement formats change | Reconciliation breaks | Parser registry + fixtures + variance alerts | P2-S8-T01 |
-| Webhook loss during outage | Missing orders | Outbox + reconciler | P2-S8-T03 |
-| Agent writes wrong data | Financial or stock damage | Approval gate, dry-run, kill switch | P4-S13-T04 |
-| Tenant data leak | Trust loss, legal exposure | RLS + isolation tests in CI | P0-S1-T04 |
-| Scope creep | Late pilot | Backlog section, one task at a time | Section 0 rule 5 |
-| Real brand data is messy | Import failures | Dry-run import and human review | P1-S5-T10 |
-| Legal/privacy requirements (Egypt) | Launch blocked | Early legal review | X-04 |
+| Risk                                 | Impact                     | Mitigation                                           | Task                        |
+| ------------------------------------ | -------------------------- | ---------------------------------------------------- | --------------------------- |
+| Courier APIs differ from assumptions | Adapter rework             | Verify endpoints in S4 before coding; contract suite | P1-S4-T03, P0 decision docs |
+| COD settlement formats change        | Reconciliation breaks      | Parser registry + fixtures + variance alerts         | P2-S8-T01                   |
+| Webhook loss during outage           | Missing orders             | Outbox + reconciler                                  | P2-S8-T03                   |
+| Agent writes wrong data              | Financial or stock damage  | Approval gate, dry-run, kill switch                  | P4-S13-T04                  |
+| Tenant data leak                     | Trust loss, legal exposure | RLS + isolation tests in CI                          | P0-S1-T04                   |
+| Scope creep                          | Late pilot                 | Backlog section, one task at a time                  | Section 0 rule 5            |
+| Real brand data is messy             | Import failures            | Dry-run import and human review                      | P1-S5-T10                   |
+| Legal/privacy requirements (Egypt)   | Launch blocked             | Early legal review                                   | X-04                        |
 
 ---
 
@@ -780,6 +782,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S1-T09 · API keys with SHA-256 hash at rest, scopes, IP allow-list, revoke, last_used_at; 14 unit + 6 DB integration tests green; live smoke of all AC flows · commit 9d9b7c2
 - 2026-11-11 · P0-S1-T10 · audit writer + GET /v1/audit reader; api-key and login mutations audited; coverage enforcement test, 4 audit + 6 api-key DB integration tests green; live smoke verified · commit 374262b
 - 2026-11-11 · P0-S1-T11 · Ops Hub CI workflow committed (service containers, drift dry-run, RUN_DB_TESTS suite); every step executed locally green incl. the drift fail branch; blocked on GitHub push because origin is diverged (23 ahead / 379 behind) · commit d7aae90
+- 2026-11-11 · P0-S2-T01 · Catalog CRUD API (products/variants) with permission guards, audit, SKU-immutable updates, 409 on duplicate SKU. Discovered the dev DB already had a more-advanced, uncommitted schema (catalog + locations/bins + stock ledger) from a prior session; reverse-engineered it into `schema/catalog.ts`, `schema/inventory.ts`, and migration 0004, and reconciled drizzle's migration journal against the DB's already-applied state. 151/151 tests green (incl. 9 new DB integration tests), lint + typecheck clean · commit d6992bd
 
 ---
 
