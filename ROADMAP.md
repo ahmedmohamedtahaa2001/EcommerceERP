@@ -218,9 +218,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: `GET /v1/inventory/availability?sku=&location=`; unit test for each bucket combination; never returns a negative ATP unless negative-stock policy is set to allow.
   - Note: added `tenants.allow_negative_stock` (migration 0005, default `false`) as the policy flag; no tenant-settings endpoint to change it yet, so it can only be flipped directly in the DB for now.
 
-- [ ] **P0-S2-T07** Reservations: create, release, expire (Redis-backed lock per sku+location during allocation; expiry job).
+- [x] **P0-S2-T07** Reservations: create, release, expire (Redis-backed lock per sku+location during allocation; expiry job).
+  - Owner: claude (2026-11-11)
   - Deps: T05, T06
   - AC: two concurrent reservations for the last unit: exactly one succeeds (integration test with parallel requests); expired reservation returns stock to available.
+  - Note: "expiry job" is `ReservationService.expireDue(tenantId, now)`, a callable sweep — not a running background worker. No job runner (pg-boss) exists yet; wire a scheduled call to it once P0-S2-T09 lands.
 
 - [ ] **P0-S2-T08** Adjustments endpoint with mandatory reason codes (`COUNT_VARIANCE`, `DAMAGE`, `LOSS`, `FOUND`, `CORRECTION`) and enum from `GET /v1/meta/enums`.
   - Deps: T05
@@ -798,6 +800,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S2-T04 · Geo reference data: pure resolveGovernorate/resolveDistrict in packages/domain (diacritic- and case-insensitive, matches EN/AR/aliases) plus GET /v1/geo/governorates and /v1/geo/districts. 183/183 tests green, lint + typecheck clean · commit 40295da
 - 2026-11-11 · P0-S2-T05 · Stock ledger: stock_movements + derived stock_balances, five buckets, single transaction per movement (insert + upsert). 190/190 tests green incl. a 200-step randomized property test, lint + typecheck clean · commit 3329af0
 - 2026-11-11 · P0-S2-T06 · Availability API (ATP) over the stock ledger; added tenants.allow_negative_stock (migration 0005, default false) as the clamp policy. 204/204 tests green, lint + typecheck clean · commit e9a040e
+- 2026-11-11 · P0-S2-T07 · Stock reservations: Redis SET-NX-PX lock serializes allocation per tenant+variant+location; reserve/release/expireDue all go through the existing ledger. 209/209 tests green incl. a parallel-requests race test (stable across repeated runs), lint + typecheck clean · commit 58aec54
 
 ---
 
