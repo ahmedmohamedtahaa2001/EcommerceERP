@@ -367,6 +367,20 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
   },
   {
     method: "get",
+    path: "/v1/settings/company",
+    summary: "Read the business profile: name, timezone, currency, country",
+    tag: "Settings",
+    scope: "settings:read",
+  },
+  {
+    method: "patch",
+    path: "/v1/settings/company",
+    summary: "Change the business profile",
+    tag: "Settings",
+    scope: "settings:write",
+  },
+  {
+    method: "get",
     path: "/v1/inventory/balances",
     summary: "Stock balances",
     tag: "Inventory",

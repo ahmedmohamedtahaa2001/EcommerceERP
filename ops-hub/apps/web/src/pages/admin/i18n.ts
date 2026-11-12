@@ -94,6 +94,19 @@ export const dict = {
       "المفاتيح بتتخزن hashed على السيرفر — مش ممكن استرجاع القيمة الكاملة بعد الإنشاء، لده السر بيظهر مرة واحدة.",
 
     // ── Settings ──
+    "company.title": "إعدادات النشاط",
+    "company.description":
+      "بيانات النشاط التي تُستخدم في التقارير والعملات والتوقيت.",
+    "company.name": "اسم النشاط",
+    "company.timezone": "المنطقة الزمنية",
+    "company.currency": "العملة الافتراضية",
+    "company.country": "الدولة",
+    "company.negativeStock": "السماح بالمخزون السالب",
+    "company.negativeStock.hint":
+      "عند التفعيل يمكن تسجيل بيع أكثر من الرصيد المتاح. لا تفعّله إلا إذا كنت تعرف لماذا.",
+    "company.slug": "معرّف النشاط: {slug}",
+    "company.saved": "تم حفظ إعدادات النشاط",
+    "company.saveFailed": "تعذر حفظ الإعدادات",
     "settings.description": "حسابك وصلاحيات الفريق وتفضيلات الواجهة.",
     "settings.tab.profile": "الملف الشخصي",
     "settings.tab.roles": "الصلاحيات",
@@ -233,6 +246,19 @@ export const dict = {
     "apiKeys.securityNote":
       "Keys are stored hashed at rest — the full value can never be retrieved after creation, which is why the secret is shown once.",
 
+    "company.title": "Business settings",
+    "company.description":
+      "Business details used by reports, currency and dates.",
+    "company.name": "Business name",
+    "company.timezone": "Timezone",
+    "company.currency": "Default currency",
+    "company.country": "Country",
+    "company.negativeStock": "Allow negative stock",
+    "company.negativeStock.hint":
+      "When on, a sale can be recorded above the stock on hand. Turn it on only if you know why you need it.",
+    "company.slug": "Business identifier: {slug}",
+    "company.saved": "Business settings saved",
+    "company.saveFailed": "Could not save the settings",
     "settings.description":
       "Your account, team permissions, and interface preferences.",
     "settings.tab.profile": "Profile",

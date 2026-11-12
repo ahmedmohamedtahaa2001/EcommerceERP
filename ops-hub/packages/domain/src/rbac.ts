@@ -17,6 +17,7 @@ export const PERMISSIONS = [
   "users:write",
   "api_keys:read",
   "api_keys:write",
+  "settings:read",
   "settings:write",
 ] as const;
 
@@ -51,6 +52,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "reports:read",
     "audit:read",
     "users:read",
+    "settings:read",
   ],
   sales_agent: [
     "products:read",
@@ -60,6 +62,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "refunds:read",
     "customers:read",
     "customers:write",
+    "settings:read",
   ],
   warehouse: [
     "products:read",
@@ -68,6 +71,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "inventory:write",
     "shipments:read",
     "shipments:write",
+    "settings:read",
   ],
   finance: [
     "orders:read",
@@ -75,6 +79,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "refunds:approve",
     "reports:read",
     "audit:read",
+    "settings:read",
   ],
   support: [
     "products:read",
@@ -83,6 +88,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "refunds:read",
     "customers:read",
     "customers:write",
+    "settings:read",
   ],
   viewer: [
     "products:read",
@@ -90,6 +96,7 @@ const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "inventory:read",
     "shipments:read",
     "reports:read",
+    "settings:read",
   ],
 };
 

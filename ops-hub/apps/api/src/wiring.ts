@@ -75,6 +75,7 @@ import { PutawayService } from "./putaway/service";
 import { ExportService } from "./exports/service";
 import { BulkService } from "./bulk/service";
 import { UserAdminService } from "./users/service";
+import { CompanyService } from "./company/service";
 import { PgCustomerStore } from "./customers/pg-store";
 import { SourcingService } from "./suppliers/service";
 import { TenantSettingsService } from "./settings/service";
@@ -288,6 +289,7 @@ export function buildFullApp(
     exports: new ExportService(pool, systemClock),
     bulk: new BulkService(pool),
     userAdmin: new UserAdminService(pool, argon2Hasher, systemClock),
+    company: new CompanyService(pool),
     catalogImport,
     inventory,
     stock,

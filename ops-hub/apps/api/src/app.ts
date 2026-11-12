@@ -40,6 +40,8 @@ import { registerPutawayRoutes } from "./putaway/routes";
 import { registerExportRoutes } from "./exports/routes";
 import { registerBulkRoutes } from "./bulk/routes";
 import { registerUserRoutes } from "./users/routes";
+import { registerCompanyRoutes } from "./company/routes";
+import type { CompanyService } from "./company/service";
 import type { UserAdminService } from "./users/service";
 import type { BulkService } from "./bulk/service";
 import type { ExportService } from "./exports/service";
@@ -125,6 +127,7 @@ export interface BuildAppOptions {
   exports?: ExportService;
   bulk?: BulkService;
   userAdmin?: UserAdminService;
+  company?: CompanyService;
   carriers?: Record<string, ShippingCarrier>;
   /** Per-carrier HMAC secrets for inbound carrier webhooks. */
   carrierWebhookSecrets?: Record<string, string | undefined>;
@@ -387,6 +390,16 @@ ${Object.entries(buildOpenApiDocument().paths)
       }
       registerExceptionRoutes(app, {
         service: options.exceptions,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.company) {
+      if (!options.audit) {
+        throw new Error("company profile changes must be audited.");
+      }
+      registerCompanyRoutes(app, {
+        service: options.company,
         requestAuth,
         audit: options.audit,
       });
