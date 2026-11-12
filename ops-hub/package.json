@@ -16,10 +16,13 @@
     "test:db": "RUN_DB_TESTS=1 vitest run",
     "build": "pnpm -r --if-present build",
     "dev:api": "pnpm --filter @ops-hub/api dev",
+    "dev:web": "pnpm --filter @ops-hub/web dev",
     "db:ping": "tsx packages/db/src/ping.ts",
     "db:generate": "pnpm --filter @ops-hub/db generate",
     "db:migrate": "pnpm --filter @ops-hub/db migrate",
-    "db:reset": "pnpm --filter @ops-hub/db reset"
+    "db:reset": "pnpm --filter @ops-hub/db reset",
+    "db:seed": "tsx packages/db/src/seed.ts",
+    "db:seed:password": "tsx apps/api/src/seed-password.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

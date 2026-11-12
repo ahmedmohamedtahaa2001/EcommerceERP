@@ -74,6 +74,19 @@ export interface OrderStore {
     idempotencyKey: string,
   ): Promise<OrderWithDetails | null>;
   getById(tenantId: string, id: string): Promise<OrderWithDetails | null>;
+  /** Lists orders, newest first. Filters are all optional and combine with
+   * AND. `limit` is capped by the caller. */
+  list(
+    tenantId: string,
+    filter: {
+      status?: string;
+      /** Normalized E.164 phone, or null to match nothing. */
+      phone?: string | null;
+      orderNumber?: string;
+      limit: number;
+      offset: number;
+    },
+  ): Promise<OrderRecord[]>;
   /** Everything below runs in one transaction: customer upsert, address
    * insert, order number allocation, order + lines + payment insert. */
   createOrder(

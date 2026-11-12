@@ -36,6 +36,10 @@ import { registerShipmentRoutes } from "./shipments/routes";
 import type { ShipmentService } from "./shipments/service";
 import { registerOutboundWebhookRoutes } from "./webhooks/routes";
 import type { OutboundWebhookService } from "./webhooks/outbound-service";
+import { registerTrackingRoutes } from "./tracking/routes";
+import { registerReportRoutes } from "./reports/routes";
+import type { ReportsService } from "./reports/service";
+import type { Pool } from "pg";
 import type { OrderValidationService } from "./orders/validation-service";
 import type { DuplicateDetectionService } from "./orders/duplicate-detection-service";
 import type { OrderService } from "./orders/service";
@@ -96,6 +100,10 @@ export interface BuildAppOptions {
   exceptions?: ExceptionService;
   shipments?: ShipmentService;
   outboundWebhooks?: OutboundWebhookService;
+  /** Pool used by the public tracking route (it reads across tenants by
+   * order number and then verifies the phone). */
+  trackingPool?: Pool;
+  reports?: ReportsService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -163,6 +171,10 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   }));
 
   app.get("/v1/openapi.json", async () => buildOpenApiDocument());
+
+  if (options.trackingPool) {
+    registerTrackingRoutes(app, { pool: options.trackingPool });
+  }
 
   app.get("/docs", async (_request, reply) => {
     reply.type("text/html");
@@ -337,6 +349,12 @@ ${Object.entries(buildOpenApiDocument().paths)
         service: options.shipments,
         requestAuth,
         audit: options.audit,
+      });
+    }
+    if (options.reports) {
+      registerReportRoutes(app, {
+        service: options.reports,
+        requestAuth,
       });
     }
     if (options.outboundWebhooks) {

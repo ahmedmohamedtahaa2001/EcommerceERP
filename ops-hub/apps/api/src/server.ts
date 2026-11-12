@@ -29,6 +29,7 @@ import { PgShipmentStore } from "./shipments/pg-store";
 import { ShipmentService } from "./shipments/service";
 import { BostaAdapter } from "./integrations/bosta/adapter";
 import { OutboundWebhookService } from "./webhooks/outbound-service";
+import { ReportsService } from "./reports/service";
 import { OrderService } from "./orders/service";
 import { OrderValidationService } from "./orders/validation-service";
 import { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -135,6 +136,7 @@ const shipments = new ShipmentService({
 });
 
 const outboundWebhooks = new OutboundWebhookService(pool);
+const reports = new ReportsService(pool);
 
 const app = buildApp({
   auth,
@@ -154,6 +156,8 @@ const app = buildApp({
   exceptions,
   shipments,
   outboundWebhooks,
+  trackingPool: pool,
+  reports,
 });
 app.addHook("onClose", async () => {
   await pool.end();

@@ -15,9 +15,20 @@ import {
 import { hashRequestBody } from "./idempotency-hash";
 import type {
   OrderEventRecord,
+  OrderRecord,
   OrderServiceDeps,
   OrderWithDetails,
 } from "./types";
+
+/** Normalizes a phone for filtering; an invalid phone matches nothing rather
+ * than throwing, so a bad query param returns an empty list. */
+function normalizePhoneOrNull(phone: string): string | null {
+  try {
+    return normalizePhone(phone);
+  } catch {
+    return null;
+  }
+}
 
 export class OrderService {
   constructor(private readonly deps: OrderServiceDeps) {}
@@ -117,6 +128,32 @@ export class OrderService {
       throw new OrderNotFoundError();
     }
     return order;
+  }
+
+  async list(
+    tenantId: string,
+    filter: {
+      status?: string;
+      phone?: string;
+      orderNumber?: string;
+      limit?: number;
+      offset?: number;
+    },
+  ): Promise<{ orders: OrderRecord[]; total: number }> {
+    const limit = Math.min(Math.max(filter.limit ?? 25, 1), 100);
+    const offset = Math.max(filter.offset ?? 0, 0);
+    const orders = await this.deps.store.list(tenantId, {
+      limit,
+      offset,
+      ...(filter.status !== undefined ? { status: filter.status } : {}),
+      ...(filter.phone !== undefined
+        ? { phone: normalizePhoneOrNull(filter.phone) }
+        : {}),
+      ...(filter.orderNumber !== undefined
+        ? { orderNumber: filter.orderNumber }
+        : {}),
+    });
+    return { orders, total: orders.length };
   }
 
   async listEvents(

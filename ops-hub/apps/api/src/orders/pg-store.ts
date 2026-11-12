@@ -222,6 +222,51 @@ export class PgOrderStore implements OrderStore {
     );
   }
 
+  async list(
+    tenantId: string,
+    filter: {
+      status?: string;
+      phone?: string;
+      orderNumber?: string;
+      limit: number;
+      offset: number;
+    },
+  ): Promise<OrderRecord[]> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const conditions = ["o.tenant_id = $1"];
+      const params: unknown[] = [tenantId];
+      if (filter.status) {
+        params.push(filter.status);
+        conditions.push(`o.status = $${params.length}`);
+      }
+      if (filter.orderNumber) {
+        params.push(filter.orderNumber);
+        conditions.push(`o.order_number = $${params.length}`);
+      }
+      if (filter.phone) {
+        params.push(filter.phone);
+        conditions.push(`c.phone = $${params.length}`);
+      } else if (filter.phone === null) {
+        // An unparsable phone must match nothing, not everything.
+        conditions.push("false");
+      }
+      params.push(filter.limit);
+      const limitParam = params.length;
+      params.push(filter.offset);
+      const offsetParam = params.length;
+
+      const result = await client.query<OrderRow>(
+        `select o.* from orders o
+           join customers c on c.id = o.customer_id
+          where ${conditions.join(" and ")}
+          order by o.created_at desc, o.id desc
+          limit $${limitParam} offset $${offsetParam}`,
+        params,
+      );
+      return result.rows.map(toOrder);
+    });
+  }
+
   async createOrder(
     tenantId: string,
     request: CreateOrderRequest,

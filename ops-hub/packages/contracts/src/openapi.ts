@@ -312,6 +312,13 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
   },
   {
     method: "get",
+    path: "/v1/orders",
+    summary: "List orders",
+    tag: "Orders",
+    scope: "orders:read",
+  },
+  {
+    method: "get",
     path: "/v1/orders/:id",
     summary: "Read an order",
     tag: "Orders",
@@ -406,6 +413,15 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     summary: "Public order tracking",
     tag: "Tracking",
     public: true,
+  },
+
+  // Reports
+  {
+    method: "get",
+    path: "/v1/reports/daily",
+    summary: "Daily operations report",
+    tag: "Reports",
+    scope: "reports:read",
   },
 
   // Webhooks

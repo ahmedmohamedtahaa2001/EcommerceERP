@@ -35,13 +35,13 @@ ops-hub/
 
 Run these from this directory after `pnpm install`:
 
-| Command            | What it does                                  |
-| ------------------ | --------------------------------------------- |
-| `pnpm lint`        | ESLint over every workspace package           |
-| `pnpm typecheck`   | `tsc --noEmit` over every workspace package   |
-| `pnpm test`        | Vitest across the workspace                   |
-| `pnpm build`       | Runs each package's `build` script when it has one |
-| `pnpm dev:api`     | Starts the Fastify API on `PORT` (default 3001)   |
+| Command          | What it does                                       |
+| ---------------- | -------------------------------------------------- |
+| `pnpm lint`      | ESLint over every workspace package                |
+| `pnpm typecheck` | `tsc --noEmit` over every workspace package        |
+| `pnpm test`      | Vitest across the workspace                        |
+| `pnpm build`     | Runs each package's `build` script when it has one |
+| `pnpm dev:api`   | Starts the Fastify API on `PORT` (default 3001)    |
 
 All three of `lint`, `typecheck`, and `test` must pass before a task is
 committed, per the roadmap's global non-negotiables.
@@ -56,11 +56,11 @@ compose values; override them with `DATABASE_URL` and `REDIS_URL` (see
 
 ### Database
 
-| Command           | What it does                                              |
-| ----------------- | --------------------------------------------------------- |
+| Command            | What it does                                                |
+| ------------------ | ----------------------------------------------------------- |
 | `pnpm db:generate` | Generates a Drizzle migration from `packages/db/src/schema` |
-| `pnpm db:migrate`  | Applies pending migrations                                |
-| `pnpm db:reset`    | Drops `public` and `drizzle` schemas (development only)   |
+| `pnpm db:migrate`  | Applies pending migrations                                  |
+| `pnpm db:reset`    | Drops `public` and `drizzle` schemas (development only)     |
 
 The first migration creates `tenants`, `users`, `memberships`, and the
 append-only `audit_log`, and grants the `ops_hub_app` role only `SELECT` and
@@ -104,3 +104,52 @@ and 200.
 
 If pnpm is not installed globally, prefix commands with `npx pnpm@10`
 (for example `npx pnpm@10 install`).
+
+## Quick start (from a clean checkout)
+
+```bash
+docker compose up -d          # postgres + redis + mailpit
+pnpm install
+pnpm db:migrate               # apply the schema
+pnpm db:seed                  # demo tenant, owner user, catalog, opening stock
+pnpm db:seed:password         # hash the demo password with argon2id
+pnpm dev:api                  # API on http://localhost:3001
+pnpm dev:web                  # ops console on http://localhost:5173
+```
+
+Seeded credentials: `owner@ops-hub.local` / `ops-hub-demo-password`.
+
+Smoke check:
+
+```bash
+curl http://localhost:3001/healthz
+curl http://localhost:3001/v1/openapi.json   # 50 published paths
+open http://localhost:3001/docs               # human-readable route list
+```
+
+### Useful extras
+
+| Command                               | What it does                                             |
+| ------------------------------------- | -------------------------------------------------------- |
+| `pnpm test:db`                        | Runs the DB integration suite (needs Postgres)           |
+| `npx tsx fixtures/courier/server.ts`  | Fake courier on :4010 (create/status/label/cancel/rates) |
+| `node fixtures/webhooks/receiver.mjs` | Sample outbound-webhook receiver on :4020                |
+| `pnpm --filter @ops-hub/mcp start`    | MCP server for Claude (stdio)                            |
+| `pnpm --filter @ops-hub/web build`    | Builds the ops console                                   |
+
+`BOSTA_BASE_URL` and `BOSTA_API_KEY` point the shipment service at a carrier;
+they default to the fake courier and a placeholder key, so nothing calls a
+real carrier until you set them.
+
+### Environment
+
+| Variable          | Default                  | Used by                      |
+| ----------------- | ------------------------ | ---------------------------- |
+| `DATABASE_URL`    | compose Postgres         | API, MCP, seed scripts       |
+| `REDIS_URL`       | `redis://localhost:6379` | sessions, rate limits, locks |
+| `PORT`            | `3001`                   | API                          |
+| `BOSTA_API_KEY`   | `placeholder`            | Bosta adapter                |
+| `BOSTA_BASE_URL`  | `http://localhost:4010`  | Bosta adapter                |
+| `OPS_HUB_API_URL` | `http://localhost:3001`  | MCP server                   |
+| `OPS_HUB_API_KEY` | empty                    | MCP server                   |
+| `OPS_HUB_SCOPES`  | empty                    | MCP server                   |

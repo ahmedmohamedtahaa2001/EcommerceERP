@@ -54,6 +54,30 @@ export function registerOrderRoutes(
   );
 
   app.get(
+    "/v1/orders",
+    { preHandler: requirePermission(requestAuth, "orders:read") },
+    async (request) => {
+      const { tenantId } = actorAndTenant(requirePrincipal(request));
+      const query = request.query as {
+        status?: string;
+        phone?: string;
+        orderNumber?: string;
+        limit?: string;
+        offset?: string;
+      };
+      return service.list(tenantId, {
+        ...(query.status !== undefined ? { status: query.status } : {}),
+        ...(query.phone !== undefined ? { phone: query.phone } : {}),
+        ...(query.orderNumber !== undefined
+          ? { orderNumber: query.orderNumber }
+          : {}),
+        ...(query.limit !== undefined ? { limit: Number(query.limit) } : {}),
+        ...(query.offset !== undefined ? { offset: Number(query.offset) } : {}),
+      });
+    },
+  );
+
+  app.get(
     "/v1/orders/:id",
     { preHandler: requirePermission(requestAuth, "orders:read") },
     async (request) => {
