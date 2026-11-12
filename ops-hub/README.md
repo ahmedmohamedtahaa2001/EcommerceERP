@@ -141,6 +141,20 @@ open http://localhost:3001/docs               # human-readable route list
 they default to the fake courier and a placeholder key, so nothing calls a
 real carrier until you set them.
 
+### What is built
+
+| Area      | Endpoints / modules                                                                                            |
+| --------- | -------------------------------------------------------------------------------------------------------------- |
+| Platform  | auth, API keys, RBAC, audit log, health probes, rate limiting, OpenAPI (`/v1/openapi.json`, `/docs`)           |
+| Catalog   | products, variants, bulk CSV/XLSX import                                                                       |
+| Inventory | locations, bins, stock ledger, ATP, reservations, adjustments, receipts, putaway, cycle counts                 |
+| Orders    | order intake with idempotency, validation pipeline, duplicate detection, event timeline, exceptions            |
+| Shipping  | carrier port, Bosta/Posta/J&T adapters, fake courier, shipments, tracking, webhooks, routing                   |
+| Money     | COD records, confirmation tasks, risk scoring, returns, refunds (four-eyes), settlement import, reconciliation |
+| Buying    | suppliers, reorder engine, purchase orders, scorecards, landed cost, claims                                    |
+| Support   | tickets, channels, inbox, WISMO, macros, CRM profiles, consent, segments, automations, KPIs, alerts            |
+| Agents    | MCP server (11 curated tools, approval gating, PII redaction), 3 playbooks, sandbox, safety controls           |
+
 ### Environment
 
 | Variable          | Default                  | Used by                      |
