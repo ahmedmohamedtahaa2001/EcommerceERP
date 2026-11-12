@@ -19,7 +19,7 @@ const client = new Client({ connectionString: databaseUrl });
 describe("KPI documentation stays in sync", () => {
   it("documents every metric the service can produce", () => {
     const documented = new Set(
-      [...docs.matchAll(/^\| `([a-z_]+)` \|/gm)].map((m) => m[1]),
+      [...docs.matchAll(/^\| `([a-z_]+)` +\|/gm)].map((m) => m[1]),
     );
     expect(documented.size).toBeGreaterThan(15);
     // Every metric in the table must be a real metric name.
