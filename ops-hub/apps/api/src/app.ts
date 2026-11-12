@@ -31,6 +31,8 @@ import { registerMetaRoutes } from "./meta/routes";
 import { registerOrderRoutes } from "./orders/routes";
 import { registerExceptionRoutes } from "./orders/exception-routes";
 import type { ExceptionService } from "./orders/exception-service";
+import { registerShipmentRoutes } from "./shipments/routes";
+import type { ShipmentService } from "./shipments/service";
 import type { OrderValidationService } from "./orders/validation-service";
 import type { DuplicateDetectionService } from "./orders/duplicate-detection-service";
 import type { OrderService } from "./orders/service";
@@ -85,6 +87,7 @@ export interface BuildAppOptions {
   orderValidation?: OrderValidationService;
   duplicateDetection?: DuplicateDetectionService;
   exceptions?: ExceptionService;
+  shipments?: ShipmentService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -267,6 +270,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       }
       registerExceptionRoutes(app, {
         service: options.exceptions,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.shipments) {
+      if (!options.audit) {
+        throw new Error(
+          "shipment routes mutate state and require an audit writer.",
+        );
+      }
+      registerShipmentRoutes(app, {
+        service: options.shipments,
         requestAuth,
         audit: options.audit,
       });

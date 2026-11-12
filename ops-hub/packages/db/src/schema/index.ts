@@ -7,3 +7,4 @@ export * from "./exceptions";
 export * from "./inventory";
 export * from "./order-events";
 export * from "./orders";
+export * from "./shipments";

@@ -25,6 +25,9 @@ import { AdjustmentService } from "./stock/adjustment-service";
 import { PgOrderStore } from "./orders/pg-store";
 import { PgOrderEventStore } from "./orders/pg-order-event-store";
 import { PgExceptionStore } from "./orders/pg-exception-store";
+import { PgShipmentStore } from "./shipments/pg-store";
+import { ShipmentService } from "./shipments/service";
+import { BostaAdapter } from "./integrations/bosta/adapter";
 import { OrderService } from "./orders/service";
 import { OrderValidationService } from "./orders/validation-service";
 import { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -120,6 +123,16 @@ const exceptions = new ExceptionService({
   clock: systemClock,
 });
 
+const shipments = new ShipmentService({
+  store: new PgShipmentStore(pool),
+  carrier: new BostaAdapter({
+    apiKey: process.env.BOSTA_API_KEY ?? "placeholder",
+    baseUrl: process.env.BOSTA_BASE_URL ?? "http://localhost:4010",
+    environment: "test",
+  }),
+  clock: systemClock,
+});
+
 const app = buildApp({
   auth,
   apiKeys,
@@ -136,6 +149,7 @@ const app = buildApp({
   duplicateDetection,
   orderValidation,
   exceptions,
+  shipments,
 });
 app.addHook("onClose", async () => {
   await pool.end();
