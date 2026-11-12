@@ -26,6 +26,7 @@ import { PgOrderStore } from "./orders/pg-store";
 import { PgExceptionStore } from "./orders/pg-exception-store";
 import { OrderService } from "./orders/service";
 import { OrderValidationService } from "./orders/validation-service";
+import { DuplicateDetectionService } from "./orders/duplicate-detection-service";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
 import { RedisRateLimiter } from "./auth/redis-rate-limiter";
@@ -93,13 +94,19 @@ const reservations = new ReservationService({
 const adjustments = new AdjustmentService(stock);
 
 const orderStore = new PgOrderStore(pool);
+const exceptionStore = new PgExceptionStore(pool);
+const duplicateDetection = new DuplicateDetectionService(
+  orderStore,
+  exceptionStore,
+);
 const orders = new OrderService({
   store: orderStore,
   variants: new PgVariantStore(pool),
+  duplicateDetection,
 });
 const orderValidation = new OrderValidationService({
   store: orderStore,
-  exceptions: new PgExceptionStore(pool),
+  exceptions: exceptionStore,
   variants: new PgVariantStore(pool),
   reservations,
 });
@@ -117,6 +124,7 @@ const app = buildApp({
   reservations,
   adjustments,
   orders,
+  duplicateDetection,
   orderValidation,
 });
 app.addHook("onClose", async () => {

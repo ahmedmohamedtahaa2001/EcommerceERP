@@ -1,4 +1,11 @@
-import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  index,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 import { tenants } from "./core";
 import { orders } from "./orders";
@@ -22,6 +29,9 @@ export const exceptions = pgTable(
       .references(() => orders.id, { onDelete: "cascade" }),
     reasonCode: text("reason_code").notNull(),
     status: text("status").notNull().default("open"),
+    /** Reason-specific extra context, e.g. `{ suspectedDuplicateOfOrderId }`
+     * for DUPLICATE_SUSPECTED. */
+    metadata: jsonb("metadata"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

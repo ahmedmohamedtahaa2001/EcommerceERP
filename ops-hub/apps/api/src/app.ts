@@ -30,6 +30,7 @@ import type { AdjustmentService } from "./stock/adjustment-service";
 import { registerMetaRoutes } from "./meta/routes";
 import { registerOrderRoutes } from "./orders/routes";
 import type { OrderValidationService } from "./orders/validation-service";
+import type { DuplicateDetectionService } from "./orders/duplicate-detection-service";
 import type { OrderService } from "./orders/service";
 
 export const REDACT_PATHS = [
@@ -80,6 +81,7 @@ export interface BuildAppOptions {
   adjustments?: AdjustmentService;
   orders?: OrderService;
   orderValidation?: OrderValidationService;
+  duplicateDetection?: DuplicateDetectionService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -243,9 +245,13 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       if (!options.orderValidation) {
         throw new Error("order routes require an order validation service.");
       }
+      if (!options.duplicateDetection) {
+        throw new Error("order routes require a duplicate detection service.");
+      }
       registerOrderRoutes(app, {
         service: options.orders,
         validation: options.orderValidation,
+        duplicateDetection: options.duplicateDetection,
         requestAuth,
         audit: options.audit,
       });

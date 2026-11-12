@@ -19,12 +19,23 @@ export class OrderService {
   constructor(private readonly deps: OrderServiceDeps) {}
 
   /** Returns the order and whether this call actually created it (`true`)
-   * or returned an existing one from a replayed Idempotency-Key (`false`). */
+   * or returned an existing one from a replayed Idempotency-Key (`false`).
+   * `duplicate` is set only on a real creation that looked like a repeat of
+   * a recent order — the order is still created either way; this never
+   * blocks or merges anything on its own. */
   async createOrder(
     tenantId: string,
     idempotencyKey: string | undefined,
     rawBody: unknown,
-  ): Promise<{ result: OrderWithDetails; created: boolean }> {
+  ): Promise<{
+    result: OrderWithDetails;
+    created: boolean;
+    duplicate: {
+      duplicateOfOrderId: string;
+      exceptionId: string;
+      matchType: "external_order_id" | "sku_set";
+    } | null;
+  }> {
     if (!idempotencyKey || idempotencyKey.trim() === "") {
       throw new IdempotencyKeyRequiredError();
     }
@@ -50,7 +61,7 @@ export class OrderService {
       if (existing.order.idempotencyBodyHash !== bodyHash) {
         throw new IdempotencyConflictError();
       }
-      return { result: existing, created: false };
+      return { result: existing, created: false, duplicate: null };
     }
 
     // normalizePhone throws InvalidPhoneError for a malformed number; let
@@ -89,7 +100,11 @@ export class OrderService {
       governorateCode,
     );
 
-    return { result: created, created: true };
+    const duplicate = this.deps.duplicateDetection
+      ? await this.deps.duplicateDetection.checkAndFlag(tenantId, created)
+      : null;
+
+    return { result: created, created: true, duplicate };
   }
 
   async getById(tenantId: string, id: string): Promise<OrderWithDetails> {

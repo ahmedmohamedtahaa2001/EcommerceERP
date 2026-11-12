@@ -71,6 +71,13 @@
       "when": 1794475990286,
       "tag": "0009_lethal_peter_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794476300818,
+      "tag": "0010_outgoing_the_executioner",
+      "breakpoints": true
     }
   ]
 }

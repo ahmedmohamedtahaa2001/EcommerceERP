@@ -89,6 +89,31 @@ export interface OrderStore {
     orderId: string,
     status: string,
   ): Promise<void>;
+  /** Other non-cancelled orders for this customer, created within the
+   * window, excluding `excludeOrderId`, with their SKU sets — candidates
+   * for the "same SKU set" duplicate check. */
+  findRecentOrdersForCustomer(
+    tenantId: string,
+    customerId: string,
+    excludeOrderId: string,
+    createdAfter: Date,
+  ): Promise<{ id: string; orderNumber: string; skus: string[] }[]>;
+  findByExternalOrderId(
+    tenantId: string,
+    channel: string,
+    externalOrderId: string,
+    excludeOrderId: string,
+  ): Promise<{ id: string; orderNumber: string } | null>;
+}
+
+export interface ExceptionRecord {
+  id: string;
+  tenantId: string;
+  orderId: string;
+  reasonCode: string;
+  status: string;
+  metadata: Record<string, unknown> | null;
+  createdAt: Date;
 }
 
 export interface ExceptionStore {
@@ -96,14 +121,30 @@ export interface ExceptionStore {
     tenantId: string,
     orderId: string,
     reasonCode: string,
-  ): Promise<{ id: string; reasonCode: string }>;
+    metadata?: Record<string, unknown>,
+  ): Promise<ExceptionRecord>;
+  getById(tenantId: string, id: string): Promise<ExceptionRecord | null>;
+  /** No-op (returns false) if the exception isn't `open`. */
+  resolve(tenantId: string, id: string): Promise<boolean>;
 }
 
 export interface VariantLookup {
   getBySku(tenantId: string, sku: string): Promise<{ id: string } | null>;
 }
 
+export interface DuplicateChecker {
+  checkAndFlag(
+    tenantId: string,
+    order: OrderWithDetails,
+  ): Promise<{
+    duplicateOfOrderId: string;
+    exceptionId: string;
+    matchType: "external_order_id" | "sku_set";
+  } | null>;
+}
+
 export interface OrderServiceDeps {
   store: OrderStore;
   variants: VariantLookup;
+  duplicateDetection?: DuplicateChecker;
 }

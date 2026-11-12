@@ -1,0 +1,1 @@
+ALTER TABLE "exceptions" ADD COLUMN "metadata" jsonb;

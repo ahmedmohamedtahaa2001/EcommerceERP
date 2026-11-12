@@ -345,4 +345,54 @@ export class PgOrderStore implements OrderStore {
       ),
     );
   }
+
+  async findRecentOrdersForCustomer(
+    tenantId: string,
+    customerId: string,
+    excludeOrderId: string,
+    createdAfter: Date,
+  ): Promise<{ id: string; orderNumber: string; skus: string[] }[]> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const result = await client.query<{
+        id: string;
+        order_number: string;
+        skus: string[];
+      }>(
+        `select o.id, o.order_number,
+                array_agg(ol.sku order by ol.sku) as skus
+           from orders o
+           join order_lines ol on ol.order_id = o.id and ol.tenant_id = o.tenant_id
+          where o.tenant_id = $1
+            and o.customer_id = $2
+            and o.id != $3
+            and o.status != 'cancelled'
+            and o.created_at >= $4
+          group by o.id, o.order_number`,
+        [tenantId, customerId, excludeOrderId, createdAfter],
+      );
+      return result.rows.map((row) => ({
+        id: row.id,
+        orderNumber: row.order_number,
+        skus: row.skus,
+      }));
+    });
+  }
+
+  async findByExternalOrderId(
+    tenantId: string,
+    channel: string,
+    externalOrderId: string,
+    excludeOrderId: string,
+  ): Promise<{ id: string; orderNumber: string } | null> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const result = await client.query<{ id: string; order_number: string }>(
+        `select id, order_number from orders
+          where tenant_id = $1 and channel = $2 and external_order_id = $3 and id != $4
+          limit 1`,
+        [tenantId, channel, externalOrderId, excludeOrderId],
+      );
+      const row = result.rows[0];
+      return row ? { id: row.id, orderNumber: row.order_number } : null;
+    });
+  }
 }
