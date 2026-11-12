@@ -1,6 +1,7 @@
 import type { ShippingCarrier } from "@ops-hub/integrations";
 
 import type { ShipmentServiceDeps, ShipmentRecord } from "./types";
+import { normalizeStatus, type StatusMapping } from "./normalize";
 
 export class ShipmentService {
   constructor(private readonly deps: ShipmentServiceDeps) {}
@@ -70,5 +71,54 @@ export class ShipmentService {
     if (!s) throw new Error("Shipment not found");
     const events = await this.deps.store.listEvents(tenantId, id);
     return { shipment: s, events };
+  }
+
+  /** Apply a raw carrier status update: normalize, record the event, update
+   * the shipment, and transition the order to `shipped` only when the
+   * normalized status is `carrier_accepted`. */
+  async applyCarrierStatus(
+    tenantId: string,
+    shipmentId: string,
+    rawStatus: string,
+    mapping: StatusMapping,
+    occurredAt: Date = this.deps.clock.now(),
+  ): Promise<{ unmapped: boolean; status: string | null }> {
+    const norm = normalizeStatus(mapping, rawStatus);
+    const shipment = await this.deps.store.getById(tenantId, shipmentId);
+    if (!shipment) throw new Error("Shipment not found");
+
+    if (norm.unmapped) {
+      return { unmapped: true, status: null };
+    }
+
+    await this.deps.store.addEvent(tenantId, shipmentId, {
+      carrierStatus: rawStatus,
+      status: norm.status!,
+      occurredAt,
+      raw: JSON.stringify({ raw: rawStatus }),
+    });
+    await this.deps.store.updateStatus(
+      tenantId,
+      shipmentId,
+      norm.status!,
+      shipment.carrierShipmentId,
+      shipment.trackingNumber,
+    );
+
+    if (norm.status === "carrier_accepted" && this.deps.orderStore) {
+      const order = await this.deps.orderStore.getById(
+        tenantId,
+        shipment.orderId,
+      );
+      if (order) {
+        await this.deps.orderStore.updateStatus(
+          tenantId,
+          shipment.orderId,
+          "shipped",
+        );
+      }
+    }
+
+    return { unmapped: false, status: norm.status };
   }
 }
