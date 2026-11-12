@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+  boolean,
   check,
   index,
   integer,
@@ -28,6 +29,10 @@ export const products = pgTable(
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
     kind: text("kind").notNull().default("simple"),
+    category: text("category"),
+    brand: text("brand"),
+    tags: jsonb("tags").$type<string[]>().notNull().default([]),
+    isHazardous: boolean("is_hazardous").notNull().default(false),
     nameAr: text("name_ar").notNull(),
     nameEn: text("name_en").notNull(),
     descriptionAr: text("description_ar"),
@@ -64,6 +69,15 @@ export const variants = pgTable(
       .notNull()
       .references(() => products.id, { onDelete: "cascade" }),
     sku: text("sku").notNull(),
+    barcode: text("barcode"),
+    weightGrams: integer("weight_grams"),
+    dimensions: jsonb("dimensions")
+      .$type<{ lengthCm?: number; widthCm?: number; heightCm?: number }>()
+      .notNull()
+      .default({}),
+    /** Catalog list price in minor units. Null means not priced yet. */
+    priceMinor: integer("price_minor"),
+    currency: text("currency").notNull().default("EGP"),
     attributes: jsonb("attributes")
       .$type<Record<string, string>>()
       .notNull()
@@ -78,7 +92,18 @@ export const variants = pgTable(
   },
   (table) => [
     uniqueIndex("variants_tenant_sku_key").on(table.tenantId, table.sku),
+    uniqueIndex("variants_tenant_barcode_key")
+      .on(table.tenantId, table.barcode)
+      .where(sql`${table.barcode} is not null`),
     index("variants_tenant_product_idx").on(table.tenantId, table.productId),
+    check(
+      "variants_weight_nonnegative",
+      sql`${table.weightGrams} is null or ${table.weightGrams} >= 0`,
+    ),
+    check(
+      "variants_price_nonnegative",
+      sql`${table.priceMinor} is null or ${table.priceMinor} >= 0`,
+    ),
   ],
 );
 

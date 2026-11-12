@@ -133,6 +133,17 @@ describe.skipIf(!runDbTests)("Order intake against Postgres", () => {
     expect(result.lines).toHaveLength(1);
     expect(result.payment.amountMinor).toBe(30000);
 
+    const totals = await client.query<{
+      subtotal_minor: number;
+      total_minor: number;
+    }>("select subtotal_minor, total_minor from orders where id = $1", [
+      result.order.id,
+    ]);
+    expect(totals.rows[0]).toEqual({
+      subtotal_minor: 30000,
+      total_minor: 30000,
+    });
+
     const addressRow = await client.query<{ governorate_code: string | null }>(
       "select governorate_code from addresses where id = $1",
       [result.order.addressId],

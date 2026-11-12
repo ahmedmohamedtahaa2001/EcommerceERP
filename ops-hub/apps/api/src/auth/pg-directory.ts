@@ -34,6 +34,7 @@ export class PgUserDirectory implements UserDirectory {
            select tenant_id, role
              from memberships
             where user_id = u.id
+              and active
             order by created_at
             limit 1
          ) m on true

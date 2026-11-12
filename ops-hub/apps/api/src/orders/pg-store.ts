@@ -317,12 +317,17 @@ export class PgOrderStore implements OrderStore {
 
       const orderNumber = await allocateOrderNumber(client, tenantId);
       const orderId = randomUUID();
+      const totalMinor = request.lines.reduce(
+        (sum, line) => sum + line.unitPriceMinor * line.quantity,
+        0,
+      );
 
       await client.query(
         `insert into orders
            (id, tenant_id, order_number, customer_id, address_id, status, currency,
-            channel, external_order_id, idempotency_key, idempotency_body_hash)
-         values ($1, $2, $3, $4, $5, 'pending', $6, $7, $8, $9, $10)`,
+            channel, external_order_id, idempotency_key, idempotency_body_hash,
+            subtotal_minor, total_minor)
+         values ($1, $2, $3, $4, $5, 'pending', $6, $7, $8, $9, $10, $11, $11)`,
         [
           orderId,
           tenantId,
@@ -334,16 +339,15 @@ export class PgOrderStore implements OrderStore {
           request.externalOrderId ?? null,
           idempotencyKey,
           idempotencyBodyHash,
+          totalMinor,
         ],
       );
 
-      let totalMinor = 0;
       for (const line of request.lines) {
         const variant = resolvedVariants.get(line.sku);
         if (!variant) {
           throw new Error(`no resolved variant for sku ${line.sku}`);
         }
-        totalMinor += line.unitPriceMinor * line.quantity;
         await client.query(
           `insert into order_lines
              (id, tenant_id, order_id, variant_id, sku, quantity, unit_price_minor, currency)

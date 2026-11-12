@@ -17,7 +17,7 @@ const databaseUrl =
   "postgres://ops_hub:ops_hub@localhost:5432/ops_hub";
 const runDbTests = process.env.RUN_DB_TESTS === "1";
 
-const tenantId = "00000000-0000-4000-8000-000000001401";
+const tenantId = "00000000-0000-4000-8000-000000001402";
 const pool = new Pool({ connectionString: databaseUrl });
 const client = new Client({ connectionString: databaseUrl });
 

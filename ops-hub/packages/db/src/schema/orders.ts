@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   index,
   integer,
@@ -27,9 +28,13 @@ export const customers = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
+    email: text("email"),
   },
   (table) => [
     uniqueIndex("customers_tenant_phone_key").on(table.tenantId, table.phone),
+    uniqueIndex("customers_tenant_email_key")
+      .on(table.tenantId, sql`lower(${table.email})`)
+      .where(sql`${table.email} is not null`),
   ],
 );
 
@@ -88,6 +93,13 @@ export const orders = pgTable(
     }),
     status: text("status").notNull().default("pending"),
     currency: text("currency").notNull().default("EGP"),
+    /** Order-level money in minor units. `totalMinor` is what the customer
+     * owes: subtotal - discount + shipping + tax. */
+    subtotalMinor: integer("subtotal_minor").notNull().default(0),
+    discountMinor: integer("discount_minor").notNull().default(0),
+    shippingFeeMinor: integer("shipping_fee_minor").notNull().default(0),
+    taxMinor: integer("tax_minor").notNull().default(0),
+    totalMinor: integer("total_minor").notNull().default(0),
     channel: text("channel").notNull().default("manual"),
     externalOrderId: text("external_order_id"),
     idempotencyKey: text("idempotency_key"),

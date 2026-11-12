@@ -15,6 +15,9 @@ export const tenants = pgTable("tenants", {
   name: text("name").notNull(),
   /** When false (the default), available-to-promise is clamped at zero. */
   allowNegativeStock: boolean("allow_negative_stock").notNull().default(false),
+  timezone: text("timezone").notNull().default("Africa/Cairo"),
+  defaultCurrency: text("default_currency").notNull().default("EGP"),
+  countryCode: text("country_code").notNull().default("EG"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -54,6 +57,8 @@ export const memberships = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     role: text("role").notNull(),
+    /** A deactivated membership cannot log in to this tenant. */
+    active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

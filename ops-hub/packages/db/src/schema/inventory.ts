@@ -1,5 +1,7 @@
 import { relations } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   integer,
   pgTable,
@@ -25,6 +27,8 @@ export const locations = pgTable(
     code: text("code"),
     governorateCode: text("governorate_code"),
     address: text("address"),
+    /** Storage capacity in units. Null means unlimited / not tracked. */
+    capacity: integer("capacity"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -33,6 +37,10 @@ export const locations = pgTable(
       .defaultNow(),
   },
   (table) => [
+    check(
+      "locations_capacity_nonnegative",
+      sql`${table.capacity} is null or ${table.capacity} >= 0`,
+    ),
     uniqueIndex("locations_tenant_code_key").on(table.tenantId, table.code),
     index("locations_tenant_created_idx").on(table.tenantId, table.createdAt),
   ],
