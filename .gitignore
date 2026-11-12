@@ -77,3 +77,16 @@ Thumbs.db
 website/_site/
 # Temporary translation output prepared before replacing the complete site.
 website/.i18n-*/
+
+# Secrets and local environment (keep examples tracked)
+.env
+.env.local
+.env.*.local
+!.env*.example
+
+# Build output and tool caches
+.next/
+.playwright-mcp/
+
+# Separate nested repository, not part of this codebase
+/genz-portal/
