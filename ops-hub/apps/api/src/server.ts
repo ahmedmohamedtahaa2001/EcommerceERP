@@ -36,6 +36,10 @@ import { ReturnsService } from "./returns/service";
 import { SettlementService, csvSettlementParser } from "./settlements/service";
 import { DlqService } from "./dlq/service";
 import { RoutingService } from "./routing/service";
+import { SourcingService } from "./suppliers/service";
+import { ScorecardService } from "./scorecards/service";
+import { InboxService } from "./inbox/service";
+import { CrmService } from "./crm/service";
 import { OrderService } from "./orders/service";
 import { OrderValidationService } from "./orders/validation-service";
 import { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -170,6 +174,16 @@ const settlements = new SettlementService({
 });
 const dlq = new DlqService({ pool, clock: systemClock });
 const routing = new RoutingService(pool);
+const sourcing = new SourcingService({
+  pool,
+  clock: systemClock,
+  approvalThresholdMinor: Number(
+    process.env.PO_APPROVAL_THRESHOLD_MINOR ?? 500000,
+  ),
+});
+const scorecards = new ScorecardService({ pool, clock: systemClock });
+const inbox = new InboxService({ pool, clock: systemClock });
+const crm = new CrmService({ pool, clock: systemClock });
 
 const app = buildApp({
   auth,
@@ -192,6 +206,7 @@ const app = buildApp({
   trackingPool: pool,
   reports,
   phase2: { receiving, cod, returns, settlements, dlq, routing },
+  phase3: { sourcing, scorecards, inbox, crm },
 });
 app.addHook("onClose", async () => {
   await pool.end();

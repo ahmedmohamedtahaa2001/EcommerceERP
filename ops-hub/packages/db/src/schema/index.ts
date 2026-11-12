@@ -8,5 +8,6 @@ export * from "./inventory";
 export * from "./order-events";
 export * from "./orders";
 export * from "./phase2";
+export * from "./phase3";
 export * from "./shipments";
 export * from "./webhook-subscriptions";

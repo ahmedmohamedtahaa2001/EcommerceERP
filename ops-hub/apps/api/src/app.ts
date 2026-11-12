@@ -40,6 +40,7 @@ import { registerTrackingRoutes } from "./tracking/routes";
 import { registerReportRoutes } from "./reports/routes";
 import type { ReportsService } from "./reports/service";
 import { registerPhase2Routes, type Phase2Services } from "./phase2/routes";
+import { registerPhase3Routes, type Phase3Services } from "./phase3/routes";
 import type { Pool } from "pg";
 import type { OrderValidationService } from "./orders/validation-service";
 import type { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -106,6 +107,7 @@ export interface BuildAppOptions {
   trackingPool?: Pool;
   reports?: ReportsService;
   phase2?: Phase2Services;
+  phase3?: Phase3Services;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -367,6 +369,18 @@ ${Object.entries(buildOpenApiDocument().paths)
       }
       registerPhase2Routes(app, {
         services: options.phase2,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.phase3) {
+      if (!options.audit) {
+        throw new Error(
+          "phase 3 routes mutate state and require an audit writer.",
+        );
+      }
+      registerPhase3Routes(app, {
+        services: options.phase3,
         requestAuth,
         audit: options.audit,
       });
