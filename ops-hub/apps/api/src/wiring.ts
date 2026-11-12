@@ -33,6 +33,7 @@ import { AvailabilityService } from "./availability/service";
 import { PgTenantPolicyReader } from "./availability/pg-tenant-policy";
 import { ConnectorHealthService } from "./integrations/connectors/health";
 import { BostaAdapter } from "./integrations/bosta/adapter";
+import { PostaAdapter, JtAdapter } from "./integrations/http-carrier-adapter";
 import { ExceptionService } from "./orders/exception-service";
 import { DuplicateDetectionService } from "./orders/duplicate-detection-service";
 import { PgExceptionStore } from "./orders/pg-exception-store";
@@ -163,13 +164,28 @@ export function buildFullApp(
     clock: systemClock,
   });
 
-  const shipments = new ShipmentService({
-    store: new PgShipmentStore(pool),
-    carrier: new BostaAdapter({
-      apiKey: process.env.BOSTA_API_KEY ?? "placeholder",
-      baseUrl: process.env.BOSTA_BASE_URL ?? "http://localhost:4010",
+  const bostaAdapter = new BostaAdapter({
+    apiKey: process.env.BOSTA_API_KEY ?? "placeholder",
+    baseUrl: process.env.BOSTA_BASE_URL ?? "http://localhost:4010",
+    environment: "test",
+  });
+  const carriers = {
+    bosta: bostaAdapter,
+    posta: new PostaAdapter({
+      apiKey: process.env.POSTA_API_KEY ?? "placeholder",
+      baseUrl: process.env.POSTA_BASE_URL ?? "http://localhost:4011",
       environment: "test",
     }),
+    jt: new JtAdapter({
+      apiKey: process.env.JT_API_KEY ?? "placeholder",
+      baseUrl: process.env.JT_BASE_URL ?? "http://localhost:4012",
+      environment: "test",
+    }),
+  };
+
+  const shipments = new ShipmentService({
+    store: new PgShipmentStore(pool),
+    carrier: bostaAdapter,
     clock: systemClock,
   });
 
@@ -264,6 +280,7 @@ export function buildFullApp(
     orderValidation,
     exceptions,
     shipments,
+    carriers,
     outboundWebhooks,
     trackingPool: pool,
     reports,

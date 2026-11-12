@@ -34,6 +34,8 @@ import { registerExceptionRoutes } from "./orders/exception-routes";
 import type { ExceptionService } from "./orders/exception-service";
 import { registerShipmentRoutes } from "./shipments/routes";
 import type { ShipmentService } from "./shipments/service";
+import { registerShipmentWebhookRoutes } from "./shipments/webhook-routes";
+import type { ShippingCarrier } from "@ops-hub/integrations";
 import { registerOutboundWebhookRoutes } from "./webhooks/routes";
 import type { OutboundWebhookService } from "./webhooks/outbound-service";
 import { registerTrackingRoutes } from "./tracking/routes";
@@ -108,6 +110,7 @@ export interface BuildAppOptions {
   duplicateDetection?: DuplicateDetectionService;
   exceptions?: ExceptionService;
   shipments?: ShipmentService;
+  carriers?: Record<string, ShippingCarrier>;
   outboundWebhooks?: OutboundWebhookService;
   /** Pool used by the public tracking route (it reads across tenants by
    * order number and then verifies the phone). */
@@ -375,6 +378,15 @@ ${Object.entries(buildOpenApiDocument().paths)
         requestAuth,
         audit: options.audit,
       });
+      if (options.carriers) {
+        registerShipmentWebhookRoutes(app, {
+          carriers: options.carriers,
+          shipments: options.shipments,
+          ...(process.env.SHIPMENT_WEBHOOK_SECRET
+            ? { webhookSecret: process.env.SHIPMENT_WEBHOOK_SECRET }
+            : {}),
+        });
+      }
     }
     if (options.reports) {
       registerReportRoutes(app, {
