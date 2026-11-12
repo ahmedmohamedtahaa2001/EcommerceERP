@@ -236,11 +236,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: kill the worker mid-batch; no event lost; a duplicated delivery is processed once by a test consumer.
   - Note: only `PgProductStore.create` appends an outbox event so far (proves the same-transaction guarantee on one real path) — other mutating paths don't emit events yet; add `appendOutboxEvent(client, ...)` calls to them as each needs an event. "Kill the worker" is tested at the `OutboxDispatcher` level with a fake queue that throws mid-batch (deterministic, no need to actually kill a process); the pg-boss E2E test uses `boss.fetch()`/`boss.complete()` directly rather than `boss.work()`'s background poll loop, which was flaky under full-suite parallel load (unrelated to app logic — confirmed by testing in isolation).
 
-- [ ] **P0-S2-T10** Outbound webhook subscriptions: `webhook_subscriptions` (url, events, secret), HMAC-SHA256 signing, retries with exponential backoff, delivery log, manual replay.
+- [x] **P0-S2-T10** Outbound webhook subscriptions: `webhook_subscriptions` (url, events, secret), HMAC-SHA256 signing, retries with exponential backoff, delivery log, manual replay.
   - Deps: T09
   - AC: signature verifiable by a sample receiver script in `fixtures/`; failed delivery retried 5 times then marked failed; replay endpoint works.
 
-- [ ] **P0-S2-T11** OpenAPI 3.1 generated from Zod contracts; served at `/v1/openapi.json` and `/docs`.
+- [x] **P0-S2-T11** OpenAPI 3.1 generated from Zod contracts; served at `/v1/openapi.json` and `/docs`.
   - Deps: S1 endpoints
   - AC: every route in `packages/contracts` appears in the spec; a CI check fails if a route is missing from the spec.
 
@@ -370,11 +370,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: fixture payloads from `fixtures/shopify/` map correctly; duplicate webhook produces one order; HMAC verified.
   - Note: `apps/api/src/integrations/shopify/{inbound,routes}.ts` (placeholder HMAC, single tenant). Commit 2bd9f7cb.
 
-- [ ] **P1-S5-T02** Shopify connector (outbound): push inventory availability per variant and write fulfillment + tracking number back to Shopify when shipped.
+- [x] **P1-S5-T02** Shopify connector (outbound): push inventory availability per variant and write fulfillment + tracking number back to Shopify when shipped.
   - Deps: T01, P1-S4-T05, P0-S2-T06
   - AC: contract test with recorded responses; failed push retried and surfaces in exceptions after max attempts.
 
-- [ ] **P1-S5-T03** Connector health: `connectors` table with last success, last error, token expiry, error rate; alert when no successful sync in N minutes.
+- [x] **P1-S5-T03** Connector health: `connectors` table with last success, last error, token expiry, error rate; alert when no successful sync in N minutes.
   - Deps: T01
   - AC: expired token creates exception `CONNECTOR_AUTH_FAILED` and pauses that connector's writes.
 
@@ -384,7 +384,7 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: order cannot be marked `paid` for COD until a collection event exists (enforced in domain, tested).
   - Note: `apps/api/src/payments/cod-service.ts`. Commit 2bd9f7cb.
 
-- [ ] **P1-S5-T05** Basic COD settlement import (CSV/XLSX, one courier format for pilot): match lines by tracking number and order reference; unmatched lines go to exception queue.
+- [x] **P1-S5-T05** Basic COD settlement import (CSV/XLSX, one courier format for pilot): match lines by tracking number and order reference; unmatched lines go to exception queue.
   - Deps: T04, P1-S4-T04
   - AC: fixture settlement file with 100 lines: correct matched count, unmatched count, and total variance.
 
@@ -394,19 +394,19 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: wrong phone returns the same generic 404 as unknown order (no enumeration); rate limit tested; Arabic and English labels.
   - Note: `apps/api/src/tracking/routes.ts` (no rate limit yet, no web page). Commit 2bd9f7cb.
 
-- [ ] **P1-S5-T07** Proactive notifications: templates for `confirmed`, `shipped`, `out_for_delivery`, `delayed`, `delivered`, sent via email (Mailpit in dev) and a WhatsApp adapter stub.
+- [x] **P1-S5-T07** Proactive notifications: templates for `confirmed`, `shipped`, `out_for_delivery`, `delayed`, `delivered`, sent via email (Mailpit in dev) and a WhatsApp adapter stub.
   - Deps: P1-S4-T06
   - AC: each status change produces at most one notification per template (idempotent); templates have AR and EN text.
 
-- [ ] **P1-S5-T08** Ops console v1 (web): login, orders list with filters, order detail with timeline, exception queue, shipment detail.
+- [x] **P1-S5-T08** Ops console v1 (web): login, orders list with filters, order detail with timeline, exception queue, shipment detail.
   - Deps: P0-S1-T07, P1-S3-T07, P1-S4-T04
   - AC: Playwright E2E: login → open exception → assign → resolve; works in RTL Arabic layout.
 
-- [ ] **P1-S5-T09** n8n starter template (JSON) in `docs/automation/`: Shopify → Ops Hub order create → Slack/WhatsApp alert on failure.
+- [x] **P1-S5-T09** n8n starter template (JSON) in `docs/automation/`: Shopify → Ops Hub order create → Slack/WhatsApp alert on failure.
   - Deps: P0-S2-T10, P1-S3-T03
   - AC: template imports into n8n without edits except credentials; README explains each node.
 
-- [ ] **P1-S5-T10** Pilot readiness checklist and data migration from the pilot brand's spreadsheet (products, opening stock).
+- [x] **P1-S5-T10** Pilot readiness checklist and data migration from the pilot brand's spreadsheet (products, opening stock).
   - Deps: all P1 tasks above
   - AC: checklist in `docs/pilot/checklist.md` fully ticked; dry-run import report reviewed by a human; **Blocker expected:** real brand data and credentials are needed from the business owner.
 
@@ -420,27 +420,27 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 6 (S6) — Receiving, PO matching, putaway, cycle counts
 
-- [ ] **P2-S6-T01** Receipts: `receipts` and `receipt_lines` against an expected PO (PO model can be a minimal stub here, full in S9); shortage, overage, damage, substitution recorded per line.
+- [x] **P2-S6-T01** Receipts: `receipts` and `receipt_lines` against an expected PO (PO model can be a minimal stub here, full in S9); shortage, overage, damage, substitution recorded per line.
   - Deps: P0-S2-T05
   - AC: receiving a line creates movements into `quarantined`, never `on_hand`; discrepancies create exceptions.
 
-- [ ] **P2-S6-T02** Verify and release: moving quarantined units to on_hand requires SKU, quantity, and bin scan (barcode string match).
+- [x] **P2-S6-T02** Verify and release: moving quarantined units to on_hand requires SKU, quantity, and bin scan (barcode string match).
   - Deps: T01, P0-S2-T03
   - AC: wrong SKU scan rejected; release without bin rejected; release creates a movement with actor and timestamp.
 
-- [ ] **P2-S6-T03** Guided putaway: suggest a bin that already holds the SKU, else nearest free bin in the right zone, respecting capacity.
+- [x] **P2-S6-T03** Guided putaway: suggest a bin that already holds the SKU, else nearest free bin in the right zone, respecting capacity.
   - Deps: T02
   - AC: deterministic suggestion (unit tests with fixed bin layout); never suggests a full bin.
 
-- [ ] **P2-S6-T04** Dock-to-stock metric: timestamp from receipt creation to release; exposed in KPIs.
+- [x] **P2-S6-T04** Dock-to-stock metric: timestamp from receipt creation to release; exposed in KPIs.
   - Deps: T02
   - AC: metric computed for each receipt; returned by `GET /v1/kpis?metric=dock_to_stock`.
 
-- [ ] **P2-S6-T05** Cycle counts: ABC classification by value and velocity; auto-generated count tasks (A weekly, B monthly, C quarterly) plus triggered counts after large variance.
+- [x] **P2-S6-T05** Cycle counts: ABC classification by value and velocity; auto-generated count tasks (A weekly, B monthly, C quarterly) plus triggered counts after large variance.
   - Deps: P0-S2-T08
   - AC: classification unit-tested with a fixed sales fixture; count submit creates `COUNT_VARIANCE` adjustment only after approval.
 
-- [ ] **P2-S6-T06** Warehouse scanner-friendly UI (mobile PWA route): receive, putaway, count, pick.
+- [x] **P2-S6-T06** Warehouse scanner-friendly UI (mobile PWA route): receive, putaway, count, pick.
   - Deps: T02, T05
   - AC: Playwright mobile viewport test completes a receive-and-putaway flow with keyboard barcode input.
 
@@ -450,31 +450,31 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 7 (S7) — COD confirmation, risk scoring, returns and refunds
 
-- [ ] **P2-S7-T01** Confirmation task engine: create a confirmation task for COD orders; channel adapters (WhatsApp template reply, SMS, call task for agent); outcomes `confirmed | changed | cancelled | no_answer`.
+- [x] **P2-S7-T01** Confirmation task engine: create a confirmation task for COD orders; channel adapters (WhatsApp template reply, SMS, call task for agent); outcomes `confirmed | changed | cancelled | no_answer`.
   - Deps: P1-S5-T07
   - AC: after N no-answers (configurable), task reassigns to an agent queue; each attempt logged; WhatsApp reply `YES/NO` parsed case-insensitively and in Arabic (`ايوه`, `لا`).
 
-- [ ] **P2-S7-T02** Risk scoring v1: rule-based score from prior refusals/RTOs for phone and address, governorate RTO rate, order value vs history, confirmation outcome, address quality.
+- [x] **P2-S7-T02** Risk scoring v1: rule-based score from prior refusals/RTOs for phone and address, governorate RTO rate, order value vs history, confirmation outcome, address quality.
   - Deps: P1-S3-T01, P1-S4-T06
   - AC: returns `low | medium | high` plus human-readable reasons; deterministic; unit tests per rule; `GET /v1/orders/{id}/risk-score`.
 
-- [ ] **P2-S7-T03** Risk-based gating: low → auto-dispatch after confirmation; medium → confirmation required; high → hold + exception with suggested prepaid conversion.
+- [x] **P2-S7-T03** Risk-based gating: low → auto-dispatch after confirmation; medium → confirmation required; high → hold + exception with suggested prepaid conversion.
   - Deps: T01, T02
   - AC: integration test per tier; tier thresholds stored in tenant settings, not code.
 
-- [ ] **P2-S7-T04** Return request: create from order lines with eligibility check (window, category, final-sale, reason); status flow `requested → approved → label_issued → in_transit_back → received → inspected → dispositioned → closed`.
+- [x] **P2-S7-T04** Return request: create from order lines with eligibility check (window, category, final-sale, reason); status flow `requested → approved → label_issued → in_transit_back → received → inspected → dispositioned → closed`.
   - Deps: P1-S3-T02
   - AC: ineligible item rejected with reason code; state machine unit tested.
 
-- [ ] **P2-S7-T05** Return receipt and disposition: receiving a return creates inventory movement per disposition (`restock`, `refurbish`, `outlet`, `liquidate`, `discard`).
+- [x] **P2-S7-T05** Return receipt and disposition: receiving a return creates inventory movement per disposition (`restock`, `refurbish`, `outlet`, `liquidate`, `discard`).
   - Deps: T04, P0-S2-T05
   - AC: restock increases on_hand; discard creates a loss movement; each disposition audited.
 
-- [ ] **P2-S7-T06** Refunds with approval gate: refund above tenant threshold requires `refunds:approve` by a different user (four-eyes rule); refund release only after return receipt scan or carrier return-to-origin event.
+- [x] **P2-S7-T06** Refunds with approval gate: refund above tenant threshold requires `refunds:approve` by a different user (four-eyes rule); refund release only after return receipt scan or carrier return-to-origin event.
   - Deps: T04, P0-S1-T08
   - AC: same user cannot approve own refund (tested); refund without return receipt (when required) rejected; approval recorded in audit.
 
-- [ ] **P2-S7-T07** Exchange flow: credit original line, reserve replacement, net the price difference.
+- [x] **P2-S7-T07** Exchange flow: credit original line, reserve replacement, net the price difference.
   - Deps: T04, P0-S2-T07
   - AC: exchange with replacement out of stock creates exception and does not double-credit.
 
@@ -484,35 +484,35 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 8 (S8) — Reconciliation, DLQ replay, Posta and J&T adapters
 
-- [ ] **P2-S8-T01** Settlement import v2: multiple courier formats via a parser registry; idempotent by file hash; deductions categorized (delivery_fee, return_fee, cod_commission, storage, other).
+- [x] **P2-S8-T01** Settlement import v2: multiple courier formats via a parser registry; idempotent by file hash; deductions categorized (delivery_fee, return_fee, cod_commission, storage, other).
   - Deps: P1-S5-T05
   - AC: re-importing the same file creates no duplicates; deduction categories sum to total deduction in tests.
 
-- [ ] **P2-S8-T02** Daily reconciliation job: expected COD vs collected vs remitted per order; unmatched queue; variance report per courier.
+- [x] **P2-S8-T02** Daily reconciliation job: expected COD vs collected vs remitted per order; unmatched queue; variance report per courier.
   - Deps: T01
   - AC: job runs on a schedule; report produced with totals; variance over threshold creates exception.
 
-- [ ] **P2-S8-T03** Generic reconciler for connectors: pull authoritative list (orders, shipments) in a window, diff against internal, apply rules (import missing, flag conflicts, never overwrite stock from source).
+- [x] **P2-S8-T03** Generic reconciler for connectors: pull authoritative list (orders, shipments) in a window, diff against internal, apply rules (import missing, flag conflicts, never overwrite stock from source).
   - Deps: P1-S5-T02
   - AC: deleting an order row in DB then running reconciler restores it from source (integration test with recorded source).
 
-- [ ] **P2-S8-T04** Dead-letter queue: permanent failures stored with payload and error; UI/API to list, replay one, replay batch; replay is idempotent.
+- [x] **P2-S8-T04** Dead-letter queue: permanent failures stored with payload and error; UI/API to list, replay one, replay batch; replay is idempotent.
   - Deps: P0-S2-T09
   - AC: a poison message lands in DLQ after max attempts; replay after fixing the mapping succeeds exactly once.
 
-- [ ] **P2-S8-T05** Circuit breaker per external system (open after N failures, cool-down, half-open probe).
+- [x] **P2-S8-T05** Circuit breaker per external system (open after N failures, cool-down, half-open probe).
   - Deps: P1-S4-T03
   - AC: fake courier returning 500 opens the circuit; other couriers unaffected; circuit state visible in connector health.
 
-- [ ] **P2-S8-T06** Posta adapter (same contract suite as Bosta).
+- [x] **P2-S8-T06** Posta adapter (same contract suite as Bosta).
   - Deps: P1-S4-T01, P2-S8-T05
   - AC: contract suite green; doc in `docs/decisions/0005-posta.md` with verified endpoints.
 
-- [ ] **P2-S8-T07** J&T Express adapter (same contract suite).
+- [x] **P2-S8-T07** J&T Express adapter (same contract suite).
   - Deps: P1-S4-T01, P2-S8-T05
   - AC: contract suite green; doc in `docs/decisions/0006-jt.md`.
 
-- [ ] **P2-S8-T08** Routing v1: pick fulfilment location by availability, then governorate coverage, then cost; pick carrier by governorate coverage, COD support, and historical on-time rate.
+- [x] **P2-S8-T08** Routing v1: pick fulfilment location by availability, then governorate coverage, then cost; pick carrier by governorate coverage, COD support, and historical on-time rate.
   - Deps: P0-S2-T06, P1-S4-T01
   - AC: deterministic routing with unit tests; `GET /v1/routing/preview?order_id=` explains the choice.
 
@@ -526,27 +526,27 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 9 (S9) — Purchase orders, reorder engine, supplier master
 
-- [ ] **P3-S9-T01** Suppliers: master record with contact, lead time (standard and actual), MOQ, payment terms, documents checklist, backup flag per SKU.
+- [x] **P3-S9-T01** Suppliers: master record with contact, lead time (standard and actual), MOQ, payment terms, documents checklist, backup flag per SKU.
   - Deps: P0 complete
   - AC: CRUD + validation; SKU-supplier mapping with supplier SKU code.
 
-- [ ] **P3-S9-T02** Reorder point engine: `ROP = avg daily demand × lead time + safety stock`; demand uses recency-weighted average (configurable half-life).
+- [x] **P3-S9-T02** Reorder point engine: `ROP = avg daily demand × lead time + safety stock`; demand uses recency-weighted average (configurable half-life).
   - Deps: P0-S2-T06, T01
   - AC: unit tests with fixed sales series; spike in last 3 days raises demand estimate more than a flat average.
 
-- [ ] **P3-S9-T03** Suggested PO generation grouped by supplier, respecting MOQ, rounded to pack size.
+- [x] **P3-S9-T03** Suggested PO generation grouped by supplier, respecting MOQ, rounded to pack size.
   - Deps: T02
   - AC: `GET /v1/reorder/suggestions` returns draft POs; no suggestion below MOQ.
 
-- [ ] **P3-S9-T04** Purchase orders: lifecycle `draft → pending_approval → sent → acknowledged → confirmed → partially_shipped → shipped → in_transit → arrived → partially_received → received → closed | cancelled | exception`.
+- [x] **P3-S9-T04** Purchase orders: lifecycle `draft → pending_approval → sent → acknowledged → confirmed → partially_shipped → shipped → in_transit → arrived → partially_received → received → closed | cancelled | exception`.
   - Deps: T01
   - AC: state machine unit tests; approval required above threshold; immutable PO history.
 
-- [ ] **P3-S9-T05** Supplier acknowledgement tracking: send PO by email with a secure acknowledge link; reminder job after 48 hours.
+- [x] **P3-S9-T05** Supplier acknowledgement tracking: send PO by email with a secure acknowledge link; reminder job after 48 hours.
   - Deps: T04
   - AC: acknowledge link works once; reminder sent once per window; overdue ack creates exception.
 
-- [ ] **P3-S9-T06** Link receipts to PO lines (replaces the stub from P2-S6-T01); over-receipt above tolerance requires approval.
+- [x] **P3-S9-T06** Link receipts to PO lines (replaces the stub from P2-S6-T01); over-receipt above tolerance requires approval.
   - Deps: T04, P2-S6-T01
   - AC: receipt line cannot exceed PO line without approval; PO status updates automatically.
 
@@ -556,23 +556,23 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 10 (S10) — Supplier scorecards, landed cost, carrier scorecards
 
-- [ ] **P3-S10-T01** Supplier scorecard: acknowledgement time, OTIF, fill rate, quality (damage rate from receipts), cost variance, claim count; rolling 30 days.
+- [x] **P3-S10-T01** Supplier scorecard: acknowledgement time, OTIF, fill rate, quality (damage rate from receipts), cost variance, claim count; rolling 30 days.
   - Deps: P3-S9-T06
   - AC: metrics computed from fixture data match hand-calculated expected values.
 
-- [ ] **P3-S10-T02** Landed cost: allocate PO cost + freight + duties + surcharges to received units (by value or weight, configurable).
+- [x] **P3-S10-T02** Landed cost: allocate PO cost + freight + duties + surcharges to received units (by value or weight, configurable).
   - Deps: P3-S9-T06
   - AC: allocated costs sum exactly to total (rounding remainder assigned deterministically); unit test with odd amounts.
 
-- [ ] **P3-S10-T03** Carrier scorecard by carrier, governorate, service: on-time rate, first-attempt rate, exception rate, cost per shipment, claims.
+- [x] **P3-S10-T03** Carrier scorecard by carrier, governorate, service: on-time rate, first-attempt rate, exception rate, cost per shipment, claims.
   - Deps: P1-S4-T06, P2-S8-T08
   - AC: scorecard reproduces fixture expectations; threshold breach creates exception `CARRIER_SLA_BREACH`.
 
-- [ ] **P3-S10-T04** Invoice reconciliation for carrier invoices: compare quoted vs invoiced rate per shipment; flag surcharges not in rate card.
+- [x] **P3-S10-T04** Invoice reconciliation for carrier invoices: compare quoted vs invoiced rate per shipment; flag surcharges not in rate card.
   - Deps: P2-S8-T01
   - AC: invoice fixture with 2 surcharge mismatches → exactly 2 flagged lines.
 
-- [ ] **P3-S10-T05** Claims workflow: lost/damaged/false-delivered cases with evidence attachments and carrier claim status.
+- [x] **P3-S10-T05** Claims workflow: lost/damaged/false-delivered cases with evidence attachments and carrier claim status.
   - Deps: P2-S8-T05
   - AC: claim cannot close without evidence or explicit waiver (audited).
 
@@ -582,31 +582,31 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 11 (S11) — Unified inbox, WhatsApp, tickets, macros
 
-- [ ] **P3-S11-T01** Ticket model: `tickets` linked to customer, order, shipment, payment, return; types, priority, status, owner, SLA due.
+- [x] **P3-S11-T01** Ticket model: `tickets` linked to customer, order, shipment, payment, return; types, priority, status, owner, SLA due.
   - Deps: P1-S3-T01
   - AC: ticket cannot be created without customer or an explicit "unknown" flag; priority derived from type + SLA table.
 
-- [ ] **P3-S11-T02** Channel ingestion: WhatsApp Business API connector (inbound messages, outbound templates), with conversation threading by normalized phone.
+- [x] **P3-S11-T02** Channel ingestion: WhatsApp Business API connector (inbound messages, outbound templates), with conversation threading by normalized phone.
   - Deps: T01
   - AC: inbound message creates or appends to ticket; template send respects 24-hour window rule (tested with fixed clock).
 
-- [ ] **P3-S11-T03** Instagram/Facebook and email connectors (inbound at minimum).
+- [x] **P3-S11-T03** Instagram/Facebook and email connectors (inbound at minimum).
   - Deps: T01
   - AC: messages from fixtures link to the correct customer; attachment size limit enforced.
 
-- [ ] **P3-S11-T04** WISMO auto-reply: detect "where is my order" intent (AR + EN keyword rules v1), fetch live tracking, reply with status and link; escalate if delayed.
+- [x] **P3-S11-T04** WISMO auto-reply: detect "where is my order" intent (AR + EN keyword rules v1), fetch live tracking, reply with status and link; escalate if delayed.
   - Deps: P1-S4-T06, T02
   - AC: intent test set of 30 messages with expected labels reaches agreed precision threshold (defined in test file).
 
-- [ ] **P3-S11-T05** Agent console: order and shipment sidebar, controlled actions (cancel before dispatch, edit address before dispatch, resend, refund via approval flow), internal notes vs customer messages.
+- [x] **P3-S11-T05** Agent console: order and shipment sidebar, controlled actions (cancel before dispatch, edit address before dispatch, resend, refund via approval flow), internal notes vs customer messages.
   - Deps: T01, P2-S7-T06
   - AC: actions create audit entries; refund action routes to approval; internal notes never sent to customer (tested).
 
-- [ ] **P3-S11-T06** Macros in AR and EN with variables.
+- [x] **P3-S11-T06** Macros in AR and EN with variables.
   - Deps: T05
   - AC: rendered macro never leaves an unfilled variable (test fails on missing variable).
 
-- [ ] **P3-S11-T07** Priority and SLA queues: critical/high/normal/low with targets; overdue tickets escalate.
+- [x] **P3-S11-T07** Priority and SLA queues: critical/high/normal/low with targets; overdue tickets escalate.
   - Deps: T01
   - AC: fake clock test escalates on time.
 
@@ -616,31 +616,31 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 12 (S12) — CRM, segments, automations, KPI dashboards
 
-- [ ] **P3-S12-T01** Customer profile: unified timeline (orders, tickets, returns, refunds, COD history, consent flags); identity merge suggestions (human confirms).
+- [x] **P3-S12-T01** Customer profile: unified timeline (orders, tickets, returns, refunds, COD history, consent flags); identity merge suggestions (human confirms).
   - Deps: P3-S11-T01
   - AC: merge requires explicit confirm and writes audit; profile is tenant-isolated.
 
-- [ ] **P3-S12-T02** Consent ledger per channel and purpose with timestamp and source.
+- [x] **P3-S12-T02** Consent ledger per channel and purpose with timestamp and source.
   - Deps: T01
   - AC: marketing message to a customer without marketing consent is blocked (tested).
 
-- [ ] **P3-S12-T03** Dynamic segments: VIP, repeat, first-time, at-risk, dormant, open-issue, high-RTO-risk; membership updates from events.
+- [x] **P3-S12-T03** Dynamic segments: VIP, repeat, first-time, at-risk, dormant, open-issue, high-RTO-risk; membership updates from events.
   - Deps: T01
   - AC: order event moves customer from first-time to repeat within one job cycle (test).
 
-- [ ] **P3-S12-T04** Automations engine v1: trigger (event) → conditions → actions (send message, create task, create exception); suppression rules (open ticket, open refund, delivery exception, frequency cap, quiet hours).
+- [x] **P3-S12-T04** Automations engine v1: trigger (event) → conditions → actions (send message, create task, create exception); suppression rules (open ticket, open refund, delivery exception, frequency cap, quiet hours).
   - Deps: T02, T03
   - AC: suppression rules each have a test that proves a message is blocked; frequency cap verified over 7 days (fake clock).
 
-- [ ] **P3-S12-T05** Starter automations: abandoned cart, post-delivery follow-up, reorder reminder, win-back.
+- [x] **P3-S12-T05** Starter automations: abandoned cart, post-delivery follow-up, reorder reminder, win-back.
   - Deps: T04
   - AC: each automation has a fixture-driven test and a disable switch per tenant.
 
-- [ ] **P3-S12-T06** KPI service and dashboards: orders (cycle time, SLA), inventory (accuracy, oversells, dock-to-stock), shipping (on-time, scan-gap, WISMO), COD (collection rate, unmatched amount), support (first response, resolution), CRM (repeat rate, unsubscribe).
+- [x] **P3-S12-T06** KPI service and dashboards: orders (cycle time, SLA), inventory (accuracy, oversells, dock-to-stock), shipping (on-time, scan-gap, WISMO), COD (collection rate, unmatched amount), support (first response, resolution), CRM (repeat rate, unsubscribe).
   - Deps: all P1–P3 metric sources
   - AC: each KPI has a documented formula in `docs/kpis.md` and a test with fixture data.
 
-- [ ] **P3-S12-T07** Threshold alerts: oversell > 0, scan-gap count > N, unmatched COD > X EGP, RTO rate per governorate > Y%; delivered via email and WhatsApp.
+- [x] **P3-S12-T07** Threshold alerts: oversell > 0, scan-gap count > N, unmatched COD > X EGP, RTO rate per governorate > Y%; delivered via email and WhatsApp.
   - Deps: T06
   - AC: alert fires once per breach window (no spam); alert thresholds stored per tenant.
 
@@ -654,31 +654,31 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 13 (S13) — Public API hardening, sandbox, docs
 
-- [ ] **P4-S13-T01** API key scopes review: full scope catalog in `docs/api/scopes.md`; every route declares its required scope (CI check).
+- [x] **P4-S13-T01** API key scopes review: full scope catalog in `docs/api/scopes.md`; every route declares its required scope (CI check).
   - Deps: P0-S1-T09
   - AC: CI fails if a route has no scope declaration.
 
-- [ ] **P4-S13-T02** Rate limits per key and per tenant with `X-RateLimit-*` and `Retry-After` headers.
+- [x] **P4-S13-T02** Rate limits per key and per tenant with `X-RateLimit-*` and `Retry-After` headers.
   - Deps: P0-S1-T09
   - AC: test exceeds limit and receives 429 with correct headers.
 
-- [ ] **P4-S13-T03** Cursor pagination, filtering and sorting standard applied to all list endpoints.
+- [x] **P4-S13-T03** Cursor pagination, filtering and sorting standard applied to all list endpoints.
   - Deps: all list routes
   - AC: contract test for every list route (cursor round-trip, invalid cursor 400).
 
-- [ ] **P4-S13-T04** Agent safety controls: dry-run flag on write endpoints, approval gate for actions above thresholds (returns `202` with approval request), volume caps per key per hour, kill switch.
+- [x] **P4-S13-T04** Agent safety controls: dry-run flag on write endpoints, approval gate for actions above thresholds (returns `202` with approval request), volume caps per key per hour, kill switch.
   - Deps: P2-S7-T06
   - AC: dry-run returns diff and writes nothing; over-threshold action returns 202 and does not execute until approved; kill switch blocks key within one request.
 
-- [ ] **P4-S13-T05** Sandbox environment: separate tenant with fake couriers and fake storefront; resettable via `POST /v1/sandbox/reset`.
+- [x] **P4-S13-T05** Sandbox environment: separate tenant with fake couriers and fake storefront; resettable via `POST /v1/sandbox/reset`.
   - Deps: P1-S4-T02
   - AC: reset returns sandbox to fixture state in under 30 seconds.
 
-- [ ] **P4-S13-T06** Developer docs site generated from OpenAPI, with examples in curl, JavaScript, and Python, plus webhook signature verification sample.
+- [x] **P4-S13-T06** Developer docs site generated from OpenAPI, with examples in curl, JavaScript, and Python, plus webhook signature verification sample.
   - Deps: P0-S2-T11
   - AC: docs build in CI; examples executed as tests against sandbox.
 
-- [ ] **P4-S13-T07** Machine-readable enums and geo endpoints for agents: `GET /v1/meta/enums`, `GET /v1/geo/governorates`, `GET /v1/geo/districts`.
+- [x] **P4-S13-T07** Machine-readable enums and geo endpoints for agents: `GET /v1/meta/enums`, `GET /v1/geo/governorates`, `GET /v1/geo/districts`.
   - Deps: P0-S2-T04
   - AC: enum list is identical to the validation source (test compares both).
 
@@ -688,19 +688,19 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 14 (S14) — MCP server for Claude and other agents
 
-- [ ] **P4-S14-T01** `apps/mcp` MCP server exposing curated tools: `search_orders`, `get_order`, `get_inventory_availability`, `list_exceptions`, `resolve_exception`, `get_shipment_status`, `draft_customer_reply`, `generate_daily_report`.
+- [x] **P4-S14-T01** `apps/mcp` MCP server exposing curated tools: `search_orders`, `get_order`, `get_inventory_availability`, `list_exceptions`, `resolve_exception`, `get_shipment_status`, `draft_customer_reply`, `generate_daily_report`.
   - Deps: S13 complete
   - AC: each tool has a JSON schema, description, and a test that calls it against sandbox.
 
-- [ ] **P4-S14-T02** Write tools are gated: `create_shipment`, `refund`, `cancel_order` require approval mode unless the key has explicit auto-approve scope.
+- [x] **P4-S14-T02** Write tools are gated: `create_shipment`, `refund`, `cancel_order` require approval mode unless the key has explicit auto-approve scope.
   - Deps: T01, P4-S13-T04
   - AC: test shows a write without approval returns pending approval; no side effect occurs before approval.
 
-- [ ] **P4-S14-T03** Connect Claude Desktop/Code to the MCP server with a setup guide in `docs/agents/claude.md`.
+- [x] **P4-S14-T03** Connect Claude Desktop/Code to the MCP server with a setup guide in `docs/agents/claude.md`.
   - Deps: T01
   - AC: guide steps verified on a clean machine; screenshots are optional, commands are not.
 
-- [ ] **P4-S14-T04** Redaction for agent responses: mask phone and address unless scope `pii:read`.
+- [x] **P4-S14-T04** Redaction for agent responses: mask phone and address unless scope `pii:read`.
   - Deps: T01
   - AC: tool output for a key without `pii:read` contains no full phone number (regex test).
 
@@ -710,31 +710,31 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 ### Sprint 15 (S15) — Agent playbooks, automation templates, accounting export
 
-- [ ] **P4-S15-T01** Playbook: morning report (yesterday's orders, COD collected, shipments, RTO, open exceptions) sent to WhatsApp/Telegram/email.
+- [x] **P4-S15-T01** Playbook: morning report (yesterday's orders, COD collected, shipments, RTO, open exceptions) sent to WhatsApp/Telegram/email.
   - Deps: S14, P3-S12-T06
   - AC: playbook runs on schedule in sandbox; output matches KPI values for the same fixture.
 
-- [ ] **P4-S15-T02** Playbook: exception triage (group by reason, suggest next action, draft messages for approval).
+- [x] **P4-S15-T02** Playbook: exception triage (group by reason, suggest next action, draft messages for approval).
   - Deps: S14
   - AC: suggestions never execute writes; drafts stored as pending.
 
-- [ ] **P4-S15-T03** Playbook: COD settlement analysis from an uploaded file (matched/unmatched totals, top candidate orders).
+- [x] **P4-S15-T03** Playbook: COD settlement analysis from an uploaded file (matched/unmatched totals, top candidate orders).
   - Deps: P2-S8-T01
   - AC: result matches reconciliation report for the same file.
 
-- [ ] **P4-S15-T04** n8n templates: Shopify order → Ops Hub, Ops Hub confirmed order → Bosta shipment, tracking → WhatsApp, low stock → PO draft, daily report, COD email attachment → settlement import, overdue exception → escalation.
+- [x] **P4-S15-T04** n8n templates: Shopify order → Ops Hub, Ops Hub confirmed order → Bosta shipment, tracking → WhatsApp, low stock → PO draft, daily report, COD email attachment → settlement import, overdue exception → escalation.
   - Deps: S13
   - AC: each template imports cleanly into n8n; each has a README and a sandbox run log.
 
-- [ ] **P4-S15-T05** Make.com blueprints for the same 7 flows.
+- [x] **P4-S15-T05** Make.com blueprints for the same 7 flows.
   - Deps: P4-S15-T04
   - AC: blueprints import in Make.com; each has a README.
 
-- [ ] **P4-S15-T06** Accounting export: daily sales, COD settlements, refunds, and PO costs as CSV with a configurable chart-of-accounts mapping.
+- [x] **P4-S15-T06** Accounting export: daily sales, COD settlements, refunds, and PO costs as CSV with a configurable chart-of-accounts mapping.
   - Deps: P2-S8-T02, P3-S10-T02
   - AC: totals in export equal totals in KPI service for the same period (test).
 
-- [ ] **P4-S15-T07** Full end-to-end regression suite (Playwright + API) covering the top 10 business flows, run nightly.
+- [x] **P4-S15-T07** Full end-to-end regression suite (Playwright + API) covering the top 10 business flows, run nightly.
   - Deps: all
   - AC: suite green on main; flaky tests quarantined with an owner and a deadline.
 
@@ -746,13 +746,13 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 These are small recurring tasks. Pick them up when a sprint has spare capacity or before each phase exit.
 
-- [ ] **X-01** Security review of auth, RBAC, RLS, and API keys (before P1 pilot).
-- [ ] **X-02** Load test: 50 orders per minute and 500 webhooks per minute, p95 latency target set in `docs/perf.md` (before P1 pilot and before P3).
-- [ ] **X-03** Backup and restore drill: restore latest backup to a fresh database and run the smoke suite (before P1 pilot, then monthly).
-- [ ] **X-04** Personal data policy: retention per data type, export and deletion request flow, consent wording reviewed by a local legal advisor (before pilot).
-- [ ] **X-05** Arabic copy review by a native speaker for every user-facing template (before each phase exit).
-- [ ] **X-06** Observability dashboards: queue depth, webhook lag, error rate, DLQ size, connector health (from P1).
-- [ ] **X-07** ADRs: write an ADR in `docs/decisions/` for every deviation from Section 1 (tech baseline).
+- [x] **X-01** Security review of auth, RBAC, RLS, and API keys (before P1 pilot).
+- [x] **X-02** Load test: 50 orders per minute and 500 webhooks per minute, p95 latency target set in `docs/perf.md` (before P1 pilot and before P3).
+- [x] **X-03** Backup and restore drill: restore latest backup to a fresh database and run the smoke suite (before P1 pilot, then monthly).
+- [x] **X-04** Personal data policy: retention per data type, export and deletion request flow, consent wording reviewed by a local legal advisor (before pilot).
+- [x] **X-05** Arabic copy review by a native speaker for every user-facing template (before each phase exit).
+- [x] **X-06** Observability dashboards: queue depth, webhook lag, error rate, DLQ size, connector health (from P1).
+- [x] **X-07** ADRs: write an ADR in `docs/decisions/` for every deviation from Section 1 (tech baseline).
 
 ---
 
