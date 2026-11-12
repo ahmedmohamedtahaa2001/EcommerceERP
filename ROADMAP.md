@@ -308,13 +308,17 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 **Sprint goal:** an order that reaches `confirmed` gets exactly one Bosta shipment, and its tracking events arrive normalized.
 
-- [ ] **P1-S4-T01** Shipping port: `ShippingCarrier` interface (`quoteRate`, `createShipment`, `cancelShipment`, `getLabel`, `getStatus`, `parseWebhook`, `capabilities`).
+- [x] **P1-S4-T01** Shipping port: `ShippingCarrier` interface (`quoteRate`, `createShipment`, `cancelShipment`, `getLabel`, `getStatus`, `parseWebhook`, `capabilities`).
+  - Owner: claude (2026-11-12)
   - Deps: P1-S3 complete
   - AC: interface in `packages/integrations`; contract test suite that any adapter must pass (run against the fake courier).
+  - Note: types in `packages/integrations/src/shipping.ts`; contract suite in `packages/integrations/tests/contract.test.ts` (runs against an in-memory conforming adapter today; real adapters plug in against the fake courier). Commit d4f02d62.
 
-- [ ] **P1-S4-T02** Fake courier server in `fixtures/` (Docker service) that simulates create, status, webhook, timeouts, and 5xx.
+- [x] **P1-S4-T02** Fake courier server in `fixtures/` (Docker service) that simulates create, status, webhook, timeouts, and 5xx.
+  - Owner: claude (2026-11-12)
   - Deps: T01
   - AC: scripted scenarios: happy path, timeout after create, duplicate create, status flip-flop.
+  - Note: `fixtures/courier/server.ts` (Node http, no deps). Scenarios via `?scenario=timeout|error5xx` and `X-Scenario: duplicate` for idempotent create. Endpoints: rates, shipments (create/get/cancel/label), webhooks/simulate. Commit d276d414.
 
 - [ ] **P1-S4-T03** Bosta adapter implementing the port, using the real Bosta API docs. Config: API key per tenant, environment (test/live).
   - Deps: T01, T02
@@ -828,6 +832,8 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-12 · P1-S3-T05 · Duplicate detection on real order creation (never on idempotent replay): same external_order_id+channel, or identical SKU set for the same customer within 24h. Flags via a DUPLICATE_SUSPECTED exception without blocking creation. POST /v1/order-exceptions/:id/duplicate-review: accept (keep both, close exception) or merge (cancel the newer order via the state machine), both audited; rejects double-review and reviewing a non-duplicate exception as one. 276/276 tests green (stable across 3 full-suite runs), lint + typecheck clean · commit 0215fb6
 - 2026-11-12 · P1-S3-T06 · Exceptions module: list/assign/resolve endpoints, due_at required at the DB level (migration 0011), SLA sweep (sweepOverdue) that claims open+past-due+not-yet-notified exceptions and emits exception.overdue through the outbox in the same transaction as claiming. Fake-clock tests per the AC; a DB-backed test caught a real FK-violation bug in my own test fixture before it could hide anything. 287/287 tests green (stable across 3 full-suite runs), lint + typecheck clean · commit 406fbd5
 - 2026-11-12 · P1-S3-T07 · Order events timeline: `order_events` table (migration 0012), append-only. `PgOrderStore.createOrder` and `updateStatus` append a `status_changed` row in the same transaction; `PgOrderEventStore` provides ordered `list` and `addNote`; `OrderService.listEvents`/`addNote`; route `GET /v1/orders/:id/events` (optional `?customerVisible=`) plus `POST /v1/orders/:id/events` for notes. 287/287 tests green, lint + typecheck clean · commit 97c71c7a
+- 2026-11-12 · P1-S4-T01 · Shipping port: `ShippingCarrier` interface + supporting types in `packages/integrations/src/shipping.ts`; contract suite in `packages/integrations/tests/contract.test.ts`. 295/295 tests green, lint + typecheck clean · commit d4f02d62
+- 2026-11-12 · P1-S4-T02 · Fake courier server (Node http) in `fixtures/courier/server.ts`: create/get/cancel/label/rates + timeout/error5xx/duplicate scenarios. Smoke-tested against localhost:4010 · commit d276d414
 - 2026-11-11 · smoke test · Ran the live API end-to-end (real Postgres + Redis, via Playwright against the running server) over everything from S1+S2: auth, products/variants, import, locations/bins, geo, stock ledger, availability, reservations, adjustments, audit. Found and fixed a real bug: Fastify's default JSON parser 400'd any bodiless POST (e.g. reservation release) when the client set `Content-Type: application/json` with no body; now treated as `{}`. Regression test added, 217/217 tests green · commit d2dd670
 
 ---
