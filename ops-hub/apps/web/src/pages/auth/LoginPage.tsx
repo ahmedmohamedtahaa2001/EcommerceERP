@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
-import { getToken, login, useSession } from "../../lib/auth/store";
+import {
+  getToken,
+  login,
+  useSession,
+  useSetSession,
+} from "../../lib/auth/store";
 import { useT } from "../../lib/i18n";
 import { ApiError } from "../../lib/api/client";
 import { Button } from "../../components/ui/Button";
@@ -177,6 +182,7 @@ function LoginCard() {
   const t = useT();
   const navigate = useNavigate();
   const { session, isLoading } = useSession();
+  const setSession = useSetSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -192,7 +198,8 @@ function LoginCard() {
     setSubmitting(true);
     setError(null);
     try {
-      await login({ email: email.trim(), password });
+      const session = await login({ email: email.trim(), password });
+      setSession(session);
       navigate("/", { replace: true });
     } catch (err) {
       if (err instanceof ApiError) {

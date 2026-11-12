@@ -24,7 +24,7 @@ export interface Session {
   user: AuthUser;
 }
 
-function readSession(): Session | null {
+function readSessionFromStorage(): Session | null {
   try {
     const raw = window.localStorage.getItem(SESSION_KEY);
     if (raw === null) {
@@ -53,7 +53,7 @@ function clearSession(): void {
 }
 
 export function getToken(): string | null {
-  return readSession()?.token ?? null;
+  return readSessionFromStorage()?.token ?? null;
 }
 
 setTokenProvider(getToken);
@@ -68,10 +68,11 @@ export interface LoginInput {
   password: string;
 }
 
-export async function login(input: LoginInput): Promise<AuthUser> {
+export async function login(input: LoginInput): Promise<Session> {
   const response = await loginApi(input);
-  writeSession({ token: response.token, user: response.user });
-  return response.user;
+  const session: Session = { token: response.token, user: response.user };
+  writeSession(session);
+  return session;
 }
 
 export async function logout(): Promise<void> {
@@ -85,7 +86,7 @@ export async function logout(): Promise<void> {
 
 /** Boot validation: refreshes the stored user via `GET /v1/auth/me`. */
 export async function fetchSession(): Promise<Session | null> {
-  const stored = readSession();
+  const stored = readSessionFromStorage();
   if (stored === null) {
     return null;
   }
@@ -100,6 +101,20 @@ export async function fetchSession(): Promise<Session | null> {
 
 /** React Query key for the session record. */
 export const SESSION_QUERY_KEY = ["session"] as const;
+
+/**
+ * Puts a freshly created session straight into the React Query cache.
+ *
+ * Without this, `GET /v1/auth/me` would still be "loading" after a login
+ * while `ProtectedRoute` already saw a stored token, and the two would
+ * redirect against each other in a loop.
+ */
+export function useSetSession(): (session: Session) => void {
+  const queryClient = useQueryClient();
+  return (session: Session) => {
+    queryClient.setQueryData(SESSION_QUERY_KEY, session);
+  };
+}
 
 /**
  * Small session hook: `null` while unauthenticated, the session record once
