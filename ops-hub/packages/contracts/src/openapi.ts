@@ -892,6 +892,41 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     tag: "Playbooks",
     scope: "settings:write",
   },
+  {
+    method: "get",
+    path: "/v1/connectors",
+    summary: "List connectors and their health",
+    tag: "Connectors",
+    scope: "settings:write",
+  },
+  {
+    method: "post",
+    path: "/v1/connectors/:name/success",
+    summary: "Record a successful connector sync",
+    tag: "Connectors",
+    scope: "settings:write",
+  },
+  {
+    method: "post",
+    path: "/v1/connectors/:name/failure",
+    summary: "Record a failed connector sync",
+    tag: "Connectors",
+    scope: "settings:write",
+  },
+  {
+    method: "get",
+    path: "/v1/notifications/templates",
+    summary: "List notification templates",
+    tag: "Notifications",
+    scope: "orders:read",
+  },
+  {
+    method: "post",
+    path: "/v1/notifications",
+    summary: "Send a proactive notification",
+    tag: "Notifications",
+    scope: "orders:write",
+  },
 ];
 
 function schemaOf(schema: ZodTypeAny): Record<string, unknown> {

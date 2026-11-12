@@ -89,6 +89,10 @@ const lazyImports = {
     import("../pages/admin/AgentsPage").then((m) => ({
       Component: m.AgentsPage,
     })),
+  TrackPage: () =>
+    import("../pages/tracking/TrackPage").then((m) => ({
+      Component: m.TrackPage,
+    })),
   NotFoundPage: () =>
     import("../pages/system/NotFoundPage").then((m) => ({
       Component: m.NotFoundPage,
@@ -99,6 +103,10 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     lazy: lazyImports.LoginPage,
+  },
+  {
+    path: "/track",
+    lazy: lazyImports.TrackPage,
   },
   {
     path: "/",

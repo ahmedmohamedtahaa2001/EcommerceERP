@@ -588,6 +588,29 @@ export const kpiSnapshots = pgTable(
   ],
 );
 
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id"),
+    templateKey: text("template_key").notNull(),
+    channel: text("channel").notNull().default("email"),
+    recipient: text("recipient").notNull(),
+    body: text("body").notNull(),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("notifications_tenant_order_template_key").on(
+      table.tenantId,
+      table.orderId,
+      table.templateKey,
+    ),
+  ],
+);
+
 export const alerts = pgTable(
   "alerts",
   {

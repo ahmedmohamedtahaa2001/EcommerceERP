@@ -134,6 +134,13 @@
       "when": 1794491720986,
       "tag": "0018_jittery_oracle",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794492351731,
+      "tag": "0019_bumpy_korath",
+      "breakpoints": true
     }
   ]
 }

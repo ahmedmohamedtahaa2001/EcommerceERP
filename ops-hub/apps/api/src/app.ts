@@ -43,6 +43,10 @@ import { registerPhase2Routes, type Phase2Services } from "./phase2/routes";
 import { registerPhase3Routes, type Phase3Services } from "./phase3/routes";
 import { registerPhase4Routes, type Phase4Services } from "./phase4/routes";
 import { registerRateLimit, type RateLimitOptions } from "./platform/service";
+import { registerNotificationRoutes } from "./notifications/routes";
+import type { NotificationService } from "./notifications/service";
+import { registerConnectorRoutes } from "./integrations/connectors/routes";
+import type { ConnectorHealthService } from "./integrations/connectors/health";
 import type { Pool } from "pg";
 import type { OrderValidationService } from "./orders/validation-service";
 import type { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -115,6 +119,8 @@ export interface BuildAppOptions {
   phase2?: Phase2Services;
   phase3?: Phase3Services;
   phase4?: Phase4Services;
+  notifications?: NotificationService;
+  connectors?: ConnectorHealthService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -392,6 +398,25 @@ ${Object.entries(buildOpenApiDocument().paths)
       }
       registerPhase3Routes(app, {
         services: options.phase3,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.notifications) {
+      registerNotificationRoutes(app, {
+        service: options.notifications,
+        requestAuth,
+        ...(options.audit !== undefined ? { audit: options.audit } : {}),
+      });
+    }
+    if (options.connectors) {
+      if (!options.audit) {
+        throw new Error(
+          "connector routes mutate state and require an audit writer.",
+        );
+      }
+      registerConnectorRoutes(app, {
+        service: options.connectors,
         requestAuth,
         audit: options.audit,
       });

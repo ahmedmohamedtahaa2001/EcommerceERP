@@ -42,6 +42,12 @@ import { InboxService } from "./inbox/service";
 import { CrmService } from "./crm/service";
 import { PlaybookService } from "./playbooks/service";
 import {
+  NotificationService,
+  SmtpSender,
+  WhatsAppStubSender,
+} from "./notifications/service";
+import { ConnectorHealthService } from "./integrations/connectors/health";
+import {
   SandboxService,
   SafetyGuard,
   RedisRateLimitStore,
@@ -192,6 +198,19 @@ const inbox = new InboxService({ pool, clock: systemClock });
 const crm = new CrmService({ pool, clock: systemClock });
 const playbooks = new PlaybookService({ pool, clock: systemClock });
 const sandbox = new SandboxService({ pool });
+const notifications = new NotificationService({
+  pool,
+  clock: systemClock,
+  senders: [
+    new SmtpSender({
+      host: process.env.SMTP_HOST ?? "localhost",
+      port: Number(process.env.SMTP_PORT ?? 1025),
+      from: process.env.SMTP_FROM ?? "ops-hub@localhost",
+    }),
+    new WhatsAppStubSender(),
+  ],
+});
+const connectors = new ConnectorHealthService({ pool, clock: systemClock });
 const safety = new SafetyGuard({
   approvalThresholdMinor: Number(
     process.env.APPROVAL_THRESHOLD_MINOR ?? 100000,
@@ -227,6 +246,8 @@ const app = buildApp({
   phase2: { receiving, cod, returns, settlements, dlq, routing },
   phase3: { sourcing, scorecards, inbox, crm },
   phase4: { playbooks, sandbox, safety },
+  notifications,
+  connectors,
   ...(process.env.SANDBOX_TENANT_ID !== undefined
     ? { sandboxTenantId: process.env.SANDBOX_TENANT_ID }
     : {}),
