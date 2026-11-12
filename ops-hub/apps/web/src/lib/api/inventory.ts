@@ -36,6 +36,12 @@ export interface Location {
   code: string | null;
   governorateCode: string | null;
   address: string | null;
+  /** Maximum units; null means no limit. */
+  capacity: number | null;
+  /** On-hand units across every variant at this location. */
+  usedUnits: number;
+  /** Null when there is no capacity limit. Above 100 when over capacity. */
+  utilizationPercent: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -152,6 +158,7 @@ export interface CreateLocationRequest {
   code?: string | null;
   governorateCode?: string | null;
   address?: string | null;
+  capacity?: number | null;
 }
 
 export interface CreateBinRequest {
@@ -256,6 +263,17 @@ export function getLocation(id: string): Promise<Location> {
 /** `POST /v1/locations` → 201. */
 export function createLocation(body: CreateLocationRequest): Promise<Location> {
   return apiFetch<Location>("/v1/locations", { method: "POST", body });
+}
+
+/** `PATCH /v1/locations/:id` → 200: `capacity: null` removes the limit. */
+export function updateLocationCapacity(
+  id: string,
+  capacity: number | null,
+): Promise<Location> {
+  return apiFetch<Location>(`/v1/locations/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: { capacity },
+  });
 }
 
 /** `DELETE /v1/locations/:id` → 204 (fails on FK restrict while stock exists). */

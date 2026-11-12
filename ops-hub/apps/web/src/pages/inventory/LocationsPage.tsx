@@ -7,8 +7,10 @@ import {
   deleteLocation,
   listBins,
   listLocations,
+  updateLocationCapacity,
 } from "../../lib/api/inventory";
 import { PutawayModal } from "./PutawayModal";
+import { capacityIsValid, parseCapacity } from "./capacity-form";
 import { listGovernorates } from "../../lib/api/meta";
 import type { Bin, Location, LocationType } from "../../lib/api/inventory";
 import type { Governorate } from "../../lib/api/meta";
@@ -23,6 +25,7 @@ import {
   Input,
   Modal,
   PageHeader,
+  ProgressBar,
   Select,
   Skeleton,
   Table,
@@ -223,6 +226,8 @@ export function LocationsPage() {
                   </div>
                 </dl>
 
+                <CapacityPanel location={selected} />
+
                 <div>
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <h3 className="text-subtitle2 font-bold text-ink-900">
@@ -364,6 +369,7 @@ function CreateLocationModal({
   const [code, setCode] = useState("");
   const [governorateCode, setGovernorateCode] = useState("");
   const [address, setAddress] = useState("");
+  const [capacity, setCapacity] = useState("");
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -373,6 +379,7 @@ function CreateLocationModal({
         code: code.trim() === "" ? null : code.trim(),
         governorateCode: governorateCode === "" ? null : governorateCode,
         address: address.trim() === "" ? null : address.trim(),
+        capacity: parseCapacity(capacity),
       }),
     onSuccess: () => {
       toast.showToast("success", t("locations.created"));
@@ -380,6 +387,7 @@ function CreateLocationModal({
       setCode("");
       setGovernorateCode("");
       setAddress("");
+      setCapacity("");
       onCreated();
     },
     onError: () => toast.showToast("error", t("locations.createFailed")),
@@ -405,7 +413,7 @@ function CreateLocationModal({
           </Button>
           <Button
             loading={mutation.isPending}
-            disabled={name.trim() === ""}
+            disabled={name.trim() === "" || !capacityIsValid(capacity)}
             onClick={() => mutation.mutate()}
           >
             {t("action.save")}
@@ -536,6 +544,116 @@ function CreateBinModal({
           hint={t("binForm.capacityHint")}
         />
       </form>
+    </Modal>
+  );
+}
+
+function CapacityPanel({ location }: { location: Location }) {
+  const t = useT();
+  const [editing, setEditing] = useState(false);
+  const usage = location.usedUnits;
+  const over =
+    location.utilizationPercent !== null && location.utilizationPercent > 100;
+
+  return (
+    <section aria-labelledby="capacity-title" className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <h3
+          id="capacity-title"
+          className="text-subtitle2 font-bold text-ink-900"
+        >
+          {t("locations.capacity.title")}
+        </h3>
+        <Button size="sm" variant="outlined" onClick={() => setEditing(true)}>
+          {t("locations.capacity.edit")}
+        </Button>
+      </div>
+      {location.capacity === null ? (
+        <p className="text-body2 text-ink-700">
+          {t("locations.capacity.used", { used: usage })} —{" "}
+          {t("locations.capacity.unlimited")}
+        </p>
+      ) : (
+        <>
+          <p className="text-body2 text-ink-700">
+            {t("locations.capacity.used", { used: usage })}{" "}
+            {t("locations.capacity.of", { capacity: location.capacity })}
+          </p>
+          <ProgressBar
+            value={location.utilizationPercent ?? 0}
+            label={t("locations.capacity.title")}
+          />
+          {over ? (
+            <p role="alert" className="text-body2 font-semibold text-danger">
+              {t("locations.capacity.over")}
+            </p>
+          ) : null}
+        </>
+      )}
+      {editing ? (
+        <EditCapacityModal
+          location={location}
+          onClose={() => setEditing(false)}
+        />
+      ) : null}
+    </section>
+  );
+}
+
+function EditCapacityModal({
+  location,
+  onClose,
+}: {
+  location: Location;
+  onClose: () => void;
+}) {
+  const t = useT();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const [value, setValue] = useState(
+    location.capacity === null ? "" : String(location.capacity),
+  );
+  const valid = capacityIsValid(value);
+
+  const mutation = useMutation({
+    mutationFn: () => updateLocationCapacity(location.id, parseCapacity(value)),
+    onSuccess: async () => {
+      toast.showToast("success", t("locations.capacity.saved"));
+      await queryClient.invalidateQueries({ queryKey: ["locations"] });
+      onClose();
+    },
+    onError: () => toast.showToast("error", t("locations.capacity.saveFailed")),
+  });
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={t("locations.capacity.edit")}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            loading={mutation.isPending}
+            disabled={!valid}
+            onClick={() => mutation.mutate()}
+          >
+            {t("action.save")}
+          </Button>
+        </>
+      }
+    >
+      <Input
+        label={t("locations.capacity.label")}
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        hint={t("locations.capacity.hint")}
+        error={valid ? null : t("locations.capacity.invalid")}
+        inputMode="numeric"
+        dir="ltr"
+      />
     </Modal>
   );
 }

@@ -1,4 +1,5 @@
 import { keysetClause, type KeysetFilter } from "../platform/service";
+import { utilizationPercent } from "./utilization";
 import { withTenant } from "@ops-hub/db";
 import type { Pool } from "pg";
 
@@ -7,6 +8,7 @@ import type {
   BinRecord,
   BinStore,
   LocationRecord,
+  LocationView,
   LocationStore,
   LocationType,
 } from "./types";
@@ -19,6 +21,8 @@ interface LocationRow {
   code: string | null;
   governorate_code: string | null;
   address: string | null;
+  capacity: number | null;
+  used_units: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -35,7 +39,7 @@ interface BinRow {
   updated_at: Date;
 }
 
-function toLocation(row: LocationRow): LocationRecord {
+function toLocation(row: LocationRow): LocationView {
   return {
     id: row.id,
     tenantId: row.tenant_id,
@@ -44,10 +48,20 @@ function toLocation(row: LocationRow): LocationRecord {
     code: row.code,
     governorateCode: row.governorate_code,
     address: row.address,
+    capacity: row.capacity,
+    usedUnits: row.used_units,
+    utilizationPercent: utilizationPercent(row.used_units, row.capacity),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }
+
+/** Units on hand at each location, computed alongside the location row. */
+const USED_UNITS_SQL = `(select coalesce(sum(sb.quantity), 0)::int
+     from stock_balances sb
+    where sb.tenant_id = locations.tenant_id
+      and sb.location_id = locations.id
+      and sb.bucket = 'on_hand') as used_units`;
 
 function toBin(row: BinRow): BinRecord {
   return {
@@ -69,9 +83,9 @@ export class PgLocationStore implements LocationStore {
     await withTenant(this.pool, record.tenantId, (client) =>
       client.query(
         `insert into locations
-           (id, tenant_id, type, name, code, governorate_code, address,
+           (id, tenant_id, type, name, code, governorate_code, address, capacity,
             created_at, updated_at)
-         values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [
           record.id,
           record.tenantId,
@@ -80,6 +94,7 @@ export class PgLocationStore implements LocationStore {
           record.code,
           record.governorateCode,
           record.address,
+          record.capacity,
           record.createdAt,
           record.updatedAt,
         ],
@@ -87,10 +102,11 @@ export class PgLocationStore implements LocationStore {
     );
   }
 
-  async getById(tenantId: string, id: string): Promise<LocationRecord | null> {
+  async getById(tenantId: string, id: string): Promise<LocationView | null> {
     return withTenant(this.pool, tenantId, async (client) => {
       const result = await client.query<LocationRow>(
-        `select * from locations where tenant_id = $1 and id = $2`,
+        `select locations.*, ${USED_UNITS_SQL} from locations
+          where tenant_id = $1 and id = $2`,
         [tenantId, id],
       );
       const row = result.rows[0];
@@ -101,17 +117,35 @@ export class PgLocationStore implements LocationStore {
   async list(
     tenantId: string,
     filter: KeysetFilter = {},
-  ): Promise<LocationRecord[]> {
+  ): Promise<LocationView[]> {
     return withTenant(this.pool, tenantId, async (client) => {
       const conditions = ["tenant_id = $1"];
       const params: unknown[] = [tenantId];
       const limitClause = keysetClause(filter, conditions, params);
       const result = await client.query<LocationRow>(
-        `select * from locations where ${conditions.join(" and ")}
+        `select locations.*, ${USED_UNITS_SQL} from locations
+          where ${conditions.join(" and ")}
           order by created_at desc, id desc${limitClause}`,
         params,
       );
       return result.rows.map(toLocation);
+    });
+  }
+
+  async updateCapacity(
+    tenantId: string,
+    id: string,
+    capacity: number | null,
+  ): Promise<LocationView | null> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const result = await client.query<LocationRow>(
+        `update locations set capacity = $3, updated_at = now()
+          where tenant_id = $1 and id = $2
+          returning locations.*, ${USED_UNITS_SQL}`,
+        [tenantId, id, capacity],
+      );
+      const row = result.rows[0];
+      return row ? toLocation(row) : null;
     });
   }
 

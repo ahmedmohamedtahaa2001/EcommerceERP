@@ -59,6 +59,7 @@ export function registerInventoryRoutes(
           "code",
           "governorateCode",
           "address",
+          "capacity",
         ]),
         tenantId,
       );
@@ -72,6 +73,32 @@ export function registerInventoryRoutes(
 
       reply.status(201);
       return location;
+    },
+  );
+
+  app.patch(
+    "/v1/locations/:id",
+    { preHandler: requirePermission(requestAuth, "inventory:write") },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const body = asObject(request.body);
+      const { tenantId } = actorAndTenant(requirePrincipal(request));
+      const before = await service.getLocation(tenantId, id);
+
+      const updated = await service.updateLocationCapacity(
+        tenantId,
+        id,
+        body.capacity,
+      );
+
+      await recordAudit(request, audit, {
+        action: "location.capacity_updated",
+        objectType: "location",
+        objectId: id,
+        before,
+        after: updated,
+      });
+      return updated;
     },
   );
 

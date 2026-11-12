@@ -1,3 +1,4 @@
+import { utilizationPercent } from "./utilization";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -16,6 +17,7 @@ import {
   type CreateLocationRequest,
   type InventoryServiceDeps,
   type LocationRecord,
+  type LocationView,
 } from "./types";
 
 const MAX_NAME_LENGTH = 300;
@@ -29,6 +31,17 @@ function requireName(value: unknown, field: string): string {
   if (value.length > MAX_NAME_LENGTH) {
     throw new InventoryValidationError(
       `${field} must be at most ${MAX_NAME_LENGTH} characters.`,
+    );
+  }
+  return value;
+}
+
+/** Capacity is a positive whole number of units, or null for no limit. */
+function validateCapacity(value: unknown): number | null {
+  if (value === undefined || value === null) return null;
+  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
+    throw new InventoryValidationError(
+      "capacity must be a positive whole number, or null.",
     );
   }
   return value;
@@ -71,13 +84,14 @@ export class InventoryService {
   async createLocation(
     request: CreateLocationRequest,
     tenantId: string,
-  ): Promise<LocationRecord> {
+  ): Promise<LocationView> {
     if (!(LOCATION_TYPES as readonly string[]).includes(request.type)) {
       throw new InventoryValidationError(
         `type must be one of: ${LOCATION_TYPES.join(", ")}.`,
       );
     }
     const name = requireName(request.name, "name");
+    const capacity = validateCapacity(request.capacity);
     const code =
       request.code !== undefined && request.code !== null
         ? validateCode(request.code, "code")
@@ -92,6 +106,7 @@ export class InventoryService {
       code,
       governorateCode: request.governorateCode ?? null,
       address: request.address ?? null,
+      capacity,
       createdAt: now,
       updatedAt: now,
     };
@@ -104,15 +119,37 @@ export class InventoryService {
       }
       throw error;
     }
-    return record;
+    return {
+      ...record,
+      usedUnits: 0,
+      utilizationPercent: utilizationPercent(0, capacity),
+    };
   }
 
-  async getLocation(tenantId: string, id: string): Promise<LocationRecord> {
+  async getLocation(tenantId: string, id: string): Promise<LocationView> {
     const location = await this.deps.locations.getById(tenantId, id);
     if (!location) {
       throw new LocationNotFoundError();
     }
     return location;
+  }
+
+  /** `null` removes the limit. Changing capacity never moves stock. */
+  async updateLocationCapacity(
+    tenantId: string,
+    id: string,
+    capacity: unknown,
+  ): Promise<LocationView> {
+    const validated = validateCapacity(capacity);
+    const updated = await this.deps.locations.updateCapacity(
+      tenantId,
+      id,
+      validated,
+    );
+    if (!updated) {
+      throw new LocationNotFoundError();
+    }
+    return updated;
   }
 
   async listLocations(
@@ -121,7 +158,7 @@ export class InventoryService {
       limit?: number;
       cursor?: { createdAt: string; id: string } | null;
     } = {},
-  ): Promise<LocationRecord[]> {
+  ): Promise<LocationView[]> {
     return this.deps.locations.list(tenantId, filter);
   }
 

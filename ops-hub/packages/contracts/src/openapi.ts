@@ -295,6 +295,13 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     scope: "inventory:read",
   },
   {
+    method: "patch",
+    path: "/v1/locations/:id",
+    summary: "Change a location's capacity (null removes the limit)",
+    tag: "Inventory",
+    scope: "inventory:write",
+  },
+  {
     method: "get",
     path: "/v1/inventory/balances",
     summary: "Stock balances",
