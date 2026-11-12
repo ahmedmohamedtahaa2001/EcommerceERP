@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface Order {
   id: string;
   order_number: string;
   customer_id: string;
-  total_amount: number;
+  total: number;
   status: string;
   created_at: string;
 }
@@ -19,12 +19,12 @@ export default function OrdersPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('/api/orders?page=0&pageSize=20');
-        if (!response.ok) throw new Error('Failed to fetch orders');
+        const response = await fetch("/api/orders?page=0&pageSize=20");
+        if (!response.ok) throw new Error("Failed to fetch orders");
         const data = await response.json();
         setOrders(data.data || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load orders');
+        setError(err instanceof Error ? err.message : "Failed to load orders");
       } finally {
         setLoading(false);
       }
@@ -34,12 +34,18 @@ export default function OrdersPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'processing': return 'bg-blue-100 text-blue-800';
-      case 'shipped': return 'bg-purple-100 text-purple-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "processing":
+        return "bg-blue-100 text-blue-800";
+      case "shipped":
+        return "bg-purple-100 text-purple-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -76,25 +82,40 @@ export default function OrdersPage() {
             <tbody>
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
                     No orders found
                   </td>
                 </tr>
               ) : (
                 orders.map((order) => (
                   <tr key={order.id} className="border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 font-semibold">{order.order_number}</td>
-                    <td className="px-6 py-4 font-mono text-sm">{order.customer_id.slice(0, 8)}...</td>
-                    <td className="px-6 py-4">${order.total_amount.toFixed(2)}</td>
+                    <td className="px-6 py-4 font-semibold">
+                      {order.order_number}
+                    </td>
+                    <td className="px-6 py-4 font-mono text-sm">
+                      {order.customer_id.slice(0, 8)}...
+                    </td>
+                    <td className="px-6 py-4">${order.total.toFixed(2)}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}
+                      >
                         {order.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">{new Date(order.created_at).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
-                      <button className="text-blue-600 hover:text-blue-800 mr-4">View</button>
-                      <button className="text-amber-600 hover:text-amber-800">Edit</button>
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button className="text-blue-600 hover:text-blue-800 mr-4">
+                        View
+                      </button>
+                      <button className="text-amber-600 hover:text-amber-800">
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 ))

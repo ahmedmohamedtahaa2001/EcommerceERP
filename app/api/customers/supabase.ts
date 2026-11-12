@@ -1,40 +1,41 @@
-import { getServerClient } from '@/lib/supabase';
-import { NextRequest } from 'next/server';
+import { createServerClient } from "@/lib/supabase";
+import { NextRequest } from "next/server";
 
 export async function getUserContext(request: NextRequest) {
   try {
-    const supabase = getServerClient();
-    
-    const token = request.cookies.get('auth_token')?.value;
+    const supabase = createServerClient();
+
+    const token = request.cookies.get("auth_token")?.value;
     if (!token) {
-      return { user: null, org: null, error: 'No auth token' };
+      return { user: null, org: null, error: "No auth token" };
     }
 
-    const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-    
-    if (usersError || !users || users.length === 0) {
-      return { user: null, org: null, error: 'User not found' };
+    const {
+      data: { user: authUser },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+
+    if (authError || !authUser) {
+      return { user: null, org: null, error: "Invalid or expired session" };
     }
 
-    const user = users[0];
-    
     const { data: orgUser, error: orgError } = await supabase
-      .from('users')
-      .select('id, organization_id')
-      .eq('id', user.id)
+      .from("users")
+      .select("id, organization_id")
+      .eq("id", authUser.id)
       .single();
 
     if (orgError || !orgUser) {
-      return { user, org: null, error: 'Organization not found' };
+      return { user: authUser, org: null, error: "Organization not found" };
     }
 
     const { data: org } = await supabase
-      .from('organizations')
-      .select('*')
-      .eq('id', orgUser.organization_id)
+      .from("organizations")
+      .select("*")
+      .eq("id", orgUser.organization_id)
       .single();
 
-    return { user, org, error: null };
+    return { user: authUser, org, error: null };
   } catch (error) {
     return { user: null, org: null, error: String(error) };
   }
@@ -46,33 +47,35 @@ export async function getCustomers(
     page?: number;
     pageSize?: number;
     sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
+    sortOrder?: "asc" | "desc";
     search?: string;
-  } = {}
+  } = {},
 ) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
   const {
     page = 0,
     pageSize = 20,
-    sortBy = 'created_at',
-    sortOrder = 'desc',
+    sortBy = "created_at",
+    sortOrder = "desc",
     search,
   } = options;
 
   let query = supabase
-    .from('customers')
-    .select('*', { count: 'exact' })
-    .eq('organization_id', organizationId);
+    .from("customers")
+    .select("*", { count: "exact" })
+    .eq("organization_id", organizationId);
 
   if (search) {
-    query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
+    query = query.or(
+      `name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`,
+    );
   }
 
-  const validSortFields = ['created_at', 'updated_at', 'name', 'email'];
-  const finalSortBy = validSortFields.includes(sortBy) ? sortBy : 'created_at';
+  const validSortFields = ["created_at", "updated_at", "name", "email"];
+  const finalSortBy = validSortFields.includes(sortBy) ? sortBy : "created_at";
 
   query = query
-    .order(finalSortBy, { ascending: sortOrder === 'asc' })
+    .order(finalSortBy, { ascending: sortOrder === "asc" })
     .range(page * pageSize, (page + 1) * pageSize - 1);
 
   const { data, error, count } = await query;
@@ -93,17 +96,17 @@ export async function getCustomers(
 }
 
 export async function getCustomer(organizationId: string, customerId: string) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('id', customerId)
-    .eq('organization_id', organizationId)
+    .from("customers")
+    .select("*")
+    .eq("id", customerId)
+    .eq("organization_id", organizationId)
     .single();
 
   if (error || !data) {
-    throw new Error('Customer not found');
+    throw new Error("Customer not found");
   }
 
   return data;
@@ -122,13 +125,14 @@ export async function createCustomer(
     state?: string;
     zip?: string;
     notes?: string;
-  }
+  },
 ) {
-  const supabase = getServerClient();
-  const { name, email, phone, company, address, city, state, zip, notes } = payload;
+  const supabase = createServerClient();
+  const { name, email, phone, company, address, city, state, zip, notes } =
+    payload;
 
   if (!name || !email) {
-    throw new Error('Missing required fields: name, email');
+    throw new Error("Missing required fields: name, email");
   }
 
   const now = new Date().toISOString();
@@ -136,20 +140,20 @@ export async function createCustomer(
     organization_id: organizationId,
     name,
     email,
-    phone: phone || '',
-    company: company || '',
-    address: address || '',
-    city: city || '',
-    state: state || '',
-    zip: zip || '',
-    notes: notes || '',
+    phone: phone || "",
+    company: company || "",
+    address: address || "",
+    city: city || "",
+    state: state || "",
+    zip: zip || "",
+    notes: notes || "",
     created_at: now,
     updated_at: now,
     created_by: userId,
   };
 
   const { data, error } = await supabase
-    .from('customers')
+    .from("customers")
     .insert([newCustomer])
     .select()
     .single();
@@ -174,9 +178,9 @@ export async function updateCustomer(
     state: string;
     zip: string;
     notes: string;
-  }>
+  }>,
 ) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
 
   const updateData: any = {
     ...payload,
@@ -184,10 +188,10 @@ export async function updateCustomer(
   };
 
   const { data, error } = await supabase
-    .from('customers')
+    .from("customers")
     .update(updateData)
-    .eq('id', customerId)
-    .eq('organization_id', organizationId)
+    .eq("id", customerId)
+    .eq("organization_id", organizationId)
     .select()
     .single();
 
@@ -198,14 +202,17 @@ export async function updateCustomer(
   return data;
 }
 
-export async function deleteCustomer(organizationId: string, customerId: string) {
-  const supabase = getServerClient();
+export async function deleteCustomer(
+  organizationId: string,
+  customerId: string,
+) {
+  const supabase = createServerClient();
 
   const { error } = await supabase
-    .from('customers')
+    .from("customers")
     .delete()
-    .eq('id', customerId)
-    .eq('organization_id', organizationId);
+    .eq("id", customerId)
+    .eq("organization_id", organizationId);
 
   if (error) {
     throw error;
@@ -217,14 +224,14 @@ export async function deleteCustomer(organizationId: string, customerId: string)
 export async function searchCustomers(
   organizationId: string,
   query: string,
-  limit: number = 10
+  limit: number = 10,
 ) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('customers')
-    .select('id, name, email')
-    .eq('organization_id', organizationId)
+    .from("customers")
+    .select("id, name, email")
+    .eq("organization_id", organizationId)
     .or(`name.ilike.%${query}%,email.ilike.%${query}%`)
     .limit(limit);
 

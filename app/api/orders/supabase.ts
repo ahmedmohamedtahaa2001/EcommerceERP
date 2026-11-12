@@ -1,40 +1,41 @@
-import { getServerClient } from '@/lib/supabase';
-import { NextRequest } from 'next/server';
+import { createServerClient } from "@/lib/supabase";
+import { NextRequest } from "next/server";
 
 export async function getUserContext(request: NextRequest) {
   try {
-    const supabase = getServerClient();
-    
-    const token = request.cookies.get('auth_token')?.value;
+    const supabase = createServerClient();
+
+    const token = request.cookies.get("auth_token")?.value;
     if (!token) {
-      return { user: null, org: null, error: 'No auth token' };
+      return { user: null, org: null, error: "No auth token" };
     }
 
-    const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-    
-    if (usersError || !users || users.length === 0) {
-      return { user: null, org: null, error: 'User not found' };
+    const {
+      data: { user: authUser },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+
+    if (authError || !authUser) {
+      return { user: null, org: null, error: "Invalid or expired session" };
     }
 
-    const user = users[0];
-    
     const { data: orgUser, error: orgError } = await supabase
-      .from('users')
-      .select('id, organization_id')
-      .eq('id', user.id)
+      .from("users")
+      .select("id, organization_id")
+      .eq("id", authUser.id)
       .single();
 
     if (orgError || !orgUser) {
-      return { user, org: null, error: 'Organization not found' };
+      return { user: authUser, org: null, error: "Organization not found" };
     }
 
     const { data: org } = await supabase
-      .from('organizations')
-      .select('*')
-      .eq('id', orgUser.organization_id)
+      .from("organizations")
+      .select("*")
+      .eq("id", orgUser.organization_id)
       .single();
 
-    return { user, org, error: null };
+    return { user: authUser, org, error: null };
   } catch (error) {
     return { user: null, org: null, error: String(error) };
   }
@@ -47,32 +48,32 @@ export async function getOrders(
     pageSize?: number;
     status?: string;
     sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-  } = {}
+    sortOrder?: "asc" | "desc";
+  } = {},
 ) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
   const {
     page = 0,
     pageSize = 20,
     status,
-    sortBy = 'created_at',
-    sortOrder = 'desc',
+    sortBy = "created_at",
+    sortOrder = "desc",
   } = options;
 
   let query = supabase
-    .from('orders')
-    .select('*', { count: 'exact' })
-    .eq('organization_id', organizationId);
+    .from("orders")
+    .select("*", { count: "exact" })
+    .eq("organization_id", organizationId);
 
   if (status) {
-    query = query.eq('status', status);
+    query = query.eq("status", status);
   }
 
-  const validSortFields = ['created_at', 'updated_at', 'total', 'status'];
-  const finalSortBy = validSortFields.includes(sortBy) ? sortBy : 'created_at';
+  const validSortFields = ["created_at", "updated_at", "total", "status"];
+  const finalSortBy = validSortFields.includes(sortBy) ? sortBy : "created_at";
 
   query = query
-    .order(finalSortBy, { ascending: sortOrder === 'asc' })
+    .order(finalSortBy, { ascending: sortOrder === "asc" })
     .range(page * pageSize, (page + 1) * pageSize - 1);
 
   const { data, error, count } = await query;
@@ -93,17 +94,17 @@ export async function getOrders(
 }
 
 export async function getOrder(organizationId: string, orderId: string) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('id', orderId)
-    .eq('organization_id', organizationId)
+    .from("orders")
+    .select("*")
+    .eq("id", orderId)
+    .eq("organization_id", organizationId)
     .single();
 
   if (error || !data) {
-    throw new Error('Order not found');
+    throw new Error("Order not found");
   }
 
   return data;
@@ -117,17 +118,17 @@ export async function createOrder(
     total: number;
     status?: string;
     notes?: string;
-  }
+  },
 ) {
-  const supabase = getServerClient();
-  const { customerId, total, status = 'pending', notes } = payload;
+  const supabase = createServerClient();
+  const { customerId, total, status = "pending", notes } = payload;
 
   if (!customerId || total === undefined) {
-    throw new Error('Missing required fields: customerId, total');
+    throw new Error("Missing required fields: customerId, total");
   }
 
   if (total < 0) {
-    throw new Error('Total cannot be negative');
+    throw new Error("Total cannot be negative");
   }
 
   const now = new Date().toISOString();
@@ -136,14 +137,14 @@ export async function createOrder(
     customer_id: customerId,
     total,
     status,
-    notes: notes || '',
+    notes: notes || "",
     created_at: now,
     updated_at: now,
     created_by: userId,
   };
 
   const { data, error } = await supabase
-    .from('orders')
+    .from("orders")
     .insert([newOrder])
     .select()
     .single();
@@ -162,9 +163,9 @@ export async function updateOrder(
     status: string;
     total: number;
     notes: string;
-  }>
+  }>,
 ) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
 
   const updateData: any = {
     ...payload,
@@ -172,10 +173,10 @@ export async function updateOrder(
   };
 
   const { data, error } = await supabase
-    .from('orders')
+    .from("orders")
     .update(updateData)
-    .eq('id', orderId)
-    .eq('organization_id', organizationId)
+    .eq("id", orderId)
+    .eq("organization_id", organizationId)
     .select()
     .single();
 
@@ -187,13 +188,13 @@ export async function updateOrder(
 }
 
 export async function deleteOrder(organizationId: string, orderId: string) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
 
   const { error } = await supabase
-    .from('orders')
+    .from("orders")
     .delete()
-    .eq('id', orderId)
-    .eq('organization_id', organizationId);
+    .eq("id", orderId)
+    .eq("organization_id", organizationId);
 
   if (error) {
     throw error;
@@ -205,17 +206,17 @@ export async function deleteOrder(organizationId: string, orderId: string) {
 export async function getOrdersByStatus(
   organizationId: string,
   status: string,
-  limit: number = 10
+  limit: number = 10,
 ) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('organization_id', organizationId)
-    .eq('status', status)
+    .from("orders")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .eq("status", status)
     .limit(limit)
-    .order('created_at', { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) {
     throw error;
@@ -227,17 +228,17 @@ export async function getOrdersByStatus(
 export async function getOrdersByCustomer(
   organizationId: string,
   customerId: string,
-  limit: number = 20
+  limit: number = 20,
 ) {
-  const supabase = getServerClient();
+  const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('organization_id', organizationId)
-    .eq('customer_id', customerId)
+    .from("orders")
+    .select("*")
+    .eq("organization_id", organizationId)
+    .eq("customer_id", customerId)
     .limit(limit)
-    .order('created_at', { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) {
     throw error;

@@ -242,6 +242,46 @@ CREATE POLICY "Users can view roles in their organization"
   ));
 
 -- ============================================================================
+-- SECTION 12: Bin Locations & Inventory Bin Stock Policies
+-- ============================================================================
+ALTER TABLE bin_locations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE inventory_bin_stock ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own organization bin locations"
+  ON bin_locations
+  FOR SELECT
+  USING (organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  ));
+
+CREATE POLICY "Users can manage bin locations in own organization"
+  ON bin_locations
+  FOR ALL
+  USING (organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  ))
+  WITH CHECK (organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  ));
+
+CREATE POLICY "Users can view own organization inventory bin stock"
+  ON inventory_bin_stock
+  FOR SELECT
+  USING (organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  ));
+
+CREATE POLICY "Users can manage inventory bin stock in own organization"
+  ON inventory_bin_stock
+  FOR ALL
+  USING (organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  ))
+  WITH CHECK (organization_id IN (
+    SELECT organization_id FROM users WHERE id = auth.uid()
+  ));
+
+-- ============================================================================
 -- SETUP COMPLETE
 -- ============================================================================
 -- All tables now have Row Level Security enabled
