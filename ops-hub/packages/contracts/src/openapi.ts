@@ -423,6 +423,41 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     tag: "Webhooks",
     public: true,
   },
+  {
+    method: "post",
+    path: "/v1/webhook-subscriptions",
+    summary: "Create an outbound webhook subscription",
+    tag: "Webhooks",
+    scope: "settings:write",
+  },
+  {
+    method: "get",
+    path: "/v1/webhook-subscriptions",
+    summary: "List outbound webhook subscriptions",
+    tag: "Webhooks",
+    scope: "settings:write",
+  },
+  {
+    method: "delete",
+    path: "/v1/webhook-subscriptions/:id",
+    summary: "Delete an outbound webhook subscription",
+    tag: "Webhooks",
+    scope: "settings:write",
+  },
+  {
+    method: "get",
+    path: "/v1/webhook-deliveries",
+    summary: "List outbound webhook deliveries",
+    tag: "Webhooks",
+    scope: "settings:write",
+  },
+  {
+    method: "post",
+    path: "/v1/webhook-deliveries/:id/replay",
+    summary: "Replay a failed outbound webhook delivery",
+    tag: "Webhooks",
+    scope: "settings:write",
+  },
 ];
 
 function schemaOf(schema: ZodTypeAny): Record<string, unknown> {

@@ -28,6 +28,7 @@ import { PgExceptionStore } from "./orders/pg-exception-store";
 import { PgShipmentStore } from "./shipments/pg-store";
 import { ShipmentService } from "./shipments/service";
 import { BostaAdapter } from "./integrations/bosta/adapter";
+import { OutboundWebhookService } from "./webhooks/outbound-service";
 import { OrderService } from "./orders/service";
 import { OrderValidationService } from "./orders/validation-service";
 import { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -133,6 +134,8 @@ const shipments = new ShipmentService({
   clock: systemClock,
 });
 
+const outboundWebhooks = new OutboundWebhookService(pool);
+
 const app = buildApp({
   auth,
   apiKeys,
@@ -150,6 +153,7 @@ const app = buildApp({
   orderValidation,
   exceptions,
   shipments,
+  outboundWebhooks,
 });
 app.addHook("onClose", async () => {
   await pool.end();

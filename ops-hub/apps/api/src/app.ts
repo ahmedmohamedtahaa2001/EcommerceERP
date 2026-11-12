@@ -34,6 +34,8 @@ import { registerExceptionRoutes } from "./orders/exception-routes";
 import type { ExceptionService } from "./orders/exception-service";
 import { registerShipmentRoutes } from "./shipments/routes";
 import type { ShipmentService } from "./shipments/service";
+import { registerOutboundWebhookRoutes } from "./webhooks/routes";
+import type { OutboundWebhookService } from "./webhooks/outbound-service";
 import type { OrderValidationService } from "./orders/validation-service";
 import type { DuplicateDetectionService } from "./orders/duplicate-detection-service";
 import type { OrderService } from "./orders/service";
@@ -93,6 +95,7 @@ export interface BuildAppOptions {
   duplicateDetection?: DuplicateDetectionService;
   exceptions?: ExceptionService;
   shipments?: ShipmentService;
+  outboundWebhooks?: OutboundWebhookService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -332,6 +335,18 @@ ${Object.entries(buildOpenApiDocument().paths)
       }
       registerShipmentRoutes(app, {
         service: options.shipments,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.outboundWebhooks) {
+      if (!options.audit) {
+        throw new Error(
+          "outbound webhook routes mutate state and require an audit writer.",
+        );
+      }
+      registerOutboundWebhookRoutes(app, {
+        service: options.outboundWebhooks,
         requestAuth,
         audit: options.audit,
       });
