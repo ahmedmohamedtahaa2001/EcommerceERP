@@ -142,17 +142,22 @@ export interface CreateOrderRequest {
   externalOrderId?: string;
 }
 
-/**
- * `GET /v1/orders?status=…` — no list route exists server-side yet
- * (only `GET /v1/orders/:id`). Typed per the `{ <entity>: [...] }`
- * convention; will 404 until the API ships the route.
- */
+/** `GET /v1/orders`: filter by status, order number or the customer's phone. */
 export function listOrders(params: {
-  status?: string;
-}): Promise<{ orders: Order[] }> {
-  return apiFetch<{ orders: Order[] }>("/v1/orders", {
-    searchParams: { status: params.status },
-  });
+  status?: string | undefined;
+  phone?: string | undefined;
+  cursor?: string | undefined;
+}): Promise<{ orders: Order[]; nextCursor: string | null }> {
+  return apiFetch<{ orders: Order[]; nextCursor: string | null }>(
+    "/v1/orders",
+    {
+      searchParams: {
+        status: params.status,
+        phone: params.phone,
+        cursor: params.cursor,
+      },
+    },
+  );
 }
 
 /** `GET /v1/orders/:id` → 200. */

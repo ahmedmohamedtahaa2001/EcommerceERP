@@ -35,6 +35,8 @@ import type { ExceptionService } from "./orders/exception-service";
 import { registerShipmentRoutes } from "./shipments/routes";
 import type { ShipmentService } from "./shipments/service";
 import { registerShipmentWebhookRoutes } from "./shipments/webhook-routes";
+import { registerCustomerRoutes } from "./customers/routes";
+import type { CustomerService } from "./customers/service";
 import type { ShippingCarrier } from "@ops-hub/integrations";
 import { registerOutboundWebhookRoutes } from "./webhooks/routes";
 import type { OutboundWebhookService } from "./webhooks/outbound-service";
@@ -110,6 +112,7 @@ export interface BuildAppOptions {
   duplicateDetection?: DuplicateDetectionService;
   exceptions?: ExceptionService;
   shipments?: ShipmentService;
+  customers?: CustomerService;
   carriers?: Record<string, ShippingCarrier>;
   /** Per-carrier HMAC secrets for inbound carrier webhooks. */
   carrierWebhookSecrets?: Record<string, string | undefined>;
@@ -372,6 +375,18 @@ ${Object.entries(buildOpenApiDocument().paths)
       }
       registerExceptionRoutes(app, {
         service: options.exceptions,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.customers) {
+      if (!options.audit) {
+        throw new Error(
+          "customer routes mutate state and require an audit writer.",
+        );
+      }
+      registerCustomerRoutes(app, {
+        service: options.customers,
         requestAuth,
         audit: options.audit,
       });

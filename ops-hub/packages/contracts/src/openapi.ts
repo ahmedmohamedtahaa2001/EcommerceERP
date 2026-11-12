@@ -254,6 +254,34 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
   // Stock
   {
     method: "get",
+    path: "/v1/customers",
+    summary: "List customers, optionally searched by name, email or phone",
+    tag: "Customers",
+    scope: "customers:read",
+  },
+  {
+    method: "post",
+    path: "/v1/customers",
+    summary: "Create a customer",
+    tag: "Customers",
+    scope: "customers:write",
+  },
+  {
+    method: "get",
+    path: "/v1/customers/:id",
+    summary: "Read a customer with their saved addresses",
+    tag: "Customers",
+    scope: "customers:read",
+  },
+  {
+    method: "patch",
+    path: "/v1/customers/:id",
+    summary: "Update a customer",
+    tag: "Customers",
+    scope: "customers:write",
+  },
+  {
+    method: "get",
     path: "/v1/inventory/balances",
     summary: "Stock balances",
     tag: "Inventory",

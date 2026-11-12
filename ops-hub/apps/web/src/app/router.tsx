@@ -69,6 +69,14 @@ const lazyImports = {
     import("../pages/customers/CustomersPage").then((m) => ({
       Component: m.CustomersPage,
     })),
+  NewCustomerPage: () =>
+    import("../pages/customers/NewCustomerPage").then((m) => ({
+      Component: m.NewCustomerPage,
+    })),
+  CustomerDetailPage: () =>
+    import("../pages/customers/CustomerDetailPage").then((m) => ({
+      Component: m.CustomerDetailPage,
+    })),
   AnalyticsPage: () =>
     import("../pages/analytics/AnalyticsPage").then((m) => ({
       Component: m.AnalyticsPage,
@@ -129,6 +137,8 @@ export const router = createBrowserRouter([
       { path: "inventory/reservations", lazy: lazyImports.ReservationsPage },
       { path: "inventory/locations", lazy: lazyImports.LocationsPage },
       { path: "customers", lazy: lazyImports.CustomersPage },
+      { path: "customers/new", lazy: lazyImports.NewCustomerPage },
+      { path: "customers/:customerId", lazy: lazyImports.CustomerDetailPage },
       { path: "analytics", lazy: lazyImports.AnalyticsPage },
       { path: "audit", lazy: lazyImports.AuditLogPage },
       { path: "api-keys", lazy: lazyImports.ApiKeysPage },

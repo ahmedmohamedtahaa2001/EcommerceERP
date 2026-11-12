@@ -1,55 +1,107 @@
-/** Domain dictionary owned by the customers page agent. Keys are global (no prefix needed). */
+/**
+ * Domain dictionary for the customers feature. Keys are global (no prefix
+ * needed) and cover /customers, /customers/new and /customers/:id.
+ */
 export const dict = {
   ar: {
     "customers.title": "العملاء",
-    "customers.description":
-      "سجل موحّد لكل عميل: الطلبات، العناوين، وتاريخ الدفع عند الاستلام. بيانات العميل متاحة حاليًا داخل تفاصيل الطلب فقط — وواجهة العملاء الموحّدة قيد البناء.",
-
-    "customers.search.sectionTitle": "ابحث برقم الهاتف",
-    "customers.search.label": "رقم هاتف العميل",
-    "customers.search.placeholder": "+2010XXXXXXXX",
-    "customers.search.hint":
-      "اكتب الرقم بأي صيغة — التطبيع يتم على الخادم عند تفعيل البحث.",
-    "customers.search.infoTitle": "لا يوجد بحث مباشر بعد",
-    "customers.search.infoBody":
-      "البحث في العملاء سيُفعّل مع واجهة العملاء الموحّدة (P3-S12-T01). حتى ذلك الحين، بيانات العميل تظهر داخل صفحة تفاصيل كل طلب.",
-    "customers.search.phoneLabel": "الهاتف المُدخل:",
-
-    "customers.empty.title": "سجل موحّد لكل عميل",
+    "customers.description": "ملفات العملاء وعناوينهم وتاريخ طلباتهم.",
+    "customers.newCustomer": "عميل جديد",
+    "customers.search.label": "ابحث بالاسم أو الهاتف أو البريد",
+    "customers.search.placeholder": "ابحث بالاسم أو الهاتف أو البريد…",
+    "customers.col.name": "الاسم",
+    "customers.col.phone": "الهاتف",
+    "customers.col.email": "البريد",
+    "customers.col.created": "أُضيف في",
+    "customers.noName": "بدون اسم",
+    "customers.openDetail": "عرض تفاصيل العميل",
+    "customers.loadMore": "تحميل المزيد",
+    "customers.empty.title": "لا يوجد عملاء بعد",
     "customers.empty.description":
-      "كل عميل في صفحة واحدة: طلباته، عناوينه، وسجل الدفع عند الاستلام — لقرارات دعم ومبيعات أسرع من تجميع الإيميلات القديمة.",
+      "يُضاف العميل تلقائيًا مع أول طلب له، أو يمكنك إضافته يدويًا الآن.",
+    "customers.notFound": "لم نجد هذا العميل",
 
-    "customers.roadmap.title": "قائمة العملاء الموحّدة",
-    "customers.roadmap.body":
-      "قائمة بكل عملاء المتجر مع سجلهم الكامل (طلبات، عناوين، تاريخ COD) تُبنى مع P3-S12-T01. لن تُعرض بيانات تجريبية قبل توفرها.",
-    "customers.roadmap.badge": "قريباً",
-    "customers.roadmap.phase": "P3-S12-T01",
-    "customers.roadmap.phaseLabel": "تُبنى مع",
+    "customers.new.title": "عميل جديد",
+    "customers.new.description":
+      "أضف بيانات العميل ليظهر في الطلبات وفي البحث.",
+    "customers.new.submit": "إضافة العميل",
+    "customers.new.created": "تمت إضافة العميل بنجاح",
+    "customers.new.createFailed": "تعذر إضافة العميل",
+    "customers.new.duplicatePhone": "يوجد عميل بهذا الرقم بالفعل",
+    "customers.new.duplicateEmail": "يوجد عميل بهذا البريد بالفعل",
+
+    "customers.form.name": "الاسم",
+    "customers.form.phone": "رقم الهاتف",
+    "customers.form.phoneHint": "رقم مصري محمول، مثل 01012345678",
+    "customers.form.email": "البريد الإلكتروني",
+    "customers.form.required": "هذا الحقل مطلوب",
+    "customers.form.invalidEmail": "أدخل بريدًا إلكترونيًا صحيحًا",
+
+    "customers.detail.profile": "البيانات",
+    "customers.detail.edit": "تعديل البيانات",
+    "customers.detail.editTitle": "تعديل بيانات العميل",
+    "customers.detail.saved": "تم حفظ بيانات العميل",
+    "customers.detail.saveFailed": "تعذر حفظ بيانات العميل",
+    "customers.detail.addresses": "العناوين",
+    "customers.detail.noAddresses": "لا توجد عناوين محفوظة",
+    "customers.detail.orders": "الطلبات",
+    "customers.detail.noOrders": "لا توجد طلبات لهذا العميل بعد",
+    "customers.detail.orderNumber": "رقم الطلب",
+    "customers.detail.status": "الحالة",
+    "customers.detail.date": "التاريخ",
+    "customers.detail.back": "رجوع إلى العملاء",
+    "customers.detail.created": "أُضيف في",
+    "customers.detail.updated": "آخر تعديل",
   },
   en: {
     "customers.title": "Customers",
-    "customers.description":
-      "One unified record per customer: orders, addresses, and COD history. Customer data is currently only embedded in order details — the unified customers module is being built.",
-
-    "customers.search.sectionTitle": "Search by phone",
-    "customers.search.label": "Customer phone number",
-    "customers.search.placeholder": "+2010XXXXXXXX",
-    "customers.search.hint":
-      "Enter the number in any format — the server normalizes once search is live.",
-    "customers.search.infoTitle": "No direct search yet",
-    "customers.search.infoBody":
-      "Customer search goes live with the unified customers module (P3-S12-T01). Until then, customer data appears inside each order's detail page.",
-    "customers.search.phoneLabel": "Entered phone:",
-
-    "customers.empty.title": "One unified record per customer",
+    "customers.description": "Customer profiles, addresses and order history.",
+    "customers.newCustomer": "New customer",
+    "customers.search.label": "Search by name, phone or email",
+    "customers.search.placeholder": "Search by name, phone or email…",
+    "customers.col.name": "Name",
+    "customers.col.phone": "Phone",
+    "customers.col.email": "Email",
+    "customers.col.created": "Added",
+    "customers.noName": "No name",
+    "customers.openDetail": "View customer details",
+    "customers.loadMore": "Load more",
+    "customers.empty.title": "No customers yet",
     "customers.empty.description":
-      "Every customer on a single page: their orders, addresses, and COD history — so support and sales decisions don't rely on piecing together old emails.",
+      "Customers are added automatically with their first order, or you can add one now.",
+    "customers.notFound": "We could not find this customer",
 
-    "customers.roadmap.title": "Unified customer list",
-    "customers.roadmap.body":
-      "A list of every store customer with their full history (orders, addresses, COD record), built with P3-S12-T01. No demo data before it exists.",
-    "customers.roadmap.badge": "Soon",
-    "customers.roadmap.phase": "P3-S12-T01",
-    "customers.roadmap.phaseLabel": "Built with",
+    "customers.new.title": "New customer",
+    "customers.new.description":
+      "Add the customer so they appear in orders and search.",
+    "customers.new.submit": "Add customer",
+    "customers.new.created": "Customer added",
+    "customers.new.createFailed": "Could not add the customer",
+    "customers.new.duplicatePhone": "A customer with this phone already exists",
+    "customers.new.duplicateEmail": "A customer with this email already exists",
+
+    "customers.form.name": "Name",
+    "customers.form.phone": "Phone number",
+    "customers.form.phoneHint":
+      "An Egyptian mobile number, such as 01012345678",
+    "customers.form.email": "Email",
+    "customers.form.required": "This field is required",
+    "customers.form.invalidEmail": "Enter a valid email address",
+
+    "customers.detail.profile": "Details",
+    "customers.detail.edit": "Edit details",
+    "customers.detail.editTitle": "Edit customer details",
+    "customers.detail.saved": "Customer details saved",
+    "customers.detail.saveFailed": "Could not save the customer details",
+    "customers.detail.addresses": "Addresses",
+    "customers.detail.noAddresses": "No saved addresses",
+    "customers.detail.orders": "Orders",
+    "customers.detail.noOrders": "This customer has no orders yet",
+    "customers.detail.orderNumber": "Order",
+    "customers.detail.status": "Status",
+    "customers.detail.date": "Date",
+    "customers.detail.back": "Back to customers",
+    "customers.detail.created": "Added",
+    "customers.detail.updated": "Last updated",
   },
-} as const;
+};

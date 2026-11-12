@@ -70,6 +70,8 @@ import { ScorecardService } from "./scorecards/service";
 import { SettlementService, csvSettlementParser } from "./settlements/service";
 import { ShipmentService } from "./shipments/service";
 import { PgShipmentStore } from "./shipments/pg-store";
+import { CustomerService } from "./customers/service";
+import { PgCustomerStore } from "./customers/pg-store";
 import { SourcingService } from "./suppliers/service";
 import { TenantSettingsService } from "./settings/service";
 import { OutboundWebhookService } from "./webhooks/outbound-service";
@@ -113,6 +115,10 @@ export function buildFullApp(
     clock: systemClock,
   });
   const catalogImport = new CatalogImportService(pool);
+  const customers = new CustomerService({
+    store: new PgCustomerStore(pool),
+    clock: systemClock,
+  });
 
   const inventory = new InventoryService({
     locations: new PgLocationStore(pool),
@@ -273,6 +279,7 @@ export function buildFullApp(
     audit,
     auditReader,
     catalog,
+    customers,
     catalogImport,
     inventory,
     stock,
