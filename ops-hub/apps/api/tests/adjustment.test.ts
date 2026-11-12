@@ -14,6 +14,9 @@ const TENANT = "tenant-1";
 
 function fakeStore(): StockStore {
   return {
+    transfer() {
+      throw new Error("transfer not used in this test");
+    },
     async recordMovement(record) {
       const movement: StockMovementRecord = record;
       const balance: StockBalanceRecord = {

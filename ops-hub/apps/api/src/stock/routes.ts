@@ -74,6 +74,38 @@ export function registerStockRoutes(
     },
   );
 
+  app.post(
+    "/v1/inventory/transfers",
+    { preHandler: requirePermission(requestAuth, "inventory:write") },
+    async (request, reply) => {
+      const body = asObject(request.body);
+      const principal = requirePrincipal(request);
+      const { actor, tenantId } = actorAndTenant(principal);
+
+      const result = await service.transfer(
+        {
+          variantId: body.variantId as string,
+          fromLocationId: body.fromLocationId as string,
+          toLocationId: body.toLocationId as string,
+          quantity: body.quantity as number,
+          reason: body.reason as string,
+        },
+        tenantId,
+        toMovementActor(actor),
+      );
+
+      await recordAudit(request, audit, {
+        action: "stock.transferred",
+        objectType: "stock_transfer",
+        objectId: result.transferId,
+        after: result,
+      });
+
+      reply.status(201);
+      return result;
+    },
+  );
+
   app.get(
     "/v1/inventory/movements",
     { preHandler: requirePermission(requestAuth, "inventory:read") },

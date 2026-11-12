@@ -25,3 +25,13 @@ export class StockReferenceNotFoundError extends StockError {
     );
   }
 }
+
+export class InsufficientStockError extends StockError {
+  constructor(available: number, requested: number) {
+    super(
+      "insufficient-stock",
+      `Insufficient stock at the source location. Available: ${available}, requested: ${requested}.`,
+      409,
+    );
+  }
+}

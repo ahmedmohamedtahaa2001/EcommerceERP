@@ -121,7 +121,11 @@ export function buildFullApp(
   });
 
   const stockStore = new PgStockStore(pool);
-  const stock = new StockService({ store: stockStore, clock: systemClock });
+  const stock = new StockService({
+    store: stockStore,
+    clock: systemClock,
+    policy: new PgTenantPolicyReader(pool),
+  });
 
   const availability = new AvailabilityService({
     variants: variantStore,

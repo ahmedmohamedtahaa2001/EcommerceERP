@@ -2,13 +2,17 @@ import { keysetClause } from "../platform/service";
 import { randomUUID } from "node:crypto";
 
 import { withTenant } from "@ops-hub/db";
-import type { Pool } from "pg";
+import type { Pool, PoolClient } from "pg";
 
+import { InsufficientStockError } from "./errors";
 import type {
+  MovementWithBalance,
   StockBalanceRecord,
   StockBucket,
   StockMovementRecord,
   StockStore,
+  StockTransferInput,
+  StockTransferResult,
 } from "./types";
 
 interface MovementRow {
@@ -63,66 +67,122 @@ function toBalance(row: BalanceRow): StockBalanceRecord {
   };
 }
 
+async function writeMovement(
+  client: PoolClient,
+  record: StockMovementRecord,
+): Promise<MovementWithBalance> {
+  const movementResult = await client.query<MovementRow>(
+    `insert into stock_movements
+       (id, tenant_id, variant_id, location_id, bucket, delta, reason,
+        reference, actor_type, actor_id, created_at)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+     returning *`,
+    [
+      record.id,
+      record.tenantId,
+      record.variantId,
+      record.locationId,
+      record.bucket,
+      record.delta,
+      record.reason,
+      record.reference,
+      record.actorType,
+      record.actorId,
+      record.createdAt,
+    ],
+  );
+
+  // `stock_balances` is purely derived: this upsert is the only place
+  // any code writes to it, and it always happens in the same
+  // transaction as the movement that caused it.
+  const balanceResult = await client.query<BalanceRow>(
+    `insert into stock_balances
+       (id, tenant_id, variant_id, location_id, bucket, quantity, updated_at)
+     values ($1, $2, $3, $4, $5, $6, $7)
+     on conflict (variant_id, location_id, bucket)
+     do update set
+       quantity = stock_balances.quantity + excluded.quantity,
+       updated_at = excluded.updated_at
+     returning *`,
+    [
+      randomUUID(),
+      record.tenantId,
+      record.variantId,
+      record.locationId,
+      record.bucket,
+      record.delta,
+      record.createdAt,
+    ],
+  );
+
+  const movementRow = movementResult.rows[0];
+  const balanceRow = balanceResult.rows[0];
+  if (!movementRow || !balanceRow) {
+    throw new Error("stock movement insert returned no row");
+  }
+  return {
+    movement: toMovement(movementRow),
+    balance: toBalance(balanceRow),
+  };
+}
+
 export class PgStockStore implements StockStore {
   constructor(private readonly pool: Pool) {}
 
   async recordMovement(
     record: StockMovementRecord,
-  ): Promise<{ movement: StockMovementRecord; balance: StockBalanceRecord }> {
-    return withTenant(this.pool, record.tenantId, async (client) => {
-      const movementResult = await client.query<MovementRow>(
-        `insert into stock_movements
-           (id, tenant_id, variant_id, location_id, bucket, delta, reason,
-            reference, actor_type, actor_id, created_at)
-         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-         returning *`,
-        [
-          record.id,
-          record.tenantId,
-          record.variantId,
-          record.locationId,
-          record.bucket,
-          record.delta,
-          record.reason,
-          record.reference,
-          record.actorType,
-          record.actorId,
-          record.createdAt,
-        ],
-      );
+  ): Promise<MovementWithBalance> {
+    return withTenant(this.pool, record.tenantId, (client) =>
+      writeMovement(client, record),
+    );
+  }
 
-      // `stock_balances` is purely derived: this upsert is the only place
-      // any code writes to it, and it always happens in the same
-      // transaction as the movement that caused it.
-      const balanceResult = await client.query<BalanceRow>(
-        `insert into stock_balances
-           (id, tenant_id, variant_id, location_id, bucket, quantity, updated_at)
-         values ($1, $2, $3, $4, $5, $6, $7)
-         on conflict (variant_id, location_id, bucket)
-         do update set
-           quantity = stock_balances.quantity + excluded.quantity,
-           updated_at = excluded.updated_at
-         returning *`,
-        [
-          randomUUID(),
-          record.tenantId,
-          record.variantId,
-          record.locationId,
-          record.bucket,
-          record.delta,
-          record.createdAt,
-        ],
+  async transfer(input: StockTransferInput): Promise<StockTransferResult> {
+    return withTenant(this.pool, input.tenantId, async (client) => {
+      const locked = await client.query<{ bucket: string; quantity: number }>(
+        `select bucket, quantity from stock_balances
+          where tenant_id = $1 and variant_id = $2 and location_id = $3
+            and bucket in ('on_hand', 'reserved', 'quarantined', 'damaged')
+          for update`,
+        [input.tenantId, input.variantId, input.fromLocationId],
       );
-
-      const movementRow = movementResult.rows[0];
-      const balanceRow = balanceResult.rows[0];
-      if (!movementRow || !balanceRow) {
-        throw new Error("stock movement insert returned no row");
+      const byBucket = new Map(locked.rows.map((r) => [r.bucket, r.quantity]));
+      const available =
+        (byBucket.get("on_hand") ?? 0) -
+        (byBucket.get("reserved") ?? 0) -
+        (byBucket.get("quarantined") ?? 0) -
+        (byBucket.get("damaged") ?? 0);
+      if (!input.allowNegative && available < input.quantity) {
+        throw new InsufficientStockError(available, input.quantity);
       }
-      return {
-        movement: toMovement(movementRow),
-        balance: toBalance(balanceRow),
-      };
+
+      const outbound = await writeMovement(client, {
+        id: randomUUID(),
+        tenantId: input.tenantId,
+        variantId: input.variantId,
+        locationId: input.fromLocationId,
+        bucket: "on_hand",
+        delta: -input.quantity,
+        reason: `Transfer out: ${input.reason}`,
+        reference: input.transferId,
+        actorType: input.actor?.type ?? null,
+        actorId: input.actor?.id ?? null,
+        createdAt: input.createdAt,
+      });
+      const inbound = await writeMovement(client, {
+        id: randomUUID(),
+        tenantId: input.tenantId,
+        variantId: input.variantId,
+        locationId: input.toLocationId,
+        bucket: "on_hand",
+        delta: input.quantity,
+        reason: `Transfer in: ${input.reason}`,
+        reference: input.transferId,
+        actorType: input.actor?.type ?? null,
+        actorId: input.actor?.id ?? null,
+        createdAt: input.createdAt,
+      });
+      return { transferId: input.transferId, outbound, inbound };
     });
   }
 

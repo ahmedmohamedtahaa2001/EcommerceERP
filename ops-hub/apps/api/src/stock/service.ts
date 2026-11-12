@@ -8,6 +8,8 @@ import {
   type StockBalanceRecord,
   type StockMovementRecord,
   type StockServiceDeps,
+  type StockTransferRequest,
+  type StockTransferResult,
 } from "./types";
 
 const MAX_REASON_LENGTH = 200;
@@ -75,6 +77,46 @@ export class StockService {
 
     try {
       return await this.deps.store.recordMovement(record);
+    } catch (error) {
+      if (isForeignKeyViolation(error)) {
+        throw new StockReferenceNotFoundError();
+      }
+      throw error;
+    }
+  }
+
+  async transfer(
+    request: StockTransferRequest,
+    tenantId: string,
+    actor: MovementActor | null,
+  ): Promise<StockTransferResult> {
+    if (!Number.isInteger(request.quantity) || request.quantity <= 0) {
+      throw new StockValidationError("quantity must be a positive integer.");
+    }
+    if (request.fromLocationId === request.toLocationId) {
+      throw new StockValidationError(
+        "fromLocationId and toLocationId must differ.",
+      );
+    }
+    const reason = request.reason?.trim() ?? "";
+    if (reason === "" || reason.length > MAX_REASON_LENGTH) {
+      throw new StockValidationError(
+        `reason is required and must be at most ${MAX_REASON_LENGTH} characters.`,
+      );
+    }
+
+    const allowNegative =
+      (await this.deps.policy?.allowsNegativeStock(tenantId)) ?? false;
+    try {
+      return await this.deps.store.transfer({
+        ...request,
+        reason,
+        tenantId,
+        transferId: randomUUID(),
+        actor,
+        createdAt: this.deps.clock.now(),
+        allowNegative,
+      });
     } catch (error) {
       if (isForeignKeyViolation(error)) {
         throw new StockReferenceNotFoundError();

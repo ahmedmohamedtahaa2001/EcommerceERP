@@ -274,6 +274,13 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     scope: "inventory:write",
   },
   {
+    method: "post",
+    path: "/v1/inventory/transfers",
+    summary: "Move on-hand stock between two locations",
+    tag: "Inventory",
+    scope: "inventory:write",
+  },
+  {
     method: "get",
     path: "/v1/inventory/availability",
     summary: "Available to promise",
