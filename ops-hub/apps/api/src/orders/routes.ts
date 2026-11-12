@@ -1,3 +1,5 @@
+import { nextStates, type OrderState } from "@ops-hub/domain";
+import type { OrderLifecycleService } from "./lifecycle-service";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 
 import {
@@ -20,12 +22,53 @@ export function registerOrderRoutes(
     service: OrderService;
     validation: OrderValidationService;
     duplicateDetection: DuplicateDetectionService;
+    lifecycle?: OrderLifecycleService;
     requestAuth: RequestAuthenticator;
     audit: AuditWriter;
   },
 ): void {
   const { service, validation, duplicateDetection, requestAuth, audit } =
     options;
+
+  if (options.lifecycle) {
+    const lifecycle = options.lifecycle;
+    app.post(
+      "/v1/orders/:id/transition",
+      { preHandler: requirePermission(requestAuth, "orders:write") },
+      async (request) => {
+        const { id } = request.params as { id: string };
+        const body = (
+          typeof request.body === "object" && request.body !== null
+            ? request.body
+            : {}
+        ) as { to?: unknown; note?: unknown };
+        const { actor, tenantId } = actorAndTenant(requirePrincipal(request));
+        const note =
+          typeof body.note === "string" && body.note.trim() !== ""
+            ? body.note.trim().slice(0, 500)
+            : undefined;
+        const result = await lifecycle.transition(
+          tenantId,
+          id,
+          body.to,
+          { type: actor.kind === "user" ? "user" : "api_key", id: actor.id },
+          note,
+        );
+        await recordAudit(request, audit, {
+          action: "order.transitioned",
+          objectType: "order",
+          objectId: id,
+          before: { status: result.from },
+          after: {
+            status: result.to,
+            releasedReservations: result.releasedReservations,
+            note,
+          },
+        });
+        return result;
+      },
+    );
+  }
 
   app.post(
     "/v1/orders",
@@ -87,7 +130,11 @@ export function registerOrderRoutes(
     async (request) => {
       const { id } = request.params as { id: string };
       const { tenantId } = actorAndTenant(requirePrincipal(request));
-      return service.getById(tenantId, id);
+      const detail = await service.getById(tenantId, id);
+      return {
+        ...detail,
+        nextStatuses: nextStates(detail.order.status as OrderState),
+      };
     },
   );
 

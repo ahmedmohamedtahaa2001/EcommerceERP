@@ -161,6 +161,8 @@ export const stockReservations = pgTable(
       .references(() => locations.id, { onDelete: "restrict" }),
     quantity: integer("quantity").notNull(),
     status: text("status").notNull().default("active"),
+    /** Set when the reservation holds stock for an order, so cancelling the order can release it. */
+    orderId: uuid("order_id"),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

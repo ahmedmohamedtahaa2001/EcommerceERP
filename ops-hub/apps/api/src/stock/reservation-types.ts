@@ -8,6 +8,7 @@ export interface StockReservationRecord {
   locationId: string;
   quantity: number;
   status: ReservationStatus;
+  orderId: string | null;
   expiresAt: Date;
   createdAt: Date;
   releasedAt: Date | null;
@@ -18,6 +19,7 @@ export interface CreateReservationRequest {
   locationId: string;
   quantity: number;
   ttlSeconds: number;
+  orderId?: string | null;
 }
 
 export interface ReservationStore {
@@ -31,6 +33,10 @@ export interface ReservationStore {
     status: "released" | "expired",
     releasedAt: Date,
   ): Promise<boolean>;
+  listActiveByOrder(
+    tenantId: string,
+    orderId: string,
+  ): Promise<StockReservationRecord[]>;
   /** All active reservations whose `expiresAt` is at or before `asOf`. */
   listExpiredActive(
     tenantId: string,
@@ -56,7 +62,7 @@ export interface MovementRecorder {
     request: {
       variantId: string;
       locationId: string;
-      bucket: "reserved";
+      bucket: "reserved" | "on_hand";
       delta: number;
       reason: string;
       reference?: string;

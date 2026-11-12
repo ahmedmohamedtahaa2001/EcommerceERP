@@ -58,6 +58,11 @@ export function transition(from: OrderState, to: OrderState): OrderState {
   return to;
 }
 
+/** The statuses an order may move to next, in the order they are defined. */
+export function nextStates(from: OrderState): readonly OrderState[] {
+  return TRANSITIONS[from] ?? [];
+}
+
 export function canTransition(from: OrderState, to: OrderState): boolean {
   return TRANSITIONS[from].includes(to);
 }

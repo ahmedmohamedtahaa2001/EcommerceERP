@@ -15,6 +15,7 @@ interface ReservationRow {
   location_id: string;
   quantity: number;
   status: string;
+  order_id: string | null;
   expires_at: Date;
   created_at: Date;
   released_at: Date | null;
@@ -28,6 +29,7 @@ function toRecord(row: ReservationRow): StockReservationRecord {
     locationId: row.location_id,
     quantity: row.quantity,
     status: row.status as ReservationStatus,
+    orderId: row.order_id,
     expiresAt: row.expires_at,
     createdAt: row.created_at,
     releasedAt: row.released_at,
@@ -42,8 +44,8 @@ export class PgReservationStore implements ReservationStore {
       client.query(
         `insert into stock_reservations
            (id, tenant_id, variant_id, location_id, quantity, status,
-            expires_at, created_at, released_at)
-         values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+            expires_at, created_at, released_at, order_id)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [
           record.id,
           record.tenantId,
@@ -54,9 +56,24 @@ export class PgReservationStore implements ReservationStore {
           record.expiresAt,
           record.createdAt,
           record.releasedAt,
+          record.orderId,
         ],
       ),
     );
+  }
+
+  async listActiveByOrder(
+    tenantId: string,
+    orderId: string,
+  ): Promise<StockReservationRecord[]> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const result = await client.query<ReservationRow>(
+        `select * from stock_reservations
+          where tenant_id = $1 and order_id = $2 and status = 'active'`,
+        [tenantId, orderId],
+      );
+      return result.rows.map(toRecord);
+    });
   }
 
   async getById(

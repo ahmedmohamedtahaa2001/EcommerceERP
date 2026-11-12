@@ -116,6 +116,7 @@ export class OrderValidationService {
             locationId,
             quantity: line.quantity,
             ttlSeconds: VALIDATION_RESERVATION_TTL_SECONDS,
+            orderId: order.order.id,
           },
           tenantId,
           actor,

@@ -6,6 +6,8 @@ import { useT } from "../../lib/i18n";
 import { ApiError } from "../../lib/api/client";
 import {
   getOrder,
+  listOrderEvents,
+  transitionOrder,
   validateOrder,
   type OrderValidationResult,
 } from "../../lib/api/orders";
@@ -13,7 +15,9 @@ import { useToast } from "../../components/ui/Toast";
 import {
   Button,
   Card,
+  ConfirmDialog,
   ErrorState,
+  Input,
   PageHeader,
   Skeleton,
   StatusPill,
@@ -32,6 +36,8 @@ export function OrderDetailPage() {
   const id = orderId ?? "";
 
   const [validateOpen, setValidateOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelNote, setCancelNote] = useState("");
   const [validationResult, setValidationResult] =
     useState<OrderValidationResult | null>(null);
 
@@ -45,11 +51,42 @@ export function OrderDetailPage() {
         : failureCount < 2,
   });
 
+  const eventsQuery = useQuery({
+    queryKey: ["order-events", id],
+    queryFn: () => listOrderEvents(id),
+    enabled: id !== "",
+  });
+
+  const transitionMutation = useMutation({
+    mutationFn: (input: { to: string; note?: string }) =>
+      transitionOrder(id, input),
+    onSuccess: (result) => {
+      setCancelOpen(false);
+      setCancelNote("");
+      void queryClient.invalidateQueries({ queryKey: ["order", id] });
+      void queryClient.invalidateQueries({ queryKey: ["order-events", id] });
+      void queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast.showToast(
+        "success",
+        t("orders.toast.moved", { status: t(`orderStatus.${result.to}`) }),
+      );
+    },
+    onError: (error) => {
+      toast.showToast(
+        "error",
+        error instanceof ApiError
+          ? (error.problem.detail ?? t("state.error"))
+          : t("state.error"),
+      );
+    },
+  });
+
   const validateMutation = useMutation({
     mutationFn: (locationId: string) => validateOrder(id, locationId),
     onSuccess: (result) => {
       setValidationResult(result);
       void queryClient.invalidateQueries({ queryKey: ["order", id] });
+      void queryClient.invalidateQueries({ queryKey: ["order-events", id] });
       void queryClient.invalidateQueries({ queryKey: ["orders"] });
       void queryClient.invalidateQueries({ queryKey: ["exceptions"] });
       const orderNumber = orderQuery.data?.order.orderNumber ?? id;
@@ -104,14 +141,40 @@ export function OrderDetailPage() {
         description={detail ? t("orders.detail.detailsTitle") : undefined}
         actions={
           detail ? (
-            <Button
-              onClick={() => {
-                setValidationResult(null);
-                setValidateOpen(true);
-              }}
-            >
-              {t("action.validate")}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              {(detail.nextStatuses ?? []).includes("validated") ? (
+                <Button
+                  onClick={() => {
+                    setValidationResult(null);
+                    setValidateOpen(true);
+                  }}
+                >
+                  {t("action.validate")}
+                </Button>
+              ) : null}
+              {(detail.nextStatuses ?? [])
+                .filter(
+                  (status) => status !== "validated" && status !== "cancelled",
+                )
+                .map((status) => (
+                  <Button
+                    key={status}
+                    variant="outlined"
+                    loading={
+                      transitionMutation.isPending &&
+                      transitionMutation.variables?.to === status
+                    }
+                    onClick={() => transitionMutation.mutate({ to: status })}
+                  >
+                    {t(`orders.moveTo.${status}`)}
+                  </Button>
+                ))}
+              {(detail.nextStatuses ?? []).includes("cancelled") ? (
+                <Button variant="ghost" onClick={() => setCancelOpen(true)}>
+                  {t("orders.moveTo.cancelled")}
+                </Button>
+              ) : null}
+            </div>
           ) : null
         }
       />
@@ -147,32 +210,52 @@ export function OrderDetailPage() {
             </h2>
             <div className="mt-4">
               <Timeline
-                items={[
-                  {
-                    id: "created",
-                    title: t("orders.detail.timeline.created"),
-                    timestamp: formatDate(detail.order.createdAt),
-                  },
-                  {
-                    id: "updated",
-                    title: t("orders.detail.timeline.updated"),
-                    timestamp: formatDate(detail.order.updatedAt),
-                    meta: (
-                      <StatusPill
-                        kind={{ type: "order", status: detail.order.status }}
-                      />
-                    ),
-                  },
-                ]}
+                items={(eventsQuery.data?.events ?? []).map((event) => ({
+                  id: event.id,
+                  title:
+                    event.toStatus !== null
+                      ? t(`orderStatus.${event.toStatus}`)
+                      : event.eventType,
+                  timestamp: formatDate(event.createdAt),
+                  ...(event.note
+                    ? {
+                        meta: (
+                          <span className="text-caption text-ink-600">
+                            {event.note}
+                          </span>
+                        ),
+                      }
+                    : {}),
+                }))}
               />
             </div>
-            <p className="mt-4 text-caption text-ink-500">
-              {t("orders.detail.timeline.eventsSoon")}
-            </p>
           </Card>
         </div>
       ) : null}
 
+      <ConfirmDialog
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        onConfirm={() =>
+          transitionMutation.mutate({
+            to: "cancelled",
+            ...(cancelNote.trim() ? { note: cancelNote.trim() } : {}),
+          })
+        }
+        title={t("orders.cancel.title")}
+        body={
+          <div className="flex flex-col gap-3">
+            <p>{t("orders.cancel.body")}</p>
+            <Input
+              label={t("orders.cancel.reason")}
+              value={cancelNote}
+              onChange={(event) => setCancelNote(event.target.value)}
+            />
+          </div>
+        }
+        confirmLabel={t("orders.moveTo.cancelled")}
+        loading={transitionMutation.isPending}
+      />
       <ValidateOrderDialog
         open={validateOpen}
         onClose={() => setValidateOpen(false)}

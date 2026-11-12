@@ -380,6 +380,14 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     scope: "settings:write",
   },
   {
+    method: "post",
+    path: "/v1/orders/:id/transition",
+    summary:
+      "Move an order to its next status (confirm, cancel, ship, deliver); cancelling releases reserved stock",
+    tag: "Orders",
+    scope: "orders:write",
+  },
+  {
     method: "get",
     path: "/v1/inventory/balances",
     summary: "Stock balances",

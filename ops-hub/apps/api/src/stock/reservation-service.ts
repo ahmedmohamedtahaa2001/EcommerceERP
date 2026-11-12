@@ -76,6 +76,7 @@ export class ReservationService {
           locationId: request.locationId,
           quantity: request.quantity,
           status: "active",
+          orderId: request.orderId ?? null,
           expiresAt: new Date(now.getTime() + request.ttlSeconds * 1000),
           createdAt: now,
           releasedAt: null,
@@ -98,6 +99,53 @@ export class ReservationService {
         return record;
       },
     );
+  }
+
+  /** Releases every active reservation held for an order; returns how many were released. */
+  async releaseForOrder(
+    tenantId: string,
+    orderId: string,
+    actor: { type: "user" | "api_key"; id: string } | null,
+  ): Promise<number> {
+    const active = await this.deps.store.listActiveByOrder(tenantId, orderId);
+    for (const reservation of active) {
+      await this.release(tenantId, reservation.id, actor);
+    }
+    return active.length;
+  }
+
+  /**
+   * The order has left the warehouse: each held reservation closes and the
+   * units come off on-hand, so stock and availability stay true after shipping.
+   */
+  async fulfillForOrder(
+    tenantId: string,
+    orderId: string,
+    actor: { type: "user" | "api_key"; id: string } | null,
+  ): Promise<number> {
+    const active = await this.deps.store.listActiveByOrder(tenantId, orderId);
+    for (const reservation of active) {
+      await this.close(
+        tenantId,
+        reservation.id,
+        "released",
+        "RESERVATION_FULFILLED",
+        actor,
+      );
+      await this.deps.movements.recordMovement(
+        {
+          variantId: reservation.variantId,
+          locationId: reservation.locationId,
+          bucket: "on_hand",
+          delta: -reservation.quantity,
+          reason: "ORDER_SHIPPED",
+          reference: orderId,
+        },
+        tenantId,
+        actor,
+      );
+    }
+    return active.length;
   }
 
   async release(

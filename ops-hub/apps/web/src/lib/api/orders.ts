@@ -83,6 +83,18 @@ export interface OrderDetail {
   payment: Payment;
   customer: Customer;
   address: Address | null;
+  /** Statuses this order may move to next, from the server's state machine. */
+  nextStatuses?: string[];
+}
+
+export interface OrderEvent {
+  id: string;
+  eventType: string;
+  fromStatus: string | null;
+  toStatus: string | null;
+  note: string | null;
+  actorType: string | null;
+  createdAt: string;
 }
 
 /** Matches `DuplicateChecker` return shape in apps/api/src/orders/types.ts. */
@@ -187,6 +199,24 @@ export function createOrder(
       body,
       extraHeaders: { "idempotency-key": idempotencyKey },
     },
+  );
+}
+
+/** `GET /v1/orders/:id/events` → 200: the order's history, oldest first. */
+export function listOrderEvents(id: string): Promise<{ events: OrderEvent[] }> {
+  return apiFetch<{ events: OrderEvent[] }>(
+    `/v1/orders/${encodeURIComponent(id)}/events`,
+  );
+}
+
+/** `POST /v1/orders/:id/transition` → 200. Cancelling releases reserved stock; shipping deducts it. */
+export function transitionOrder(
+  id: string,
+  body: { to: string; note?: string | undefined },
+): Promise<{ from: string; to: string }> {
+  return apiFetch<{ from: string; to: string }>(
+    `/v1/orders/${encodeURIComponent(id)}/transition`,
+    { method: "POST", body },
   );
 }
 

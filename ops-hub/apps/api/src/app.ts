@@ -46,6 +46,7 @@ import { registerBulkRoutes } from "./bulk/routes";
 import { registerUserRoutes } from "./users/routes";
 import { registerCompanyRoutes } from "./company/routes";
 import type { CompanyService } from "./company/service";
+import type { OrderLifecycleService } from "./orders/lifecycle-service";
 import type { UserAdminService } from "./users/service";
 import type { BulkService } from "./bulk/service";
 import type { ExportService } from "./exports/service";
@@ -132,6 +133,7 @@ export interface BuildAppOptions {
   bulk?: BulkService;
   userAdmin?: UserAdminService;
   company?: CompanyService;
+  orderLifecycle?: OrderLifecycleService;
   carrierEvents?: ProcessedEvents;
   carrierStatusMappings?: Record<string, StatusMapping>;
   carriers?: Record<string, ShippingCarrier>;
@@ -384,6 +386,9 @@ ${Object.entries(buildOpenApiDocument().paths)
         service: options.orders,
         validation: options.orderValidation,
         duplicateDetection: options.duplicateDetection,
+        ...(options.orderLifecycle
+          ? { lifecycle: options.orderLifecycle }
+          : {}),
         requestAuth,
         audit: options.audit,
       });
