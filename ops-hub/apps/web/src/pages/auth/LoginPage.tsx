@@ -10,6 +10,7 @@ import {
 } from "../../lib/auth/store";
 import { useT } from "../../lib/i18n";
 import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
@@ -202,11 +203,12 @@ function LoginCard() {
       setSession(session);
       navigate("/", { replace: true });
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.problem.detail ?? t("login.failed"));
-      } else {
-        setError(t("state.error"));
-      }
+      setError(
+        problemMessage(
+          err,
+          err instanceof ApiError ? t("login.failed") : t("state.error"),
+        ),
+      );
       setSubmitting(false);
     }
   };

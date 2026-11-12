@@ -74,6 +74,12 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         permission: "inventory:write",
       },
       {
+        labelKey: "nav.transfers",
+        to: "/inventory/transfers",
+        icon: "swap",
+        permission: "inventory:write",
+      },
+      {
         labelKey: "nav.reservations",
         to: "/inventory/reservations",
         icon: "bookmark",

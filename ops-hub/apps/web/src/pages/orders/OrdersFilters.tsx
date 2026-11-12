@@ -90,4 +90,4 @@ export function OrdersFilters({
   );
 }
 
-const CHANNELS = ["web", "mobile_app", "whatsapp", "retail"] as const;
+const CHANNELS = ["manual", "web", "mobile_app", "whatsapp", "retail"] as const;

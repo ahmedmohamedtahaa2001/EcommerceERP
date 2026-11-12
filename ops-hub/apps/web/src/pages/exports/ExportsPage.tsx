@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { Button, Card, PageHeader, useToast } from "../../components/ui";
-import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import {
   downloadExport,
   EXPORT_RESOURCES,
@@ -31,9 +31,7 @@ export function ExportsPage() {
       const { blob, filename } = await downloadExport(resource);
       saveBlob(blob, filename);
     } catch (error) {
-      const detail =
-        error instanceof ApiError ? error.problem.detail : undefined;
-      toast.showToast("error", detail ?? t("exports.failed"));
+      toast.showToast("error", problemMessage(error, t("exports.failed")));
     } finally {
       setBusy(null);
     }

@@ -23,6 +23,7 @@ export const en: Record<string, string> = {
   "nav.exceptions": "Exceptions",
   "nav.availability": "Availability",
   "nav.movements": "Stock movements",
+  "nav.transfers": "Transfers",
   "nav.adjustments": "Adjustments",
   "nav.reservations": "Reservations",
   "nav.locations": "Locations",

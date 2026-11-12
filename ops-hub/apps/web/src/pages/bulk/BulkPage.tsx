@@ -10,7 +10,7 @@ import {
   Skeleton,
   useToast,
 } from "../../components/ui";
-import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import {
   changeProductsPrices,
   setProductsStatus,
@@ -54,8 +54,7 @@ export function BulkPage() {
     await queryClient.invalidateQueries({ queryKey: ["products"] });
   };
   const fail = (err: unknown) => {
-    const detail = err instanceof ApiError ? err.problem.detail : undefined;
-    setError(detail ?? t("bulk.failed"));
+    setError(problemMessage(err, t("bulk.failed")));
   };
 
   const statusMutation = useMutation({

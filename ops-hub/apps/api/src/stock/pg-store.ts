@@ -217,12 +217,23 @@ export class PgStockStore implements StockStore {
         "uuid",
         "asc",
       );
-      const result = await client.query<MovementRow>(
-        `select * from stock_movements where ${conditions.join(" and ")}
+      const result = await client.query<
+        MovementRow & { sku: string | null; actor_name: string | null }
+      >(
+        `select m.*,
+                (select v.sku from variants v where v.id = m.variant_id) as sku,
+                (select coalesce(u.full_name, u.email) from users u
+                  where m.actor_type = 'user' and u.id = m.actor_id) as actor_name
+           from stock_movements m
+          where ${conditions.join(" and ")}
           order by created_at asc, id asc${limitClause}`,
         params,
       );
-      return result.rows.map(toMovement);
+      return result.rows.map((row) => ({
+        ...toMovement(row),
+        sku: row.sku,
+        actorName: row.actor_name,
+      }));
     });
   }
 
@@ -252,12 +263,30 @@ export class PgStockStore implements StockStore {
         params,
         "updated_at",
       );
-      const result = await client.query<BalanceRow>(
-        `select * from stock_balances where ${conditions.join(" and ")}
+      const result = await client.query<
+        BalanceRow & {
+          sku: string | null;
+          name_ar: string | null;
+          name_en: string | null;
+        }
+      >(
+        `select b.*,
+                (select v.sku from variants v where v.id = b.variant_id) as sku,
+                (select p.name_ar from variants v join products p on p.id = v.product_id
+                  where v.id = b.variant_id) as name_ar,
+                (select p.name_en from variants v join products p on p.id = v.product_id
+                  where v.id = b.variant_id) as name_en
+           from stock_balances b
+          where ${conditions.join(" and ")}
           order by updated_at desc, id desc${limitClause}`,
         params,
       );
-      return result.rows.map(toBalance);
+      return result.rows.map((row) => ({
+        ...toBalance(row),
+        sku: row.sku,
+        productNameAr: row.name_ar,
+        productNameEn: row.name_en,
+      }));
     });
   }
 }

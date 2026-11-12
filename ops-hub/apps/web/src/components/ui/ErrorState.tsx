@@ -1,4 +1,5 @@
-import { useT } from "../../lib/i18n";
+import { describeProblem } from "../../lib/api/problem-message";
+import { useLocale, useT } from "../../lib/i18n";
 import { Button } from "./Button";
 
 export interface ErrorStateProps {
@@ -8,8 +9,8 @@ export interface ErrorStateProps {
 }
 
 /**
- * Renders RFC 7807 problem `title`/`detail` when available, falling back to
- * a generic message. Retry re-runs the failed query.
+ * A generic heading, plus the problem in the reader's language when the
+ * server sent a known code. Retry re-runs the failed query.
  */
 export function ErrorState({
   error,
@@ -17,11 +18,9 @@ export function ErrorState({
   className = "",
 }: ErrorStateProps) {
   const t = useT();
-  const problem = (
-    error as { problem?: { title?: string; detail?: string } } | null
-  )?.problem;
-  const title = problem?.title ?? t("state.error");
-  const detail = problem?.detail;
+  const { locale } = useLocale();
+  const title = t("state.error");
+  const detail = describeProblem(error, t, locale);
 
   return (
     <div

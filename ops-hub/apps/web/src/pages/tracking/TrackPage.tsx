@@ -3,6 +3,33 @@ import { useSearchParams } from "react-router-dom";
 
 import { LeafLogo } from "../../layout/icons";
 
+/** What a customer should read for each internal order status (Arabic · English). */
+const CUSTOMER_STATUS: Record<string, [ar: string, en: string]> = {
+  pending: ["تم استلام طلبك", "Order received"],
+  validated: ["تم تأكيد طلبك", "Order confirmed"],
+  confirmed: ["تم تأكيد طلبك", "Order confirmed"],
+  allocated: ["جارٍ تجهيز طلبك", "Being prepared"],
+  on_hold: [
+    "طلبك قيد المراجعة، وسنتواصل معك قريبًا",
+    "Under review — we'll contact you soon",
+  ],
+  picking: ["جارٍ تجهيز طلبك", "Being prepared"],
+  label_created: ["جاهز للتسليم لشركة الشحن", "Ready for the courier"],
+  carrier_accepted: ["طلبك في الطريق إليك", "On the way"],
+  shipped: ["طلبك في الطريق إليك", "On the way"],
+  delivered: ["تم التسليم", "Delivered"],
+  cancelled: ["تم إلغاء الطلب", "Cancelled"],
+  returned: ["تم إرجاع الطلب", "Returned"],
+};
+
+export function customerStatus(status: string): string {
+  const [ar, en] = CUSTOMER_STATUS[status] ?? [
+    "جارٍ معالجة طلبك",
+    "Processing",
+  ];
+  return `${ar} · ${en}`;
+}
+
 /**
  * Public order tracking (roadmap P1-S5-T06). No authentication: the order
  * number and the customer's phone are both required, and a wrong phone
@@ -30,15 +57,25 @@ export function TrackPage() {
         phone: phone.trim(),
       });
       const response = await fetch(`/v1/track?${query.toString()}`);
+      if (response.status === 429) {
+        setError(
+          "محاولات كثيرة، انتظر دقيقة ثم حاول مرة أخرى · Too many attempts, try again in a minute.",
+        );
+        return;
+      }
       if (!response.ok) {
-        setError("Order number or phone is not correct.");
+        setError(
+          "رقم الطلب أو رقم الهاتف غير صحيح · Order number or phone is not correct.",
+        );
         return;
       }
       setResult(
         (await response.json()) as { orderNumber: string; status: string },
       );
     } catch {
-      setError("Could not reach the tracking service.");
+      setError(
+        "تعذر الاتصال بخدمة التتبع · Could not reach the tracking service.",
+      );
     } finally {
       setLoading(false);
     }
@@ -94,7 +131,7 @@ export function TrackPage() {
             {result.orderNumber}
           </p>
           <p className="mt-2 text-body1 text-ink-700">
-            Status · الحالة: {result.status}
+            الحالة · Status: {customerStatus(result.status)}
           </p>
         </div>
       )}

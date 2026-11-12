@@ -9,7 +9,7 @@ import {
   Skeleton,
   useToast,
 } from "../../components/ui";
-import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import { getCompany, updateCompany } from "../../lib/api/company";
 import { useT } from "../../lib/i18n";
 import {
@@ -43,9 +43,7 @@ export function SettingsPage() {
       await queryClient.invalidateQueries({ queryKey: ["company"] });
     },
     onError: (error) => {
-      const detail =
-        error instanceof ApiError ? error.problem.detail : undefined;
-      toast.showToast("error", detail ?? t("company.saveFailed"));
+      toast.showToast("error", problemMessage(error, t("company.saveFailed")));
     },
   });
 

@@ -1,3 +1,4 @@
+import { formatMoney } from "../../lib/format";
 import { describe, expect, it } from "vitest";
 
 import { formatKpi, isoDay } from "./report-format";
@@ -16,7 +17,7 @@ describe("formatKpi", () => {
   });
 
   it("renders money from minor units in the business currency", () => {
-    expect(formatKpi(14950, "minor", "EGP")).toBe("149.50 EGP");
+    expect(formatKpi(14950, "minor", "EGP")).toBe(formatMoney(14950, "EGP"));
   });
 });
 

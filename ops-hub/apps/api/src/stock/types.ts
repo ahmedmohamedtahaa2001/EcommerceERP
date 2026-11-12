@@ -21,6 +21,9 @@ export interface StockMovementRecord {
   actorType: string | null;
   actorId: string | null;
   createdAt: Date;
+  /** Read-only display fields, filled when listing. */
+  sku?: string | null;
+  actorName?: string | null;
 }
 
 export interface StockBalanceRecord {
@@ -31,6 +34,10 @@ export interface StockBalanceRecord {
   bucket: StockBucket;
   quantity: number;
   updatedAt: Date;
+  /** Filled by listings so a screen can name the item without another lookup. */
+  sku?: string | null;
+  productNameAr?: string | null;
+  productNameEn?: string | null;
 }
 
 export interface CreateMovementRequest {

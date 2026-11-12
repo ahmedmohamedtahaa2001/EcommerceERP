@@ -9,7 +9,7 @@ import {
 import type { Location, StockReservation } from "../../lib/api/inventory";
 import { useT } from "../../lib/i18n";
 import { formatDate } from "../../lib/format";
-import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import {
   Button,
   Card,
@@ -76,10 +76,7 @@ export function ReservationsPage() {
       toast.showToast("success", t("reservations.created"));
     },
     onError: (error) => {
-      const message =
-        error instanceof ApiError
-          ? (error.problem.detail ?? t("reservations.createFailed"))
-          : t("reservations.createFailed");
+      const message = problemMessage(error, t("reservations.createFailed"));
       toast.showToast("error", message);
     },
   });
@@ -101,10 +98,7 @@ export function ReservationsPage() {
       }
     },
     onError: (error) => {
-      const message =
-        error instanceof ApiError
-          ? (error.problem.detail ?? t("reservations.releaseFailed"))
-          : t("reservations.releaseFailed");
+      const message = problemMessage(error, t("reservations.releaseFailed"));
       toast.showToast("error", message);
       setReleaseTarget(null);
     },

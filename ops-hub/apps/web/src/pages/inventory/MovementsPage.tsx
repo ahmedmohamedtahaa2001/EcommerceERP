@@ -68,7 +68,27 @@ function actorLabel(
   if (movement.actorType === "system" || movement.actorId === null) {
     return t("movements.actor.system");
   }
-  return t("movements.actor.user", { id: movement.actorId });
+  if (movement.actorName) {
+    return movement.actorName;
+  }
+  return movement.actorType === "api_key"
+    ? t("movements.actor.apiKey")
+    : t("movements.actor.user", { id: movement.actorId });
+}
+
+/** A reason code in the reader's language; transfers keep the note typed after their prefix. */
+export function movementReasonLabel(
+  reason: string,
+  t: (key: string) => string,
+): string {
+  const transfer = /^Transfer (out|in): (.*)$/s.exec(reason);
+  if (transfer !== null) {
+    const direction = transfer[1] === "out" ? "TRANSFER_OUT" : "TRANSFER_IN";
+    return `${t(`reason.${direction}`)}: ${transfer[2]}`;
+  }
+  const key = `reason.${reason}`;
+  const label = t(key);
+  return label === key ? reason : label;
 }
 
 export function MovementsPage() {
@@ -102,7 +122,8 @@ export function MovementsPage() {
     },
   });
 
-  const movements = movementsQuery.data?.movements ?? [];
+  // Newest first: the question is usually "what just happened?".
+  const movements = [...(movementsQuery.data?.movements ?? [])].reverse();
 
   const locationName = (id: string | null): string => {
     if (id === null) {
@@ -221,8 +242,11 @@ export function MovementsPage() {
                     <TD className="whitespace-nowrap text-ink-700">
                       {formatDate(movement.createdAt)}
                     </TD>
-                    <TD className="font-mono text-caption text-ink-900">
-                      {movement.variantId}
+                    <TD
+                      className="font-mono text-caption text-ink-900"
+                      dir="ltr"
+                    >
+                      {movement.sku ?? movement.variantId}
                     </TD>
                     <TD>{locationName(movement.locationId)}</TD>
                     <TD>
@@ -248,9 +272,7 @@ export function MovementsPage() {
                     <TD>
                       <Tag tone="secondary">
                         {(() => {
-                          const key = `reason.${movement.reason}`;
-                          const label = t(key);
-                          return label === key ? movement.reason : label;
+                          return movementReasonLabel(movement.reason, t);
                         })()}
                       </Tag>
                     </TD>

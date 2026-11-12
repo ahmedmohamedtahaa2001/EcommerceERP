@@ -65,12 +65,13 @@ describe("DataTable", () => {
     expect(screen.getByRole("status")).toBeInTheDocument();
   });
 
-  it("renders the problem title and a retry that refetches", async () => {
+  it("shows an Arabic error, never the English server title, and a retry that refetches", async () => {
     const refetch = vi.fn();
     renderTable({ state: { ...errorState, refetch } });
 
     expect(screen.getByRole("alert")).toBeInTheDocument();
-    expect(screen.getByText("Not Found")).toBeInTheDocument();
+    expect(screen.getByText("حدث خطأ غير متوقع")).toBeInTheDocument();
+    expect(screen.queryByText("Not Found")).not.toBeInTheDocument();
 
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: "إعادة المحاولة" }));

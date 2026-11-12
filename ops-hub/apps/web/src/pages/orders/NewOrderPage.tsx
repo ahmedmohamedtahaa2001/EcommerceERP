@@ -15,12 +15,12 @@ import {
   TR,
   useToast,
 } from "../../components/ui";
-import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import { listCustomers } from "../../lib/api/customers";
 import { createOrder } from "../../lib/api/orders";
 import type { CreateOrderRequest } from "../../lib/api/orders";
 import { listProducts, listVariants } from "../../lib/api/products";
-import { formatMinorAsMajor } from "../../lib/money";
+import { formatMoney } from "../../lib/format";
 import { useT } from "../../lib/i18n";
 import {
   addLine,
@@ -76,9 +76,7 @@ export function NewOrderPage() {
       navigate(`/orders/${result.order.id}`);
     },
     onError: (error) => {
-      const detail =
-        error instanceof ApiError ? error.problem.detail : undefined;
-      setServerError(detail ?? t("newOrder.createFailed"));
+      setServerError(problemMessage(error, t("newOrder.createFailed")));
       toast.showToast("error", t("newOrder.createFailed"));
     },
   });
@@ -143,8 +141,11 @@ export function NewOrderPage() {
         ) : null}
         <div className="flex items-center justify-between gap-3">
           <p className="text-body1 font-semibold text-ink-900">
-            {t("newOrder.subtotal")}: {formatMinorAsMajor(subtotalMinor(draft))}{" "}
-            {draft.lines[0]?.currency ?? "EGP"}
+            {t("newOrder.subtotal")}:{" "}
+            {formatMoney(
+              subtotalMinor(draft),
+              draft.lines[0]?.currency ?? "EGP",
+            )}
           </p>
           <Button type="submit" loading={mutation.isPending}>
             {t("newOrder.submit")}
@@ -381,7 +382,7 @@ function LinesSection({
                   {variant.sku}
                   {variant.priceMinor === null
                     ? ""
-                    : ` — ${formatMinorAsMajor(variant.priceMinor)} ${variant.currency}`}
+                    : ` — ${formatMoney(variant.priceMinor, variant.currency)}`}
                 </option>
               ))}
             </select>
@@ -467,7 +468,9 @@ function LinesSection({
                             ...draft,
                             lines: [line],
                           });
-                          return total === 0 ? "—" : formatMinorAsMajor(total);
+                          return total === 0
+                            ? "—"
+                            : formatMoney(total, line.currency);
                         })()}
                       </TD>
                       <TD>

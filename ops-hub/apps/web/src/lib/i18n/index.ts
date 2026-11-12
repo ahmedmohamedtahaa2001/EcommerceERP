@@ -19,6 +19,7 @@ import { dict as adminDict } from "../../pages/admin/i18n";
 import { dict as agentsDict } from "../../pages/agents/i18n";
 import { dict as analyticsDict } from "../../pages/analytics/i18n";
 import { dict as customersDict } from "../../pages/customers/i18n";
+import { dict as problemsDict } from "./problems";
 
 const DOMAIN_DICTS = [
   dashboardDict,
@@ -34,6 +35,7 @@ const DOMAIN_DICTS = [
   agentsDict,
   analyticsDict,
   customersDict,
+  problemsDict,
 ] as const;
 
 /**

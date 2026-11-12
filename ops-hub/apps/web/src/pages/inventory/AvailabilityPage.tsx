@@ -2,9 +2,14 @@ import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getAvailability, listLocations } from "../../lib/api/inventory";
+import {
+  getAvailability,
+  listBalances,
+  listLocations,
+} from "../../lib/api/inventory";
 import type { Availability, Location } from "../../lib/api/inventory";
-import { useT } from "../../lib/i18n";
+import { useLocale, useT } from "../../lib/i18n";
+import { summarizeBalances } from "./stock-overview";
 import { formatNumber } from "../../lib/format";
 import {
   Button,
@@ -60,6 +65,107 @@ function AvailabilitySkeleton() {
           <Skeleton className="ms-auto h-4 w-16" />
         </div>
       ))}
+    </div>
+  );
+}
+
+/** Every item with stock, so the page is useful before anyone types a SKU. */
+function StockOverview({
+  locationId,
+  onPick,
+}: {
+  locationId: string;
+  onPick: (sku: string) => void;
+}) {
+  const t = useT();
+  const { locale } = useLocale();
+  const balancesQuery = useQuery({
+    queryKey: ["balances", "overview"],
+    queryFn: () => listBalances({}),
+  });
+
+  if (balancesQuery.isLoading) return <AvailabilitySkeleton />;
+  if (balancesQuery.isError) {
+    return (
+      <ErrorState
+        error={balancesQuery.error}
+        onRetry={balancesQuery.refetch}
+        className="rounded-lg bg-surface shadow-sm"
+      />
+    );
+  }
+  const rows = summarizeBalances(
+    balancesQuery.data?.balances ?? [],
+    locationId,
+  );
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        title={t("availability.overviewEmpty")}
+        description={t("availability.explainerHint")}
+      />
+    );
+  }
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-caption text-ink-600">
+        {t("availability.overviewHint")}
+      </p>
+      <div className="overflow-x-auto rounded-lg bg-surface shadow-sm">
+        <Table ariaLabel={t("availability.overviewTitle")} zebra>
+          <THead>
+            <tr>
+              <TH>{t("availability.col.item")}</TH>
+              <TH>SKU</TH>
+              <TH>{t("bucket.on_hand")}</TH>
+              <TH>{t("bucket.reserved")}</TH>
+              <TH>{t("bucket.availableToPromise")}</TH>
+            </tr>
+          </THead>
+          <tbody>
+            {rows.map((row) => (
+              <tr
+                key={row.variantId}
+                className="cursor-pointer border-b border-ink-200 hover:bg-primary-light/40"
+                onClick={() => onPick(row.sku)}
+              >
+                <TD className="font-semibold text-ink-900">
+                  {(locale === "ar" ? row.nameAr : row.nameEn) ||
+                    row.nameAr ||
+                    row.nameEn}
+                </TD>
+                <TD>
+                  <button
+                    type="button"
+                    className="font-mono text-info hover:underline"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onPick(row.sku);
+                    }}
+                  >
+                    {row.sku}
+                  </button>
+                </TD>
+                <TD>
+                  <BucketCell value={row.onHand} />
+                </TD>
+                <TD>
+                  <span className="font-mono">
+                    {formatNumber(row.reserved)}
+                  </span>
+                </TD>
+                <TD>
+                  <Tag tone={availabilityTone(row.available)}>
+                    <span className="font-mono">
+                      {formatNumber(row.available)}
+                    </span>
+                  </Tag>
+                </TD>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
     </div>
   );
 }
@@ -129,15 +235,29 @@ export function AvailabilityPage() {
             onChange={(event) => setLocationFilter(event.target.value)}
           />
           <Button onClick={submit} disabled={skuInput.trim() === ""}>
-            {t("availability.searchLabel")}
+            {t("availability.search")}
           </Button>
+          {submittedSku !== "" ? (
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setSkuInput("");
+                setSubmittedSku("");
+              }}
+            >
+              {t("availability.showAll")}
+            </Button>
+          ) : null}
         </div>
       </Card>
 
       {submittedSku.trim() === "" ? (
-        <EmptyState
-          title={t("availability.explainerTitle")}
-          description={t("availability.explainerHint")}
+        <StockOverview
+          locationId={locationFilter}
+          onPick={(sku) => {
+            setSkuInput(sku);
+            setSubmittedSku(sku);
+          }}
         />
       ) : availabilityQuery.isLoading ? (
         <AvailabilitySkeleton />

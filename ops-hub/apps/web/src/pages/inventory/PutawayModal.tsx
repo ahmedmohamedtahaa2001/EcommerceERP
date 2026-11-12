@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button, Input, Modal, useToast } from "../../components/ui";
-import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import {
   getPutawaySuggestion,
   putawayIntoBin,
@@ -77,9 +77,7 @@ export function PutawayModal({
       onClose();
     },
     onError: (error) => {
-      const detail =
-        error instanceof ApiError ? error.problem.detail : undefined;
-      setServerError(detail ?? t("putaway.failed"));
+      setServerError(problemMessage(error, t("putaway.failed")));
       toast.showToast("error", t("putaway.failed"));
     },
   });

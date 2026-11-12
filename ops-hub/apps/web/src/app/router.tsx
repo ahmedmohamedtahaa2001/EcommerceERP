@@ -77,6 +77,10 @@ const lazyImports = {
     import("../pages/inventory/AdjustmentsPage").then((m) => ({
       Component: m.AdjustmentsPage,
     })),
+  TransfersPage: () =>
+    import("../pages/inventory/TransfersPage").then((m) => ({
+      Component: m.TransfersPage,
+    })),
   ReservationsPage: () =>
     import("../pages/inventory/ReservationsPage").then((m) => ({
       Component: m.ReservationsPage,
@@ -155,6 +159,7 @@ export const router = createBrowserRouter([
       { path: "inventory/availability", lazy: lazyImports.AvailabilityPage },
       { path: "inventory/movements", lazy: lazyImports.MovementsPage },
       { path: "inventory/adjustments", lazy: lazyImports.AdjustmentsPage },
+      { path: "inventory/transfers", lazy: lazyImports.TransfersPage },
       { path: "inventory/reservations", lazy: lazyImports.ReservationsPage },
       { path: "inventory/locations", lazy: lazyImports.LocationsPage },
       { path: "customers", lazy: lazyImports.CustomersPage },

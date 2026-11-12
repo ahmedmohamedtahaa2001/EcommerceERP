@@ -1,4 +1,4 @@
-import { formatMinorAsMajor } from "../../lib/money";
+import { formatMoney } from "../../lib/format";
 import type { KpiUnit } from "../../lib/api/reports";
 
 /** Renders a KPI value in its unit. Money uses the business currency; percents keep one decimal. */
@@ -15,7 +15,7 @@ export function formatKpi(
     case "hours":
       return `${Math.round(value * 10) / 10}`;
     case "minor":
-      return `${formatMinorAsMajor(Math.round(value))} ${currency}`;
+      return formatMoney(Math.round(value), currency);
   }
 }
 

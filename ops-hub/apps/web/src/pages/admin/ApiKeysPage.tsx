@@ -8,7 +8,7 @@ import {
   type ApiKey,
   type CreatedApiKey,
 } from "../../lib/api/admin";
-import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import { useT } from "../../lib/i18n";
 import { formatDate, formatRelative } from "../../lib/format";
 import { Breadcrumbs, PageHeader } from "../../components/ui/Breadcrumbs";
@@ -37,9 +37,7 @@ const SCOPES = [
 type ModalStep = "closed" | "form" | "reveal";
 
 function errorDetail(error: unknown, fallback: string): string {
-  return error instanceof ApiError
-    ? (error.problem.detail ?? fallback)
-    : fallback;
+  return problemMessage(error, fallback);
 }
 
 /** One-time secret reveal inside the create modal. */

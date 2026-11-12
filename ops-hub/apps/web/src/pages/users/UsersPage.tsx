@@ -19,6 +19,7 @@ import {
   useToast,
 } from "../../components/ui";
 import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import {
   inviteMember,
   listMembers,
@@ -41,7 +42,9 @@ const ROLES: MemberRole[] = [
 ];
 
 function problemDetail(error: unknown): string | undefined {
-  return error instanceof ApiError ? error.problem.detail : undefined;
+  return error instanceof ApiError
+    ? problemMessage(error, "") || undefined
+    : undefined;
 }
 
 export function UsersPage() {

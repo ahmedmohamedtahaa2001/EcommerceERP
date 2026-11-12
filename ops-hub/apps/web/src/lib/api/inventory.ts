@@ -94,6 +94,8 @@ export interface StockMovement {
   actorType: string | null;
   actorId: string | null;
   createdAt: string;
+  sku?: string | null;
+  actorName?: string | null;
 }
 
 /** Matches `StockBalanceRecord` in apps/api/src/stock/types.ts. */
@@ -105,6 +107,9 @@ export interface StockBalance {
   bucket: StockBucket;
   quantity: number;
   updatedAt: string;
+  sku?: string | null;
+  productNameAr?: string | null;
+  productNameEn?: string | null;
 }
 
 /** Matches `LocationAvailability` in apps/api/src/availability/types.ts. */

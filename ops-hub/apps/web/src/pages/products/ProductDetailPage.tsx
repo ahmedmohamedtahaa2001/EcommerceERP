@@ -11,7 +11,7 @@ import {
 import type { Product, ProductStatus, Variant } from "../../lib/api/products";
 import { getAvailability } from "../../lib/api/inventory";
 import { useT } from "../../lib/i18n";
-import { formatDate } from "../../lib/format";
+import { formatDate, formatMoney } from "../../lib/format";
 import {
   Breadcrumbs,
   Button,
@@ -29,7 +29,7 @@ import {
   useToast,
 } from "../../components/ui";
 import { AvailabilityBuckets, InfoIcon } from "./AvailabilityBuckets";
-import { formatMinorAsMajor, parseMajorToMinor } from "../../lib/money";
+import { parseMajorToMinor } from "../../lib/money";
 import { parseTags } from "./product-attributes";
 
 /** On-demand availability panel for one variant SKU. */
@@ -816,7 +816,7 @@ function VariantRows({
         <TD dir="ltr">
           {variant.priceMinor === null
             ? "—"
-            : `${formatMinorAsMajor(variant.priceMinor)} ${variant.currency}`}
+            : formatMoney(variant.priceMinor, variant.currency)}
         </TD>
         <TD>
           <AttributeChips attributes={variant.attributes} />

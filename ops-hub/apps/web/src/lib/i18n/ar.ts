@@ -24,6 +24,7 @@ export const ar: Record<string, string> = {
   "nav.exceptions": "المشكلات",
   "nav.availability": "التوافر",
   "nav.movements": "حركات المخزون",
+  "nav.transfers": "نقل بين المخازن",
   "nav.adjustments": "التسويات",
   "nav.reservations": "الحجوزات",
   "nav.locations": "المخازن",

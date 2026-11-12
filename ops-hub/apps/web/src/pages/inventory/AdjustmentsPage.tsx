@@ -12,7 +12,7 @@ import type { Location, StockBucket } from "../../lib/api/inventory";
 import { getEnums } from "../../lib/api/meta";
 import { useT } from "../../lib/i18n";
 import { formatNumber } from "../../lib/format";
-import { ApiError } from "../../lib/api/client";
+import { problemMessage } from "../../lib/api/problem-message";
 import {
   Button,
   Card,
@@ -115,10 +115,7 @@ export function AdjustmentsPage() {
       setConfirmOpen(false);
     },
     onError: (error) => {
-      const message =
-        error instanceof ApiError
-          ? (error.problem.detail ?? t("adjustments.failed"))
-          : t("adjustments.failed");
+      const message = problemMessage(error, t("adjustments.failed"));
       toast.showToast("error", message);
       setConfirmOpen(false);
     },
