@@ -24,6 +24,11 @@ export interface BinRecord {
   updatedAt: Date;
 }
 
+/** A bin as listed for a location, with how many units are stored in it. */
+export interface BinListItem extends BinRecord {
+  used: number;
+}
+
 export interface CreateLocationRequest {
   type: LocationType;
   name: string;
@@ -56,7 +61,7 @@ export interface LocationStore {
 export interface BinStore {
   create(record: BinRecord): Promise<void>;
   getById(tenantId: string, id: string): Promise<BinRecord | null>;
-  listByLocation(tenantId: string, locationId: string): Promise<BinRecord[]>;
+  listByLocation(tenantId: string, locationId: string): Promise<BinListItem[]>;
 }
 
 export interface InventoryServiceDeps {

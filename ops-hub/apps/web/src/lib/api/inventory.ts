@@ -48,8 +48,29 @@ export interface Bin {
   zone: string | null;
   code: string;
   capacity: number | null;
+  /** Units stored in the bin. Present on list responses; absent after create. */
+  used?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface BinContentsItem {
+  variantId: string;
+  sku: string;
+  quantity: number;
+}
+
+export interface PutawayResult {
+  binId: string;
+  variantId: string;
+  binQuantity: number;
+  unassignedAfter: number;
+}
+
+export interface PutawaySuggestion {
+  binId: string;
+  binCode: string;
+  reason: string;
 }
 
 /** Matches `StockMovementRecord` in apps/api/src/stock/types.ts. */
@@ -254,4 +275,42 @@ export function listBins(locationId: string): Promise<{ bins: Bin[] }> {
 /** `POST /v1/bins` → 201. */
 export function createBin(body: CreateBinRequest): Promise<Bin> {
   return apiFetch<Bin>("/v1/bins", { method: "POST", body });
+}
+
+/** `POST /v1/bins/:id/putaway` → 201. */
+export function putawayIntoBin(
+  binId: string,
+  body: { variantId: string; quantity: number },
+): Promise<PutawayResult> {
+  return apiFetch<PutawayResult>(
+    `/v1/bins/${encodeURIComponent(binId)}/putaway`,
+    {
+      method: "POST",
+      body,
+    },
+  );
+}
+
+/** `GET /v1/bins/:id/contents` → 200. */
+export function getBinContents(
+  binId: string,
+): Promise<{ items: BinContentsItem[] }> {
+  return apiFetch<{ items: BinContentsItem[] }>(
+    `/v1/bins/${encodeURIComponent(binId)}/contents`,
+  );
+}
+
+/** `GET /v1/putaway/suggestion` → 200: an existing bin for this SKU, else the nearest free one. */
+export function getPutawaySuggestion(params: {
+  variantId: string;
+  locationId: string;
+  zone?: string | undefined;
+}): Promise<PutawaySuggestion> {
+  return apiFetch<PutawaySuggestion>("/v1/putaway/suggestion", {
+    searchParams: {
+      variantId: params.variantId,
+      locationId: params.locationId,
+      zone: params.zone,
+    },
+  });
 }

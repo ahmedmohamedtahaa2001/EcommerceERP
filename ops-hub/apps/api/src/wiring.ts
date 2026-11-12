@@ -71,6 +71,7 @@ import { SettlementService, csvSettlementParser } from "./settlements/service";
 import { ShipmentService } from "./shipments/service";
 import { PgShipmentStore } from "./shipments/pg-store";
 import { CustomerService } from "./customers/service";
+import { PutawayService } from "./putaway/service";
 import { PgCustomerStore } from "./customers/pg-store";
 import { SourcingService } from "./suppliers/service";
 import { TenantSettingsService } from "./settings/service";
@@ -280,6 +281,7 @@ export function buildFullApp(
     auditReader,
     catalog,
     customers,
+    putaway: new PutawayService(pool),
     catalogImport,
     inventory,
     stock,

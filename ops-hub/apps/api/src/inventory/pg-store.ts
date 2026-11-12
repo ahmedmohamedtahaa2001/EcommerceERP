@@ -3,6 +3,7 @@ import { withTenant } from "@ops-hub/db";
 import type { Pool } from "pg";
 
 import type {
+  BinListItem,
   BinRecord,
   BinStore,
   LocationRecord,
@@ -23,6 +24,7 @@ interface LocationRow {
 }
 
 interface BinRow {
+  used: number;
   id: string;
   tenant_id: string;
   location_id: string;
@@ -161,14 +163,18 @@ export class PgBinStore implements BinStore {
   async listByLocation(
     tenantId: string,
     locationId: string,
-  ): Promise<BinRecord[]> {
+  ): Promise<BinListItem[]> {
     return withTenant(this.pool, tenantId, async (client) => {
       const result = await client.query<BinRow>(
-        `select * from bins where tenant_id = $1 and location_id = $2
-          order by created_at asc, id asc`,
+        `select b.*,
+                coalesce((select sum(s.quantity) from bin_stock s
+                           where s.bin_id = b.id), 0)::int as used
+           from bins b
+          where b.tenant_id = $1 and b.location_id = $2
+          order by b.created_at asc, b.id asc`,
         [tenantId, locationId],
       );
-      return result.rows.map(toBin);
+      return result.rows.map((row) => ({ ...toBin(row), used: row.used }));
     });
   }
 }

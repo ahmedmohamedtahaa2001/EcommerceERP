@@ -36,6 +36,8 @@ import { registerShipmentRoutes } from "./shipments/routes";
 import type { ShipmentService } from "./shipments/service";
 import { registerShipmentWebhookRoutes } from "./shipments/webhook-routes";
 import { registerCustomerRoutes } from "./customers/routes";
+import { registerPutawayRoutes } from "./putaway/routes";
+import type { PutawayService } from "./putaway/service";
 import type { CustomerService } from "./customers/service";
 import type { ShippingCarrier } from "@ops-hub/integrations";
 import { registerOutboundWebhookRoutes } from "./webhooks/routes";
@@ -113,6 +115,7 @@ export interface BuildAppOptions {
   exceptions?: ExceptionService;
   shipments?: ShipmentService;
   customers?: CustomerService;
+  putaway?: PutawayService;
   carriers?: Record<string, ShippingCarrier>;
   /** Per-carrier HMAC secrets for inbound carrier webhooks. */
   carrierWebhookSecrets?: Record<string, string | undefined>;
@@ -375,6 +378,18 @@ ${Object.entries(buildOpenApiDocument().paths)
       }
       registerExceptionRoutes(app, {
         service: options.exceptions,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.putaway) {
+      if (!options.audit) {
+        throw new Error(
+          "putaway routes mutate state and require an audit writer.",
+        );
+      }
+      registerPutawayRoutes(app, {
+        service: options.putaway,
         requestAuth,
         audit: options.audit,
       });

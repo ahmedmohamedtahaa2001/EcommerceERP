@@ -8,6 +8,7 @@ import {
   listBins,
   listLocations,
 } from "../../lib/api/inventory";
+import { PutawayModal } from "./PutawayModal";
 import { listGovernorates } from "../../lib/api/meta";
 import type { Bin, Location, LocationType } from "../../lib/api/inventory";
 import type { Governorate } from "../../lib/api/meta";
@@ -42,6 +43,7 @@ export function LocationsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [createLocationOpen, setCreateLocationOpen] = useState(false);
   const [createBinOpen, setCreateBinOpen] = useState(false);
+  const [putawayOpen, setPutawayOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Location | null>(null);
 
   const locationsQuery = useQuery({
@@ -226,13 +228,23 @@ export function LocationsPage() {
                     <h3 className="text-subtitle2 font-bold text-ink-900">
                       {t("locations.binsTitle")}
                     </h3>
-                    <Button
-                      size="sm"
-                      variant="outlined"
-                      onClick={() => setCreateBinOpen(true)}
-                    >
-                      {t("locations.addBin")}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outlined"
+                        disabled={bins.length === 0}
+                        onClick={() => setPutawayOpen(true)}
+                      >
+                        {t("putaway.open")}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outlined"
+                        onClick={() => setCreateBinOpen(true)}
+                      >
+                        {t("locations.addBin")}
+                      </Button>
+                    </div>
                   </div>
                   {binsQuery.isLoading ? (
                     <Skeleton className="h-24 w-full" />
@@ -254,6 +266,7 @@ export function LocationsPage() {
                             <TH>{t("locations.bin.col.zone")}</TH>
                             <TH>{t("locations.bin.col.code")}</TH>
                             <TH>{t("locations.bin.col.capacity")}</TH>
+                            <TH>{t("locations.bin.col.used")}</TH>
                           </tr>
                         </THead>
                         <tbody>
@@ -271,6 +284,7 @@ export function LocationsPage() {
                                   ? t("locations.noCapacity")
                                   : bin.capacity}
                               </TD>
+                              <TD>{bin.used ?? 0}</TD>
                             </tr>
                           ))}
                         </tbody>
@@ -293,6 +307,14 @@ export function LocationsPage() {
           void queryClient.invalidateQueries({ queryKey: ["locations"] });
         }}
       />
+      {selected && putawayOpen ? (
+        <PutawayModal
+          open={putawayOpen}
+          location={selected}
+          bins={bins}
+          onClose={() => setPutawayOpen(false)}
+        />
+      ) : null}
       <CreateBinModal
         open={createBinOpen}
         locationId={selectedId}

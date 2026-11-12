@@ -281,6 +281,20 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     scope: "customers:write",
   },
   {
+    method: "post",
+    path: "/v1/bins/:id/putaway",
+    summary: "Place on-hand stock into a bin",
+    tag: "Inventory",
+    scope: "inventory:write",
+  },
+  {
+    method: "get",
+    path: "/v1/bins/:id/contents",
+    summary: "What a bin holds",
+    tag: "Inventory",
+    scope: "inventory:read",
+  },
+  {
     method: "get",
     path: "/v1/inventory/balances",
     summary: "Stock balances",

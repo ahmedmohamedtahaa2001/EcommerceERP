@@ -10,6 +10,7 @@ import {
 } from "./errors";
 import {
   LOCATION_TYPES,
+  type BinListItem,
   type BinRecord,
   type CreateBinRequest,
   type CreateLocationRequest,
@@ -203,7 +204,7 @@ export class InventoryService {
     return bin;
   }
 
-  async listBins(tenantId: string, locationId: string): Promise<BinRecord[]> {
+  async listBins(tenantId: string, locationId: string): Promise<BinListItem[]> {
     const location = await this.deps.locations.getById(tenantId, locationId);
     if (!location) {
       throw new LocationNotFoundError();
