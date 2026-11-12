@@ -4,3 +4,4 @@ export * from "./catalog";
 export * from "./core";
 export * from "./events";
 export * from "./inventory";
+export * from "./orders";

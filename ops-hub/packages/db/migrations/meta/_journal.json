@@ -50,6 +50,13 @@
       "when": 1794473446776,
       "tag": "0006_same_sasquatch",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794474974646,
+      "tag": "0007_luxuriant_power_man",
+      "breakpoints": true
     }
   ]
 }
