@@ -1,7 +1,7 @@
 import { useT } from "../../lib/i18n";
 import { ChartsSection } from "./ChartsSection";
 import { KpiSection } from "./KpiSection";
-import { RoadmapCard } from "./Roadmap";
+import { Link } from "react-router-dom";
 import type { KpiSources } from "./hooks";
 
 /**
@@ -9,14 +9,6 @@ import type { KpiSources } from "./hooks";
  * Everything shown is real computed data or an explicitly gold "قريباً"
  * roadmap card; fake charts and fake numbers are forbidden.
  */
-
-const ROADMAP_IDS = [
-  "codRate",
-  "rtoRate",
-  "onTimeDelivery",
-  "dockToStock",
-  "sellThrough",
-] as const;
 
 export function AnalyticsView({ sources }: { sources: KpiSources }) {
   const t = useT();
@@ -53,30 +45,24 @@ export function AnalyticsView({ sources }: { sources: KpiSources }) {
       </section>
 
       <section
-        aria-labelledby="analytics-roadmap"
-        className="flex flex-col gap-3"
+        aria-labelledby="analytics-more"
+        className="rounded-lg bg-surface p-5 shadow-sm"
       >
         <h2
-          id="analytics-roadmap"
+          id="analytics-more"
           className="text-subtitle1 font-bold text-ink-900"
         >
-          {t("analytics.roadmap.title")}
+          {t("analytics.more.title")}
         </h2>
-        <p className="max-w-3xl text-body2 text-ink-600">
-          {t("analytics.roadmap.description")}
+        <p className="mt-1 max-w-3xl text-body2 text-ink-600">
+          {t("analytics.more.description")}
         </p>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {ROADMAP_IDS.map((id) => (
-            <RoadmapCard
-              key={id}
-              title={t(`analytics.roadmap.${id}.title`)}
-              description={t(`analytics.roadmap.${id}.description`)}
-              phase={t("analytics.roadmap.phase")}
-              phaseLabel={t("analytics.roadmap.phaseLabel")}
-              badge={t("analytics.roadmap.badge")}
-            />
-          ))}
-        </div>
+        <Link
+          to="/reports"
+          className="mt-3 inline-block font-semibold text-primary hover:underline"
+        >
+          {t("analytics.more.link")}
+        </Link>
       </section>
     </div>
   );

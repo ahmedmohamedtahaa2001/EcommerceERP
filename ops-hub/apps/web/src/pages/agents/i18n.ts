@@ -1,49 +1,58 @@
-/**
- * Domain dictionary owned by the agents page agent. The agents catalog is
- * a designed direction page (FEATURES.md module 12) — no live automation
- * exists yet, so all copy is honest about the roadmap.
- */
+/** Domain dictionary for automations (/agents). */
 export const dict = {
   ar: {
     "agents.description":
-      "وكلاء أتمتة بيشتغلوا في الخلفية على المهام المتكررة — دي خريطة الاتجاه، مش متاحة للتشغيل بعد.",
-    "agents.statusBadge": "قريباً",
-    "agents.phaseNote":
-      "الأتمتة تُبنى في Phase 3–4 (خطة P3-S12 / P4-S14) — الحجات دي اتجاه التصميم مش ميزات شغالة.",
-    "agents.cta": "تهيئة الوكيل",
-    "agents.ctaDisabled": "متاح بعد Phase 3",
-    "agents.card.restock.title": "وكيل إعادة الطلب",
-    "agents.card.restock.desc":
-      "بينذر طلب شراء أول ما رصيد أي منتج يوصل للحد الأدنى، ويسلمه جاهز للاعتماد بضغطة واحدة.",
-    "agents.card.exceptions.title": "وكيل رصد الاستثناءات",
-    "agents.card.exceptions.desc":
-      "بيلقط طلبات العناوين الناقصة والأرقام الغلط ويحاول يصلحها تلقائيًا قبل ما توصل لطابور العمليات.",
-    "agents.card.cod.title": "وكيل تأكيد COD",
-    "agents.card.cod.desc":
-      "بيكلم العميل قبل الشحن للتأكد من الطلب والدفع كاش عند الاستلام، ويحدّث حالة الطلب على طول.",
-    "agents.card.priorities.title": "وكيل ترتيب الأولويات",
-    "agents.card.priorities.desc":
-      "بيرتب طابور التجهيز حسب أولوية الشحن والمناطق، عشان الفريق يبدأ بالطلبات الأقرب إنجاز.",
+      "أتمتة تعمل في الخلفية على المهام المتكررة. شغّل ما تحتاجه وأوقف الباقي.",
+    "agents.empty.title": "لم تُفعَّل أي أتمتة بعد",
+    "agents.empty.body":
+      "ثبّت مجموعة الأتمتة الأساسية، ثم شغّل كل واحدة أو أوقفها حسب حاجتك.",
+    "agents.install": "تثبيت الأتمتة الأساسية",
+    "agents.installed": "تم تثبيت الأتمتة الأساسية",
+    "agents.on": "تعمل",
+    "agents.off": "متوقفة",
+    "agents.turnOn": "تشغيل",
+    "agents.turnOff": "إيقاف",
+    "agents.trigger": "تبدأ عند",
+    "agents.testRun": "تجربة",
+    "agents.testRun.result":
+      "التجربة نجحت: ستنفّذ {count} إجراء. لم يُرسَل شيء لأي عميل.",
+    "agents.testRun.skipped":
+      "لم تُنفَّذ التجربة لأن الأتمتة متوقفة أو شروطها غير متحققة.",
+    "agents.automation.abandoned_cart": "تذكير بالسلة المتروكة",
+    "agents.automation.post_delivery_followup": "متابعة بعد التسليم",
+    "agents.automation.reorder_reminder": "تذكير بإعادة الشراء",
+    "agents.automation.win_back": "استعادة عميل غير نشط",
+    "agents.trigger.cart.abandoned": "ترك العميل سلة الشراء",
+    "agents.trigger.order.delivered": "تسليم الطلب",
+    "agents.trigger.customer.consent_given": "موافقة العميل على التواصل",
+    "agents.trigger.customer.dormant": "توقف العميل عن الشراء",
   },
   en: {
     "agents.description":
-      "Automation agents that handle repetitive work in the background — this is the roadmap direction, not live functionality yet.",
-    "agents.statusBadge": "Coming soon",
-    "agents.phaseNote":
-      "Automation ships in Phase 3–4 (plan P3-S12 / P4-S14) — the items below are design direction, not working features.",
-    "agents.cta": "Configure agent",
-    "agents.ctaDisabled": "Available after Phase 3",
-    "agents.card.restock.title": "Reorder agent",
-    "agents.card.restock.desc":
-      "Drafts a purchase order the moment any SKU hits its reorder point, ready for one-click approval.",
-    "agents.card.exceptions.title": "Exception monitor",
-    "agents.card.exceptions.desc":
-      "Catches incomplete-address and invalid-phone orders and attempts automatic fixes before they reach the ops queue.",
-    "agents.card.cod.title": "COD confirmer",
-    "agents.card.cod.desc":
-      "Contacts the customer before shipping to confirm the order and cash-on-delivery payment, then updates the order status.",
-    "agents.card.priorities.title": "Priority sorter",
-    "agents.card.priorities.desc":
-      "Ranks the picking queue by shipping priority and district so the team starts with the fastest wins.",
+      "Automations that run routine work in the background. Turn on what you need and leave the rest off.",
+    "agents.empty.title": "No automations set up yet",
+    "agents.empty.body":
+      "Install the starter set, then turn each automation on or off as you need.",
+    "agents.install": "Install starter automations",
+    "agents.installed": "Starter automations installed",
+    "agents.on": "On",
+    "agents.off": "Off",
+    "agents.turnOn": "Turn on",
+    "agents.turnOff": "Turn off",
+    "agents.trigger": "Starts when",
+    "agents.testRun": "Test run",
+    "agents.testRun.result":
+      "Test passed: it would take {count} action(s). Nothing was sent to any customer.",
+    "agents.testRun.skipped":
+      "Not run: the automation is off or its conditions are not met.",
+    "agents.automation.abandoned_cart": "Abandoned cart reminder",
+    "agents.automation.post_delivery_followup": "Post-delivery follow-up",
+    "agents.automation.reorder_reminder": "Reorder reminder",
+    "agents.automation.win_back": "Win back an inactive customer",
+    "agents.trigger.cart.abandoned": "A cart is abandoned",
+    "agents.trigger.order.delivered": "An order is delivered",
+    "agents.trigger.customer.consent_given":
+      "A customer agrees to be contacted",
+    "agents.trigger.customer.dormant": "A customer stops buying",
   },
-} as const;
+};
