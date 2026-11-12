@@ -1036,7 +1036,9 @@ Gate for M-15: nothing is deleted from main until M-02 through M-13 are `[x]`
 and the full suite is green.
 
 - [x] **M-01** Inventory transfer between locations. Ported from `app/api/inventory/transfer`. Now atomic (one transaction, available-to-promise checked, shared transfer reference). Commit 55d45ebb.
-- [ ] **M-02** Product pricing and attributes. Write and read price, currency, category, brand, barcode, weight, dimensions and tags through the catalog API, import and product screens. Columns exist (migration 0022).
+- [x] **M-02** Product pricing and attributes. Price, currency, category, brand, barcode, weight, dimensions, tags and hazard flag are validated, stored and returned by the catalog API and shown in the product screens. Commit: see git log for "M-02". Also fixed: the routed product screens were placeholders, while the real implementation sat unrouted in `pages/catalog/`; it now lives in `pages/products/` and `pages/catalog/` is gone. Verified in a browser (create priced variant, edit category/brand/tags/hazard). Checks: 423 API/package tests, 26 web tests, 4 Postgres integration tests.
+  - [ ] **M-02b** Bulk import (`POST /v1/products/import`) does not yet read the new columns. Follow-up, not required to close M-02.
+  - Known, out of scope: the product edit dialog reuses the "product created" toast on update (existing copy in `pages/products/i18n.ts`, to fix in M-08 bulk work).
 - [ ] **M-03** Customers: create and edit (API and screen), and a customer detail page with order history. Ported from `app/(dashboard)/customers/*` and `app/api/customers`.
 - [ ] **M-04** Create-order screen in the web console. Ported from `app/(dashboard)/orders/new`. Uses `POST /v1/orders`.
 - [ ] **M-05** Bins and putaway: bin management screen, warehouse detail with bin layout, putaway screen. Ported from `app/dashboard/warehouses/[id]` and `app/api/inventory/[id]/putaway`.

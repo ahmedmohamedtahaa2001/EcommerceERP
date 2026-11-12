@@ -67,6 +67,10 @@ export function registerCatalogRoutes(
           "nameAr",
           "descriptionEn",
           "descriptionAr",
+          "category",
+          "brand",
+          "tags",
+          "isHazardous",
           "images",
           "status",
         ]),
@@ -127,6 +131,10 @@ export function registerCatalogRoutes(
           "nameAr",
           "descriptionEn",
           "descriptionAr",
+          "category",
+          "brand",
+          "tags",
+          "isHazardous",
           "images",
           "status",
         ]),
@@ -159,6 +167,11 @@ export function registerCatalogRoutes(
         pick<CreateVariantRequest>(body, [
           "productId",
           "sku",
+          "barcode",
+          "weightGrams",
+          "dimensions",
+          "priceMinor",
+          "currency",
           "attributes",
           "images",
         ]),
@@ -215,7 +228,15 @@ export function registerCatalogRoutes(
       const updated = await service.updateVariant(
         tenantId,
         id,
-        pick<UpdateVariantRequest>(body, ["attributes", "images"]),
+        pick<UpdateVariantRequest>(body, [
+          "barcode",
+          "weightGrams",
+          "dimensions",
+          "priceMinor",
+          "currency",
+          "attributes",
+          "images",
+        ]),
       );
 
       await recordAudit(request, audit, {

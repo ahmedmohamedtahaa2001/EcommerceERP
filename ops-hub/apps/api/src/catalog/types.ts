@@ -4,6 +4,12 @@ export type ProductKind = (typeof PRODUCT_KINDS)[number];
 export const PRODUCT_STATUSES = ["draft", "active", "archived"] as const;
 export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
 
+export interface VariantDimensions {
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
+}
+
 export interface ProductRecord {
   id: string;
   tenantId: string;
@@ -12,6 +18,10 @@ export interface ProductRecord {
   nameEn: string;
   descriptionAr: string | null;
   descriptionEn: string | null;
+  category: string | null;
+  brand: string | null;
+  tags: readonly string[];
+  isHazardous: boolean;
   images: readonly string[];
   status: ProductStatus;
   createdAt: Date;
@@ -23,6 +33,11 @@ export interface VariantRecord {
   tenantId: string;
   productId: string;
   sku: string;
+  barcode: string | null;
+  weightGrams: number | null;
+  dimensions: VariantDimensions;
+  priceMinor: number | null;
+  currency: string;
   attributes: Record<string, string>;
   images: readonly string[];
   createdAt: Date;
@@ -35,6 +50,10 @@ export interface CreateProductRequest {
   nameEn: string;
   descriptionAr?: string | null;
   descriptionEn?: string | null;
+  category?: string | null;
+  brand?: string | null;
+  tags?: readonly string[];
+  isHazardous?: boolean;
   images?: readonly string[];
   status?: ProductStatus;
 }
@@ -44,6 +63,10 @@ export interface UpdateProductRequest {
   nameEn?: string;
   descriptionAr?: string | null;
   descriptionEn?: string | null;
+  category?: string | null;
+  brand?: string | null;
+  tags?: readonly string[];
+  isHazardous?: boolean;
   images?: readonly string[];
   status?: ProductStatus;
 }
@@ -51,12 +74,22 @@ export interface UpdateProductRequest {
 export interface CreateVariantRequest {
   productId: string;
   sku: string;
+  barcode?: string | null;
+  weightGrams?: number | null;
+  dimensions?: VariantDimensions;
+  priceMinor?: number | null;
+  currency?: string;
   attributes?: Record<string, string>;
   images?: readonly string[];
 }
 
 /** `sku` is intentionally excluded: it is immutable once created. */
 export interface UpdateVariantRequest {
+  barcode?: string | null;
+  weightGrams?: number | null;
+  dimensions?: VariantDimensions;
+  priceMinor?: number | null;
+  currency?: string;
   attributes?: Record<string, string>;
   images?: readonly string[];
 }
@@ -81,6 +114,10 @@ export interface ProductStore {
         | "nameEn"
         | "descriptionAr"
         | "descriptionEn"
+        | "category"
+        | "brand"
+        | "tags"
+        | "isHazardous"
         | "images"
         | "status"
       >
@@ -97,7 +134,18 @@ export interface VariantStore {
   update(
     tenantId: string,
     id: string,
-    fields: Partial<Pick<VariantRecord, "attributes" | "images">>,
+    fields: Partial<
+      Pick<
+        VariantRecord,
+        | "barcode"
+        | "weightGrams"
+        | "dimensions"
+        | "priceMinor"
+        | "currency"
+        | "attributes"
+        | "images"
+      >
+    >,
     updatedAt: Date,
   ): Promise<VariantRecord | null>;
 }

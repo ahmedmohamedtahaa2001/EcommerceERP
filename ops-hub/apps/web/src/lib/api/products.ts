@@ -17,10 +17,20 @@ export interface Product {
   nameEn: string;
   descriptionAr: string | null;
   descriptionEn: string | null;
+  category: string | null;
+  brand: string | null;
+  tags: string[];
+  isHazardous: boolean;
   images: string[];
   status: ProductStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface VariantDimensions {
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
 }
 
 /** Matches `VariantRecord` in apps/api/src/catalog/types.ts. */
@@ -29,6 +39,12 @@ export interface Variant {
   tenantId: string;
   productId: string;
   sku: string;
+  barcode: string | null;
+  weightGrams: number | null;
+  dimensions: VariantDimensions;
+  /** Integer minor units (piasters for EGP). Null means not priced yet. */
+  priceMinor: number | null;
+  currency: string;
   attributes: Record<string, string>;
   images: string[];
   createdAt: string;
@@ -41,6 +57,10 @@ export interface CreateProductRequest {
   nameEn: string;
   descriptionAr?: string | null;
   descriptionEn?: string | null;
+  category?: string | null;
+  brand?: string | null;
+  tags?: string[];
+  isHazardous?: boolean;
   images?: string[];
   status?: ProductStatus;
 }
@@ -50,6 +70,10 @@ export interface UpdateProductRequest {
   nameEn?: string;
   descriptionAr?: string | null;
   descriptionEn?: string | null;
+  category?: string | null;
+  brand?: string | null;
+  tags?: string[];
+  isHazardous?: boolean;
   images?: string[];
   status?: ProductStatus;
 }
@@ -57,12 +81,22 @@ export interface UpdateProductRequest {
 export interface CreateVariantRequest {
   productId: string;
   sku: string;
+  barcode?: string | null;
+  weightGrams?: number | null;
+  dimensions?: VariantDimensions;
+  priceMinor?: number | null;
+  currency?: string;
   attributes?: Record<string, string>;
   images?: string[];
 }
 
 /** `sku` is immutable once created (server rejects it on PATCH). */
 export interface UpdateVariantRequest {
+  barcode?: string | null;
+  weightGrams?: number | null;
+  dimensions?: VariantDimensions;
+  priceMinor?: number | null;
+  currency?: string;
   attributes?: Record<string, string>;
   images?: string[];
 }

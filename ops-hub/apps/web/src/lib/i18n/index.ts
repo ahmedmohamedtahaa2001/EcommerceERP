@@ -8,7 +8,7 @@ import { en } from "./en";
 // merged into the global key space — keys must stay unique across domains).
 import { dict as dashboardDict } from "../../pages/dashboard/i18n";
 import { dict as ordersDict } from "../../pages/orders/i18n";
-import { dict as catalogDict } from "../../pages/catalog/i18n";
+import { dict as productsDict } from "../../pages/products/i18n";
 import { dict as inventoryDict } from "../../pages/inventory/i18n";
 import { dict as authDict } from "../../pages/auth/i18n";
 import { dict as adminDict } from "../../pages/admin/i18n";
@@ -19,7 +19,7 @@ import { dict as customersDict } from "../../pages/customers/i18n";
 const DOMAIN_DICTS = [
   dashboardDict,
   ordersDict,
-  catalogDict,
+  productsDict,
   inventoryDict,
   authDict,
   adminDict,

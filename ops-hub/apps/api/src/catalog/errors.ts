@@ -38,3 +38,9 @@ export class SkuImmutableError extends CatalogError {
     super("sku-immutable", "SKU cannot be changed once created.", 422);
   }
 }
+
+export class DuplicateBarcodeError extends CatalogError {
+  constructor(barcode: string) {
+    super("duplicate-barcode", `Barcode already exists: ${barcode}`, 409);
+  }
+}

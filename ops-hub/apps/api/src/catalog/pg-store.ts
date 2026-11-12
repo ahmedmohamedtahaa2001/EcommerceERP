@@ -7,6 +7,7 @@ import type {
   ProductRecord,
   ProductStatus,
   ProductStore,
+  VariantDimensions,
   VariantRecord,
   VariantStore,
 } from "./types";
@@ -19,6 +20,10 @@ interface ProductRow {
   name_en: string;
   description_ar: string | null;
   description_en: string | null;
+  category: string | null;
+  brand: string | null;
+  tags: string[];
+  is_hazardous: boolean;
   images: string[];
   status: string;
   created_at: Date;
@@ -30,6 +35,11 @@ interface VariantRow {
   tenant_id: string;
   product_id: string;
   sku: string;
+  barcode: string | null;
+  weight_grams: number | null;
+  dimensions: VariantDimensions;
+  price_minor: number | null;
+  currency: string;
   attributes: Record<string, string>;
   images: string[];
   created_at: Date;
@@ -45,6 +55,10 @@ function toProduct(row: ProductRow): ProductRecord {
     nameEn: row.name_en,
     descriptionAr: row.description_ar,
     descriptionEn: row.description_en,
+    category: row.category,
+    brand: row.brand,
+    tags: row.tags,
+    isHazardous: row.is_hazardous,
     images: row.images,
     status: row.status as ProductStatus,
     createdAt: row.created_at,
@@ -58,6 +72,11 @@ function toVariant(row: VariantRow): VariantRecord {
     tenantId: row.tenant_id,
     productId: row.product_id,
     sku: row.sku,
+    barcode: row.barcode,
+    weightGrams: row.weight_grams,
+    dimensions: row.dimensions,
+    priceMinor: row.price_minor,
+    currency: row.currency,
     attributes: row.attributes,
     images: row.images,
     createdAt: row.created_at,
@@ -73,8 +92,8 @@ export class PgProductStore implements ProductStore {
       await client.query(
         `insert into products
            (id, tenant_id, kind, name_ar, name_en, description_ar, description_en,
-            images, status, created_at, updated_at)
-         values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9, $10, $11)`,
+            category, brand, tags, is_hazardous, images, status, created_at, updated_at)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12::jsonb, $13, $14, $15)`,
         [
           record.id,
           record.tenantId,
@@ -83,6 +102,10 @@ export class PgProductStore implements ProductStore {
           record.nameEn,
           record.descriptionAr,
           record.descriptionEn,
+          record.category,
+          record.brand,
+          JSON.stringify(record.tags),
+          record.isHazardous,
           JSON.stringify(record.images),
           record.status,
           record.createdAt,
@@ -156,6 +179,10 @@ export class PgProductStore implements ProductStore {
         | "nameEn"
         | "descriptionAr"
         | "descriptionEn"
+        | "category"
+        | "brand"
+        | "tags"
+        | "isHazardous"
         | "images"
         | "status"
       >
@@ -169,9 +196,13 @@ export class PgProductStore implements ProductStore {
            name_en = coalesce($4, name_en),
            description_ar = case when $5 then $6 else description_ar end,
            description_en = case when $7 then $8 else description_en end,
-           images = coalesce($9::jsonb, images),
-           status = coalesce($10, status),
-           updated_at = $11
+           category = case when $9 then $10 else category end,
+           brand = case when $11 then $12 else brand end,
+           tags = coalesce($13::jsonb, tags),
+           is_hazardous = coalesce($14, is_hazardous),
+           images = coalesce($15::jsonb, images),
+           status = coalesce($16, status),
+           updated_at = $17
          where tenant_id = $1 and id = $2
          returning *`,
         [
@@ -183,6 +214,12 @@ export class PgProductStore implements ProductStore {
           fields.descriptionAr ?? null,
           "descriptionEn" in fields,
           fields.descriptionEn ?? null,
+          "category" in fields,
+          fields.category ?? null,
+          "brand" in fields,
+          fields.brand ?? null,
+          fields.tags !== undefined ? JSON.stringify(fields.tags) : null,
+          fields.isHazardous ?? null,
           fields.images !== undefined ? JSON.stringify(fields.images) : null,
           fields.status ?? null,
           updatedAt,
@@ -201,13 +238,19 @@ export class PgVariantStore implements VariantStore {
     await withTenant(this.pool, record.tenantId, (client) =>
       client.query(
         `insert into variants
-           (id, tenant_id, product_id, sku, attributes, images, created_at, updated_at)
-         values ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8)`,
+           (id, tenant_id, product_id, sku, barcode, weight_grams, dimensions,
+            price_minor, currency, attributes, images, created_at, updated_at)
+         values ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10::jsonb, $11::jsonb, $12, $13)`,
         [
           record.id,
           record.tenantId,
           record.productId,
           record.sku,
+          record.barcode,
+          record.weightGrams,
+          JSON.stringify(record.dimensions),
+          record.priceMinor,
+          record.currency,
           JSON.stringify(record.attributes),
           JSON.stringify(record.images),
           record.createdAt,
@@ -256,20 +299,46 @@ export class PgVariantStore implements VariantStore {
   async update(
     tenantId: string,
     id: string,
-    fields: Partial<Pick<VariantRecord, "attributes" | "images">>,
+    fields: Partial<
+      Pick<
+        VariantRecord,
+        | "barcode"
+        | "weightGrams"
+        | "dimensions"
+        | "priceMinor"
+        | "currency"
+        | "attributes"
+        | "images"
+      >
+    >,
     updatedAt: Date,
   ): Promise<VariantRecord | null> {
     return withTenant(this.pool, tenantId, async (client) => {
       const result = await client.query<VariantRow>(
         `update variants set
-           attributes = coalesce($3::jsonb, attributes),
-           images = coalesce($4::jsonb, images),
-           updated_at = $5
+           barcode = case when $3 then $4 else barcode end,
+           weight_grams = case when $5 then $6::integer else weight_grams end,
+           dimensions = coalesce($7::jsonb, dimensions),
+           price_minor = case when $8 then $9::integer else price_minor end,
+           currency = coalesce($10, currency),
+           attributes = coalesce($11::jsonb, attributes),
+           images = coalesce($12::jsonb, images),
+           updated_at = $13
          where tenant_id = $1 and id = $2
          returning *`,
         [
           tenantId,
           id,
+          "barcode" in fields,
+          fields.barcode ?? null,
+          "weightGrams" in fields,
+          fields.weightGrams ?? null,
+          fields.dimensions !== undefined
+            ? JSON.stringify(fields.dimensions)
+            : null,
+          "priceMinor" in fields,
+          fields.priceMinor ?? null,
+          fields.currency ?? null,
           fields.attributes !== undefined
             ? JSON.stringify(fields.attributes)
             : null,
