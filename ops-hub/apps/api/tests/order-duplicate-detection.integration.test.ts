@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import { systemClock } from "@ops-hub/shared";
 import { Client, Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -75,6 +76,7 @@ describe.skipIf(!runDbTests)(
       duplicateDetection = new DuplicateDetectionService(
         orderStore,
         exceptionStore,
+        systemClock,
       );
       orderServiceWithDetection = new OrderService({
         store: orderStore,
@@ -228,6 +230,7 @@ describe.skipIf(!runDbTests)(
         (await placeOrder({ customer: { phone: "01033322211" } })).result.order
           .id,
         "ADDRESS_INCOMPLETE",
+        new Date(Date.now() + 24 * 60 * 60 * 1000),
       );
 
       await expect(

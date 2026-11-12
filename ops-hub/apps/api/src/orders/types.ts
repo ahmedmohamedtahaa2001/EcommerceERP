@@ -113,6 +113,10 @@ export interface ExceptionRecord {
   reasonCode: string;
   status: string;
   metadata: Record<string, unknown> | null;
+  ownerId: string | null;
+  dueAt: Date;
+  resolution: string | null;
+  overdueNotifiedAt: Date | null;
   createdAt: Date;
 }
 
@@ -121,11 +125,24 @@ export interface ExceptionStore {
     tenantId: string,
     orderId: string,
     reasonCode: string,
+    dueAt: Date,
     metadata?: Record<string, unknown>,
   ): Promise<ExceptionRecord>;
   getById(tenantId: string, id: string): Promise<ExceptionRecord | null>;
+  list(
+    tenantId: string,
+    filter: { status?: string; orderId?: string },
+  ): Promise<ExceptionRecord[]>;
+  assign(
+    tenantId: string,
+    id: string,
+    ownerId: string,
+  ): Promise<ExceptionRecord | null>;
   /** No-op (returns false) if the exception isn't `open`. */
-  resolve(tenantId: string, id: string): Promise<boolean>;
+  resolve(tenantId: string, id: string, resolution: string): Promise<boolean>;
+  /** Open exceptions past due and not yet notified; marks them notified in
+   * the same call so a re-run of the sweep never double-counts them. */
+  claimOverdue(tenantId: string, asOf: Date): Promise<ExceptionRecord[]>;
 }
 
 export interface VariantLookup {

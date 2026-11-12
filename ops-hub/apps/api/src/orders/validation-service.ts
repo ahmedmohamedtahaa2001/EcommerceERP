@@ -4,6 +4,7 @@ import { normalizePhone } from "@ops-hub/shared";
 import { InsufficientStockError } from "../stock/reservation-errors";
 import type { ReservationService } from "../stock/reservation-service";
 import { OrderNotFoundError } from "./errors";
+import { defaultDueAt } from "./exception-sla";
 import type {
   ExceptionStore,
   OrderStore,
@@ -33,6 +34,7 @@ export interface OrderValidationDeps {
   exceptions: ExceptionStore;
   variants: VariantLookup;
   reservations: ReservationService;
+  clock: { now(): Date };
 }
 
 /**
@@ -71,6 +73,7 @@ export class OrderValidationService {
       tenantId,
       orderId,
       reasonCode,
+      defaultDueAt(this.deps.clock.now()),
     );
     return { status: "on_hold", reasonCode, exceptionId: exception.id };
   }

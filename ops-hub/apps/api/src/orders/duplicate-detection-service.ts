@@ -5,6 +5,7 @@ import {
   ExceptionNotFoundError,
   NotADuplicateExceptionError,
 } from "./duplicate-errors";
+import { defaultDueAt } from "./exception-sla";
 import type { ExceptionStore, OrderStore, OrderWithDetails } from "./types";
 
 /** Not yet tenant-configurable — there's no tenant-settings store for it yet. */
@@ -39,6 +40,7 @@ export class DuplicateDetectionService {
   constructor(
     private readonly store: OrderStore,
     private readonly exceptions: ExceptionStore,
+    private readonly clock: { now(): Date },
   ) {}
 
   /**
@@ -96,6 +98,7 @@ export class DuplicateDetectionService {
       tenantId,
       orderId,
       DUPLICATE_SUSPECTED_REASON,
+      defaultDueAt(this.clock.now()),
       { suspectedDuplicateOfOrderId: duplicateOfOrderId, matchType },
     );
     return { duplicateOfOrderId, exceptionId: exception.id, matchType };
@@ -132,7 +135,11 @@ export class DuplicateDetectionService {
       }
     }
 
-    const resolved = await this.exceptions.resolve(tenantId, exceptionId);
+    const resolved = await this.exceptions.resolve(
+      tenantId,
+      exceptionId,
+      `duplicate_review:${action}`,
+    );
     if (!resolved) {
       throw new ExceptionAlreadyResolvedError();
     }

@@ -7,15 +7,14 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { tenants } from "./core";
+import { tenants, users } from "./core";
 import { orders } from "./orders";
 
 /**
- * Minimal stub: just enough for P1-S3-T04 (order validation failures need
- * somewhere to record a reason). P1-S3-T06 is the real Exceptions module
- * (owner, due_at, resolution, list/assign/resolve endpoints, SLA timer) and
- * will extend this table rather than replace it — the same "stub now, full
- * module later" pattern already used for P2-S6-T01's PO stub / P3-S9-T06.
+ * The Exceptions module (P1-S3-T06). Started as a minimal stub in
+ * P1-S3-T04 (order validation failures needed somewhere to record a
+ * reason); this is that same table extended, not replaced — the pattern
+ * the roadmap itself already uses for P2-S6-T01's PO stub / P3-S9-T06.
  */
 export const exceptions = pgTable(
   "exceptions",
@@ -32,6 +31,16 @@ export const exceptions = pgTable(
     /** Reason-specific extra context, e.g. `{ suspectedDuplicateOfOrderId }`
      * for DUPLICATE_SUSPECTED. */
     metadata: jsonb("metadata"),
+    ownerId: uuid("owner_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    /** Required at creation — an exception with no deadline can't go overdue. */
+    dueAt: timestamp("due_at", { withTimezone: true }).notNull(),
+    resolution: text("resolution"),
+    /** Set once the SLA sweep has emitted `exception.overdue` for this row,
+     * so it's only emitted once even if the sweep runs again before someone
+     * resolves it. */
+    overdueNotifiedAt: timestamp("overdue_notified_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -39,5 +48,10 @@ export const exceptions = pgTable(
   (table) => [
     index("exceptions_tenant_order_idx").on(table.tenantId, table.orderId),
     index("exceptions_tenant_status_idx").on(table.tenantId, table.status),
+    index("exceptions_tenant_due_idx").on(
+      table.tenantId,
+      table.status,
+      table.dueAt,
+    ),
   ],
 );

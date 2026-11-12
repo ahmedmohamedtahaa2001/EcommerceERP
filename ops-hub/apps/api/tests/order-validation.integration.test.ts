@@ -115,6 +115,7 @@ describe.skipIf(!runDbTests)(
         exceptions: new PgExceptionStore(pool),
         variants: new PgVariantStore(pool),
         reservations,
+        clock: systemClock,
       });
     });
 

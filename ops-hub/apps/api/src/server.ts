@@ -27,6 +27,7 @@ import { PgExceptionStore } from "./orders/pg-exception-store";
 import { OrderService } from "./orders/service";
 import { OrderValidationService } from "./orders/validation-service";
 import { DuplicateDetectionService } from "./orders/duplicate-detection-service";
+import { ExceptionService } from "./orders/exception-service";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
 import { RedisRateLimiter } from "./auth/redis-rate-limiter";
@@ -98,6 +99,7 @@ const exceptionStore = new PgExceptionStore(pool);
 const duplicateDetection = new DuplicateDetectionService(
   orderStore,
   exceptionStore,
+  systemClock,
 );
 const orders = new OrderService({
   store: orderStore,
@@ -109,6 +111,11 @@ const orderValidation = new OrderValidationService({
   exceptions: exceptionStore,
   variants: new PgVariantStore(pool),
   reservations,
+  clock: systemClock,
+});
+const exceptions = new ExceptionService({
+  store: exceptionStore,
+  clock: systemClock,
 });
 
 const app = buildApp({
@@ -126,6 +133,7 @@ const app = buildApp({
   orders,
   duplicateDetection,
   orderValidation,
+  exceptions,
 });
 app.addHook("onClose", async () => {
   await pool.end();
