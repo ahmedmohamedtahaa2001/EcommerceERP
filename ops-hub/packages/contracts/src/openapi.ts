@@ -748,8 +748,9 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
   // Webhooks
   {
     method: "post",
-    path: "/v1/webhooks/carriers/:carrier",
-    summary: "Carrier status webhook",
+    path: "/v1/webhooks/carriers/:carrier/:tenantId",
+    summary:
+      "Carrier status webhook for one business, signed with the carrier's secret",
     tag: "Webhooks",
     public: true,
   },

@@ -20,4 +20,17 @@ export class PgProcessedEventStore implements ProcessedEventStore {
       return result.rowCount === 1;
     });
   }
+
+  async release(
+    tenantId: string,
+    consumer: string,
+    eventId: string,
+  ): Promise<void> {
+    await withTenant(this.pool, tenantId, (client) =>
+      client.query(
+        `delete from processed_events where tenant_id = $1 and consumer = $2 and event_id = $3`,
+        [tenantId, consumer, eventId],
+      ),
+    );
+  }
 }

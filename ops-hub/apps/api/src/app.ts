@@ -34,7 +34,11 @@ import { registerExceptionRoutes } from "./orders/exception-routes";
 import type { ExceptionService } from "./orders/exception-service";
 import { registerShipmentRoutes } from "./shipments/routes";
 import type { ShipmentService } from "./shipments/service";
-import { registerShipmentWebhookRoutes } from "./shipments/webhook-routes";
+import {
+  registerShipmentWebhookRoutes,
+  type ProcessedEvents,
+} from "./shipments/webhook-routes";
+import type { StatusMapping } from "./shipments/normalize";
 import { registerCustomerRoutes } from "./customers/routes";
 import { registerPutawayRoutes } from "./putaway/routes";
 import { registerExportRoutes } from "./exports/routes";
@@ -128,6 +132,8 @@ export interface BuildAppOptions {
   bulk?: BulkService;
   userAdmin?: UserAdminService;
   company?: CompanyService;
+  carrierEvents?: ProcessedEvents;
+  carrierStatusMappings?: Record<string, StatusMapping>;
   carriers?: Record<string, ShippingCarrier>;
   /** Per-carrier HMAC secrets for inbound carrier webhooks. */
   carrierWebhookSecrets?: Record<string, string | undefined>;
@@ -473,6 +479,13 @@ ${Object.entries(buildOpenApiDocument().paths)
         registerShipmentWebhookRoutes(app, {
           carriers: options.carriers,
           shipments: options.shipments,
+          processed: options.carrierEvents ?? {
+            tryMarkProcessed: async () => {
+              throw new Error("carrier webhooks need a durable event store");
+            },
+            release: async () => undefined,
+          },
+          mappings: options.carrierStatusMappings ?? {},
           webhookSecrets: options.carrierWebhookSecrets ?? {},
         });
       }

@@ -70,6 +70,13 @@ export class ShipmentService {
     return this.deps.store.list(tenantId, filter);
   }
 
+  async findByTrackingNumber(
+    tenantId: string,
+    trackingNumber: string,
+  ): Promise<ShipmentRecord | null> {
+    return this.deps.store.getByTrackingNumber(tenantId, trackingNumber);
+  }
+
   async getById(tenantId: string, id: string): Promise<ShipmentRecord> {
     const s = await this.deps.store.getById(tenantId, id);
     if (!s) throw new Error("Shipment not found");

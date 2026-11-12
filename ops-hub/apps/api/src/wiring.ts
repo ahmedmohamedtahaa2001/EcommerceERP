@@ -76,6 +76,8 @@ import { ExportService } from "./exports/service";
 import { BulkService } from "./bulk/service";
 import { UserAdminService } from "./users/service";
 import { CompanyService } from "./company/service";
+import { PgProcessedEventStore } from "./events/pg-processed-event-store";
+import { BOSTA_STATUS_MAP } from "./shipments/normalize";
 import { PgCustomerStore } from "./customers/pg-store";
 import { SourcingService } from "./suppliers/service";
 import { TenantSettingsService } from "./settings/service";
@@ -290,6 +292,8 @@ export function buildFullApp(
     bulk: new BulkService(pool),
     userAdmin: new UserAdminService(pool, argon2Hasher, systemClock),
     company: new CompanyService(pool),
+    carrierEvents: new PgProcessedEventStore(pool),
+    carrierStatusMappings: { bosta: BOSTA_STATUS_MAP },
     catalogImport,
     inventory,
     stock,

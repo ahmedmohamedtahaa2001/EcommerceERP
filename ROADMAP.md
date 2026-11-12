@@ -969,6 +969,8 @@ P0 Foundation ──► P1 Core Ops MVP ──► P2 Reliability & Money ──�
 - Predictive demand forecasting with ML (P3 uses recency-weighted average)
 - Customer self-service returns portal (basic flow only in P2)
 
+- 2026-11-12 · carrier webhooks · Carrier status webhooks now apply: `POST /v1/webhooks/carriers/:carrier/:tenantId` verifies the signature, finds the shipment by tracking number, records the event and moves the shipment (and the order to shipped on carrier acceptance) through the existing `applyCarrierStatus`. Duplicate deliveries are detected in the database (`processed_events`), and a failed apply releases its claim so the carrier's retry is not lost. Unknown tracking numbers are acknowledged and ignored. Caveats before pilot: the Bosta status map is still a placeholder that has not been checked against Bosta's documentation, and the signature header and digest are our own contract until confirmed with the carrier. Posta and J&T have no status map, so their events are recorded as unmapped. 10 webhook tests; 568 API/package tests.
+
 ---
 
 ## 15. Progress log

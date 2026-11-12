@@ -9,20 +9,85 @@ import type { ShipmentService } from "../src/shipments/service";
 import { FakeAuditWriter } from "./fakes";
 
 const SECRET = "bosta-test-secret";
-const ROUTE = "/v1/webhooks/carriers/bosta";
+const TENANT = "00000000-0000-4000-8000-00000000a901";
+const ROUTE = `/v1/webhooks/carriers/bosta/${TENANT}`;
+const TRACKING = "TRK-1";
 
-const fakeBosta = {
-  parseWebhook: async (_headers: unknown, body: unknown) => ({
-    eventId: String((body as { eventId: string }).eventId),
-    event: {
-      carrierStatus: "delivered",
-      status: "delivered",
-      occurredAt: new Date(),
-      raw: body,
+interface Recorded {
+  applied: Array<{
+    tenantId: string;
+    shipmentId: string;
+    raw: string;
+    mapping: unknown;
+  }>;
+  claimed: string[];
+  released: string[];
+}
+
+function fakes(
+  options: {
+    knownTracking?: boolean;
+    applyFails?: boolean;
+    alreadyClaimed?: boolean;
+  } = {},
+) {
+  const recorded: Recorded = { applied: [], claimed: [], released: [] };
+  const claimedKeys = new Set<string>();
+  const carrier = {
+    parseWebhook: async (_headers: unknown, body: unknown) => {
+      const b = body as {
+        eventId: string;
+        trackingNumber?: string;
+        status: string;
+      };
+      return {
+        eventId: b.eventId,
+        trackingNumber: b.trackingNumber,
+        event: {
+          carrierStatus: b.status,
+          status: "delivered",
+          occurredAt: new Date("2026-11-12T10:00:00Z"),
+          raw: body,
+        },
+        raw: body,
+      };
     },
-    raw: body,
-  }),
-} as unknown as ShippingCarrier;
+  } as unknown as ShippingCarrier;
+  const shipments = {
+    findByTrackingNumber: async (_tenant: string, tracking: string) =>
+      options.knownTracking === false || tracking !== TRACKING
+        ? null
+        : { id: "shipment-1", trackingNumber: tracking },
+    applyCarrierStatus: async (
+      tenantId: string,
+      shipmentId: string,
+      raw: string,
+      mapping: unknown,
+    ) => {
+      if (options.applyFails) throw new Error("database unavailable");
+      recorded.applied.push({ tenantId, shipmentId, raw, mapping });
+      return { unmapped: false, status: "delivered" };
+    },
+  } as unknown as ShipmentService;
+  const events = {
+    tryMarkProcessed: async (
+      tenant: string,
+      consumer: string,
+      eventId: string,
+    ) => {
+      const key = `${tenant}|${consumer}|${eventId}`;
+      recorded.claimed.push(key);
+      if (options.alreadyClaimed || claimedKeys.has(key)) return false;
+      claimedKeys.add(key);
+      return true;
+    },
+    release: async (tenant: string, consumer: string, eventId: string) => {
+      recorded.released.push(`${tenant}|${consumer}|${eventId}`);
+      claimedKeys.delete(`${tenant}|${consumer}|${eventId}`);
+    },
+  };
+  return { carrier, shipments, events, recorded };
+}
 
 let app: FastifyInstance | undefined;
 
@@ -31,15 +96,21 @@ afterEach(async () => {
   app = undefined;
 });
 
-function build(secrets: Record<string, string | undefined>): FastifyInstance {
+function build(
+  secrets: Record<string, string | undefined>,
+  options: Parameters<typeof fakes>[0] = {},
+) {
+  const f = fakes(options);
   app = buildApp({
     logger: false,
-    shipments: {} as ShipmentService,
+    shipments: f.shipments,
     audit: new FakeAuditWriter(),
-    carriers: { bosta: fakeBosta },
+    carriers: { bosta: f.carrier },
     carrierWebhookSecrets: secrets,
+    carrierEvents: f.events,
+    carrierStatusMappings: { bosta: { delivered: "delivered" } as never },
   });
-  return app;
+  return { instance: app, recorded: f.recorded };
 }
 
 function sign(secret: string, body: string): string {
@@ -64,59 +135,130 @@ function post(
   });
 }
 
-function freshBody(): string {
+function payload(overrides: Record<string, unknown> = {}): string {
   return JSON.stringify({
     eventId: `evt-${randomUUID()}`,
-    shipmentId: "SHIP-1",
+    trackingNumber: TRACKING,
     status: "delivered",
+    ...overrides,
   });
 }
 
 describe("carrier webhook signature verification", () => {
-  it("accepts a correctly signed payload", async () => {
-    const instance = build({ bosta: SECRET });
-    const body = freshBody();
+  it("applies a correctly signed status to the matching shipment", async () => {
+    const { instance, recorded } = build({ bosta: SECRET });
+    const body = payload();
     const res = await post(instance, body, sign(SECRET, body));
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toEqual({ ok: true });
+    expect(res.json()).toMatchObject({
+      ok: true,
+      matched: true,
+      status: "delivered",
+    });
+    expect(recorded.applied).toEqual([
+      expect.objectContaining({
+        tenantId: TENANT,
+        shipmentId: "shipment-1",
+        raw: "delivered",
+      }),
+    ]);
   });
 
   it("rejects a payload signed with the wrong secret", async () => {
-    const instance = build({ bosta: SECRET });
-    const body = freshBody();
+    const { instance, recorded } = build({ bosta: SECRET });
+    const body = payload();
     const res = await post(instance, body, sign("wrong-secret", body));
     expect(res.statusCode).toBe(401);
+    expect(recorded.applied).toHaveLength(0);
   });
 
   it("rejects a valid signature replayed against a modified body", async () => {
-    const instance = build({ bosta: SECRET });
-    const body = freshBody();
+    const { instance } = build({ bosta: SECRET });
+    const body = payload();
     const tampered = body.replace("delivered", "returned");
     const res = await post(instance, tampered, sign(SECRET, body));
     expect(res.statusCode).toBe(401);
   });
 
   it("rejects a request with no signature header", async () => {
-    const instance = build({ bosta: SECRET });
-    const res = await post(instance, freshBody(), undefined);
+    const { instance } = build({ bosta: SECRET });
+    const res = await post(instance, payload(), undefined);
     expect(res.statusCode).toBe(401);
   });
 
   it("fails closed when the carrier has no secret configured", async () => {
-    const instance = build({});
-    const body = freshBody();
+    const { instance } = build({});
+    const body = payload();
     const res = await post(instance, body, sign(SECRET, body));
     expect(res.statusCode).toBe(401);
   });
 
-  it("still returns 404 for an unknown carrier before checking signatures", async () => {
-    const instance = build({ bosta: SECRET });
-    const res = await post(
-      instance,
-      freshBody(),
-      "anything",
-      "/v1/webhooks/carriers/nope",
+  it("returns 404 for an unknown carrier or a malformed business id", async () => {
+    const { instance } = build({ bosta: SECRET });
+    const body = payload();
+    const signature = sign(SECRET, body);
+    expect(
+      (
+        await post(
+          instance,
+          body,
+          signature,
+          "/v1/webhooks/carriers/nope/" + TENANT,
+        )
+      ).statusCode,
+    ).toBe(404);
+    expect(
+      (
+        await post(
+          instance,
+          body,
+          signature,
+          "/v1/webhooks/carriers/bosta/not-a-uuid",
+        )
+      ).statusCode,
+    ).toBe(404);
+  });
+});
+
+describe("carrier webhook processing", () => {
+  it("acknowledges a tracking number we never issued without changing anything", async () => {
+    const { instance, recorded } = build(
+      { bosta: SECRET },
+      { knownTracking: false },
     );
-    expect(res.statusCode).toBe(404);
+    const body = payload();
+    const res = await post(instance, body, sign(SECRET, body));
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ ok: true, matched: false });
+    expect(recorded.applied).toHaveLength(0);
+  });
+
+  it("refuses a payload without a tracking number", async () => {
+    const { instance } = build({ bosta: SECRET });
+    const body = JSON.stringify({ eventId: "evt-x", status: "delivered" });
+    const res = await post(instance, body, sign(SECRET, body));
+    expect(res.statusCode).toBe(422);
+  });
+
+  it("applies a redelivered event only once", async () => {
+    const { instance, recorded } = build({ bosta: SECRET });
+    const body = payload({ eventId: "evt-once" });
+    const signature = sign(SECRET, body);
+    await post(instance, body, signature);
+    const again = await post(instance, body, signature);
+    expect(again.json()).toEqual({ ok: true, duplicate: true });
+    expect(recorded.applied).toHaveLength(1);
+  });
+
+  it("gives the claim back when applying fails, so the carrier's retry is not lost", async () => {
+    const { instance, recorded } = build(
+      { bosta: SECRET },
+      { applyFails: true },
+    );
+    const body = payload({ eventId: "evt-retry" });
+    const res = await post(instance, body, sign(SECRET, body));
+    expect(res.statusCode).toBe(500);
+    expect(recorded.released).toHaveLength(1);
+    expect(recorded.released[0]).toContain("carrier:bosta");
   });
 });
