@@ -47,7 +47,10 @@ const ICONS: Record<NavIconKey, ReactNode> = {
 };
 
 export interface SidebarProps {
+  /** Icon-only rail on tablets and desktops. */
   collapsed: boolean;
+  /** On phones the sidebar is a drawer, shown only when opened. */
+  mobileOpen?: boolean;
 }
 
 const ACTIVE_CLASSES = "bg-primary-lightest/20 text-white font-bold shadow-sm";
@@ -60,9 +63,13 @@ const GOLD_INDICATOR =
  * any directional classes. Active items get a translucent primary-lightest
  * pill with a gold indicator bar at the inline-start edge.
  */
-export function Sidebar({ collapsed }: SidebarProps) {
+export function Sidebar({
+  collapsed: desktopCollapsed,
+  mobileOpen = false,
+}: SidebarProps) {
   const t = useT();
   const { session } = useSession();
+  const collapsed = desktopCollapsed && !mobileOpen;
   const sections = visibleNavSections(
     NAV_SECTIONS,
     session?.user.permissions ?? [],
@@ -70,8 +77,8 @@ export function Sidebar({ collapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`flex h-dvh shrink-0 flex-col bg-primary-darkest text-white transition-[width] duration-200 ${
-        collapsed ? "w-16" : "w-64"
+      className={`${mobileOpen ? "fixed inset-y-0 start-0 z-40 flex w-64" : "hidden"} h-dvh shrink-0 flex-col overflow-y-auto bg-primary-darkest text-white transition-[width] duration-200 md:sticky md:top-0 md:flex ${
+        desktopCollapsed ? "md:w-16" : "md:w-64"
       }`}
     >
       <div className="flex h-16 items-center gap-2 px-4">

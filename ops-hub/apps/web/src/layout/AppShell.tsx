@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 import { useT } from "../lib/i18n";
@@ -13,18 +13,42 @@ import { Topbar } from "./Topbar";
  * Collapses to icon-only on the sidebar toggle (kept for md+; the sidebar
  * itself is the only chrome on small screens).
  */
+const DESKTOP_QUERY = "(min-width: 768px)";
+
 export function AppShell() {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const t = useT();
   const location = useLocation();
+
+  // A page change on a phone should reveal the page, not leave the menu over it.
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  const toggleSidebar = () => {
+    if (window.matchMedia(DESKTOP_QUERY).matches) {
+      setCollapsed((value) => !value);
+    } else {
+      setMobileOpen((value) => !value);
+    }
+  };
 
   const crumbs = crumbsFromPath(location.pathname, t);
 
   return (
     <div className="flex min-h-dvh bg-bg" dir="inherit">
-      <Sidebar collapsed={collapsed} />
+      {mobileOpen ? (
+        <button
+          type="button"
+          aria-label={t("action.toggleMenu")}
+          className="fixed inset-0 z-30 bg-ink-900/40 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      ) : null}
+      <Sidebar collapsed={collapsed} mobileOpen={mobileOpen} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar onToggleSidebar={() => setCollapsed((value) => !value)} />
+        <Topbar onToggleSidebar={toggleSidebar} />
         <main className="mx-auto w-full max-w-content flex-1 px-4 py-6 lg:px-8">
           {crumbs.length > 0 ? (
             <Breadcrumbs items={crumbs} className="mb-4" />
