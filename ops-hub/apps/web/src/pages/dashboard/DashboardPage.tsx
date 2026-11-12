@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { useT } from "../../lib/i18n";
 import { listExceptions } from "../../lib/api/orders";
-import { Button, Modal, PageHeader } from "../../components/ui";
+import { Button, PageHeader } from "../../components/ui";
 import { DashboardKpis } from "./DashboardKpis";
 import { AttentionPanel } from "./AttentionPanel";
 
@@ -16,14 +15,11 @@ import { AttentionPanel } from "./AttentionPanel";
 export function DashboardPage() {
   const t = useT();
   const navigate = useNavigate();
-  const [createOpen, setCreateOpen] = useState(false);
 
   const openExceptions = useQuery({
     queryKey: ["exceptions", "open"],
     queryFn: () => listExceptions({ status: "open" }),
   });
-
-  const closeCreate = (): void => setCreateOpen(false);
 
   return (
     <div className="flex flex-col gap-6">
@@ -32,7 +28,7 @@ export function DashboardPage() {
         description={t("dashboard.description")}
         actions={
           <>
-            <Button onClick={() => setCreateOpen(true)}>
+            <Button onClick={() => void navigate("/orders/new")}>
               {t("dashboard.quick.createOrder")}
             </Button>
             <Button variant="outlined" onClick={() => void navigate("/orders")}>
@@ -54,32 +50,6 @@ export function DashboardPage() {
         error={openExceptions.error}
         onRetry={() => void openExceptions.refetch()}
       />
-
-      <Modal
-        open={createOpen}
-        onClose={closeCreate}
-        title={t("dashboard.quick.createOrderTitle")}
-        footer={
-          <>
-            <Button variant="ghost" onClick={closeCreate}>
-              {t("action.cancel")}
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => void navigate("/exceptions")}
-            >
-              {t("dashboard.quick.goToExceptions")}
-            </Button>
-            <Button onClick={() => void navigate("/orders")}>
-              {t("dashboard.quick.goToOrders")}
-            </Button>
-          </>
-        }
-      >
-        <p className="text-body2 text-ink-700">
-          {t("dashboard.quick.createOrderBody")}
-        </p>
-      </Modal>
     </div>
   );
 }

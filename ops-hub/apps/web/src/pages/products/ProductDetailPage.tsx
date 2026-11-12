@@ -29,11 +29,8 @@ import {
   useToast,
 } from "../../components/ui";
 import { AvailabilityBuckets, InfoIcon } from "./AvailabilityBuckets";
-import {
-  formatMinorAsMajor,
-  parseMajorToMinor,
-  parseTags,
-} from "./product-attributes";
+import { formatMinorAsMajor, parseMajorToMinor } from "../../lib/money";
+import { parseTags } from "./product-attributes";
 
 /** On-demand availability panel for one variant SKU. */
 function VariantAvailability({ sku }: { sku: string }) {

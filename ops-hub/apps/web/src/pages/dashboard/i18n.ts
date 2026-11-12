@@ -26,9 +26,6 @@ export const dict = {
     "dashboard.attention.overdue": "متأخرة",
     "dashboard.viewOrder": "عرض الطلب",
     "dashboard.quick.createOrder": "إنشاء طلب",
-    "dashboard.quick.createOrderTitle": "إنشاء طلب جديد",
-    "dashboard.quick.createOrderBody":
-      "نموذج إنشاء الطلبات قيد التجهيز. حتى يجهز، تابع الطلبات الحالية من قائمة الطلبات.",
     "dashboard.quick.goToOrders": "الانتقال إلى الطلبات",
     "dashboard.quick.goToExceptions": "الانتقال إلى المشكلات",
   },
@@ -54,9 +51,6 @@ export const dict = {
     "dashboard.attention.overdue": "Overdue",
     "dashboard.viewOrder": "View order",
     "dashboard.quick.createOrder": "New order",
-    "dashboard.quick.createOrderTitle": "Create a new order",
-    "dashboard.quick.createOrderBody":
-      "The order creation form is on the way. Until it lands, track current orders from the orders list.",
     "dashboard.quick.goToOrders": "Go to orders",
     "dashboard.quick.goToExceptions": "Go to exceptions",
   },

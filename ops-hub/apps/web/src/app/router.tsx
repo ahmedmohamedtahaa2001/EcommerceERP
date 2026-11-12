@@ -25,6 +25,10 @@ const lazyImports = {
     import("../pages/orders/OrdersPage").then((m) => ({
       Component: m.OrdersPage,
     })),
+  NewOrderPage: () =>
+    import("../pages/orders/NewOrderPage").then((m) => ({
+      Component: m.NewOrderPage,
+    })),
   OrderDetailPage: () =>
     import("../pages/orders/OrderDetailPage").then((m) => ({
       Component: m.OrderDetailPage,
@@ -126,6 +130,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, lazy: lazyImports.DashboardPage },
       { path: "orders", lazy: lazyImports.OrdersPage },
+      { path: "orders/new", lazy: lazyImports.NewOrderPage },
       { path: "orders/:orderId", lazy: lazyImports.OrderDetailPage },
       { path: "exceptions", lazy: lazyImports.ExceptionsPage },
       { path: "products", lazy: lazyImports.ProductsPage },
