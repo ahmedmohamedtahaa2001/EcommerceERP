@@ -12,6 +12,7 @@ import { dict as productsDict } from "../../pages/products/i18n";
 import { dict as exportsDict } from "../../pages/exports/i18n";
 import { dict as bulkDict } from "../../pages/bulk/i18n";
 import { dict as usersDict } from "../../pages/users/i18n";
+import { dict as reportsDict } from "../../pages/reports/i18n";
 import { dict as inventoryDict } from "../../pages/inventory/i18n";
 import { dict as authDict } from "../../pages/auth/i18n";
 import { dict as adminDict } from "../../pages/admin/i18n";
@@ -26,6 +27,7 @@ const DOMAIN_DICTS = [
   exportsDict,
   bulkDict,
   usersDict,
+  reportsDict,
   inventoryDict,
   authDict,
   adminDict,

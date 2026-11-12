@@ -14,6 +14,7 @@ export const en: Record<string, string> = {
   "nav.exports": "Export data",
   "nav.bulk": "Bulk changes",
   "nav.users": "Team",
+  "nav.reports": "Reports",
   "nav.section.analytics": "Analytics",
   "nav.section.admin": "Administration",
 

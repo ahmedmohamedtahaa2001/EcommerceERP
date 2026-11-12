@@ -80,7 +80,10 @@ export const NAV_SECTIONS: readonly NavSection[] = [
   },
   {
     labelKey: "nav.section.analytics",
-    items: [{ labelKey: "nav.analytics", to: "/analytics", icon: "chart" }],
+    items: [
+      { labelKey: "nav.analytics", to: "/analytics", icon: "chart" },
+      { labelKey: "nav.reports", to: "/reports", icon: "chart" },
+    ],
   },
   {
     labelKey: "nav.section.admin",
