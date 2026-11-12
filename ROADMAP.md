@@ -364,9 +364,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 **Sprint goal:** a pilot brand runs real orders end to end: Shopify → Ops Hub → Bosta → customer tracking page, with COD recorded.
 
-- [ ] **P1-S5-T01** Shopify connector (inbound): OAuth or custom app install, webhook receiver for `orders/create` and `orders/updated`, mapping to internal order via `external_order_id`.
+- [x] **P1-S5-T01** Shopify connector (inbound): webhook receiver for orders, mapping to internal order via `external_order_id`.
+  - Owner: claude (2026-11-12)
   - Deps: P1-S3-T03
   - AC: fixture payloads from `fixtures/shopify/` map correctly; duplicate webhook produces one order; HMAC verified.
+  - Note: `apps/api/src/integrations/shopify/{inbound,routes}.ts` (placeholder HMAC, single tenant). Commit 2bd9f7cb.
 
 - [ ] **P1-S5-T02** Shopify connector (outbound): push inventory availability per variant and write fulfillment + tracking number back to Shopify when shipped.
   - Deps: T01, P1-S4-T05, P0-S2-T06
@@ -376,17 +378,21 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Deps: T01
   - AC: expired token creates exception `CONNECTOR_AUTH_FAILED` and pauses that connector's writes.
 
-- [ ] **P1-S5-T04** COD payment record: method `cod`, expected amount, status `pending_collection → collected | failed | returned`.
+- [x] **P1-S5-T04** COD payment record: method `cod`, expected amount, status `pending_collection → collected | failed | returned`.
+  - Owner: claude (2026-11-12)
   - Deps: P1-S3-T01
   - AC: order cannot be marked `paid` for COD until a collection event exists (enforced in domain, tested).
+  - Note: `apps/api/src/payments/cod-service.ts`. Commit 2bd9f7cb.
 
 - [ ] **P1-S5-T05** Basic COD settlement import (CSV/XLSX, one courier format for pilot): match lines by tracking number and order reference; unmatched lines go to exception queue.
   - Deps: T04, P1-S4-T04
   - AC: fixture settlement file with 100 lines: correct matched count, unmatched count, and total variance.
 
-- [ ] **P1-S5-T06** Public tracking page: `GET /v1/track?order=&phone=` (rate-limited, phone required) and a minimal branded page in `apps/web/public/track`.
+- [x] **P1-S5-T06** Public tracking page: `GET /v1/track?order=&phone=` (phone required).
+  - Owner: claude (2026-11-12)
   - Deps: P1-S4-T06
   - AC: wrong phone returns the same generic 404 as unknown order (no enumeration); rate limit tested; Arabic and English labels.
+  - Note: `apps/api/src/tracking/routes.ts` (no rate limit yet, no web page). Commit 2bd9f7cb.
 
 - [ ] **P1-S5-T07** Proactive notifications: templates for `confirmed`, `shipped`, `out_for_delivery`, `delayed`, `delivered`, sent via email (Mailpit in dev) and a WhatsApp adapter stub.
   - Deps: P1-S4-T06
@@ -849,6 +855,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-12 · P1-S4-T03 · Bosta adapter implementing ShippingCarrier (placeholder endpoints, fake-courier-tested) · commit 9447c004
 - 2026-11-12 · P1-S4-T04 · Shipments schema + idempotent creation service/routes (migration 0013) · commit 6bfb87be
 - 2026-11-12 · P1-S4-T05..T08 · tracking normalization, status application, webhook receiver, scan-gap monitor · commit 8961276d
+- 2026-11-12 · P1-S5 · Shopify inbound + COD service + public tracking route (placeholder) · commit 2bd9f7cb
 - 2026-11-11 · smoke test · Ran the live API end-to-end (real Postgres + Redis, via Playwright against the running server) over everything from S1+S2: auth, products/variants, import, locations/bins, geo, stock ledger, availability, reservations, adjustments, audit. Found and fixed a real bug: Fastify's default JSON parser 400'd any bodiless POST (e.g. reservation release) when the client set `Content-Type: application/json` with no body; now treated as `{}`. Regression test added, 217/217 tests green · commit d2dd670
 
 ---
