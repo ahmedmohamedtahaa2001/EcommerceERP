@@ -230,9 +230,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: adjustment without reason returns 422; reason enum is served from one source used by both API and validation.
   - Note: `GET /v1/meta/enums` also serves `stockBuckets` (from T05) alongside `adjustmentReasons`, since both are the kind of fixed vocabulary P4-S13-T07 later wants machine-readable.
 
-- [ ] **P0-S2-T09** Outbox and event dispatcher: `outbox_events` written in the same transaction as domain changes; a worker publishes to pg-boss with at-least-once delivery and consumer idempotency via `event_id`.
+- [x] **P0-S2-T09** Outbox and event dispatcher: `outbox_events` written in the same transaction as domain changes; a worker publishes to pg-boss with at-least-once delivery and consumer idempotency via `event_id`.
+  - Owner: claude (2026-11-12)
   - Deps: T03
   - AC: kill the worker mid-batch; no event lost; a duplicated delivery is processed once by a test consumer.
+  - Note: only `PgProductStore.create` appends an outbox event so far (proves the same-transaction guarantee on one real path) — other mutating paths don't emit events yet; add `appendOutboxEvent(client, ...)` calls to them as each needs an event. "Kill the worker" is tested at the `OutboxDispatcher` level with a fake queue that throws mid-batch (deterministic, no need to actually kill a process); the pg-boss E2E test uses `boss.fetch()`/`boss.complete()` directly rather than `boss.work()`'s background poll loop, which was flaky under full-suite parallel load (unrelated to app logic — confirmed by testing in isolation).
 
 - [ ] **P0-S2-T10** Outbound webhook subscriptions: `webhook_subscriptions` (url, events, secret), HMAC-SHA256 signing, retries with exponential backoff, delivery log, manual replay.
   - Deps: T09
@@ -804,6 +806,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S2-T06 · Availability API (ATP) over the stock ledger; added tenants.allow_negative_stock (migration 0005, default false) as the clamp policy. 204/204 tests green, lint + typecheck clean · commit e9a040e
 - 2026-11-11 · P0-S2-T07 · Stock reservations: Redis SET-NX-PX lock serializes allocation per tenant+variant+location; reserve/release/expireDue all go through the existing ledger. 209/209 tests green incl. a parallel-requests race test (stable across repeated runs), lint + typecheck clean · commit 58aec54
 - 2026-11-11 · P0-S2-T08 · Adjustments endpoint (fixed reason enum) + GET /v1/meta/enums, both reading ADJUSTMENT_REASONS from one module so they can't drift. 215/215 tests green, lint + typecheck clean · commit e19d100
+- 2026-11-12 · P0-S2-T09 · Transactional outbox + pg-boss dispatcher (TDD: RED before GREEN for dispatcher/idempotency logic). outbox_events + processed_events (migration 0006); PgProductStore.create wired as the one proof-of-concept emitter. 227/227 tests green (stable across repeated full-suite runs), lint + typecheck clean · commit 3f3ded2
 - 2026-11-11 · smoke test · Ran the live API end-to-end (real Postgres + Redis, via Playwright against the running server) over everything from S1+S2: auth, products/variants, import, locations/bins, geo, stock ledger, availability, reservations, adjustments, audit. Found and fixed a real bug: Fastify's default JSON parser 400'd any bodiless POST (e.g. reservation release) when the client set `Content-Type: application/json` with no body; now treated as `{}`. Regression test added, 217/217 tests green · commit d2dd670
 
 ---
