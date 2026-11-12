@@ -431,6 +431,179 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     scope: "reports:read",
   },
 
+  // Receiving, putaway and cycle counts
+  {
+    method: "post",
+    path: "/v1/receipts",
+    summary: "Receive stock into quarantine",
+    tag: "Receiving",
+    scope: "inventory:write",
+  },
+  {
+    method: "get",
+    path: "/v1/receipts",
+    summary: "List receipts",
+    tag: "Receiving",
+    scope: "inventory:read",
+  },
+  {
+    method: "post",
+    path: "/v1/receipts/:id/lines/:lineId/release",
+    summary: "Release quarantined units into a bin",
+    tag: "Receiving",
+    scope: "inventory:write",
+  },
+  {
+    method: "get",
+    path: "/v1/putaway/suggestion",
+    summary: "Suggest a putaway bin",
+    tag: "Receiving",
+    scope: "inventory:read",
+  },
+  {
+    method: "get",
+    path: "/v1/cycle-counts",
+    summary: "List cycle counts",
+    tag: "Receiving",
+    scope: "inventory:read",
+  },
+  {
+    method: "post",
+    path: "/v1/cycle-counts/:id/count",
+    summary: "Submit a cycle count",
+    tag: "Receiving",
+    scope: "inventory:write",
+  },
+  {
+    method: "post",
+    path: "/v1/cycle-counts/:id/approve",
+    summary: "Approve a cycle count and post the variance",
+    tag: "Receiving",
+    scope: "inventory:write",
+  },
+
+  // COD confirmation and risk
+  {
+    method: "post",
+    path: "/v1/cod-tasks",
+    summary: "Create a COD confirmation task",
+    tag: "COD",
+    scope: "orders:write",
+  },
+  {
+    method: "get",
+    path: "/v1/cod-tasks",
+    summary: "List COD confirmation tasks",
+    tag: "COD",
+    scope: "orders:read",
+  },
+  {
+    method: "post",
+    path: "/v1/cod-tasks/:id/attempt",
+    summary: "Record a confirmation attempt",
+    tag: "COD",
+    scope: "orders:write",
+  },
+  {
+    method: "get",
+    path: "/v1/orders/:id/risk-score",
+    summary: "Risk score for an order",
+    tag: "COD",
+    scope: "orders:read",
+  },
+
+  // Returns and refunds
+  {
+    method: "post",
+    path: "/v1/returns",
+    summary: "Request a return",
+    tag: "Returns",
+    scope: "orders:write",
+  },
+  {
+    method: "get",
+    path: "/v1/returns/:id",
+    summary: "Read a return",
+    tag: "Returns",
+    scope: "orders:read",
+  },
+  {
+    method: "post",
+    path: "/v1/returns/:id/transition",
+    summary: "Move a return along its lifecycle",
+    tag: "Returns",
+    scope: "orders:write",
+  },
+  {
+    method: "post",
+    path: "/v1/returns/:id/disposition",
+    summary: "Disposition a received return",
+    tag: "Returns",
+    scope: "inventory:write",
+  },
+  {
+    method: "post",
+    path: "/v1/refunds",
+    summary: "Request a refund",
+    tag: "Returns",
+    scope: "refunds:approve",
+  },
+  {
+    method: "post",
+    path: "/v1/refunds/:id/approve",
+    summary: "Approve a refund (four-eyes rule)",
+    tag: "Returns",
+    scope: "refunds:approve",
+  },
+
+  // Settlement and reconciliation
+  {
+    method: "post",
+    path: "/v1/settlements/import",
+    summary: "Import a courier settlement file",
+    tag: "Settlement",
+    scope: "reports:read",
+  },
+  {
+    method: "get",
+    path: "/v1/reconciliation/daily",
+    summary: "Daily COD reconciliation",
+    tag: "Settlement",
+    scope: "reports:read",
+  },
+
+  // Dead-letter queue
+  {
+    method: "get",
+    path: "/v1/dlq",
+    summary: "List dead-lettered messages",
+    tag: "DLQ",
+    scope: "settings:write",
+  },
+  {
+    method: "post",
+    path: "/v1/dlq/:id/replay",
+    summary: "Replay one dead-lettered message",
+    tag: "DLQ",
+    scope: "settings:write",
+  },
+  {
+    method: "post",
+    path: "/v1/dlq/replay-batch",
+    summary: "Replay a batch of dead-lettered messages",
+    tag: "DLQ",
+    scope: "settings:write",
+  },
+
+  // Routing
+  {
+    method: "get",
+    path: "/v1/routing/preview",
+    summary: "Explain the routing choice for an order",
+    tag: "Routing",
+    scope: "orders:read",
+  },
+
   // Webhooks
   {
     method: "post",

@@ -30,6 +30,12 @@ import { ShipmentService } from "./shipments/service";
 import { BostaAdapter } from "./integrations/bosta/adapter";
 import { OutboundWebhookService } from "./webhooks/outbound-service";
 import { ReportsService } from "./reports/service";
+import { ReceivingService } from "./receiving/service";
+import { CodService } from "./risk/service";
+import { ReturnsService } from "./returns/service";
+import { SettlementService, csvSettlementParser } from "./settlements/service";
+import { DlqService } from "./dlq/service";
+import { RoutingService } from "./routing/service";
 import { OrderService } from "./orders/service";
 import { OrderValidationService } from "./orders/validation-service";
 import { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -138,6 +144,33 @@ const shipments = new ShipmentService({
 const outboundWebhooks = new OutboundWebhookService(pool);
 const reports = new ReportsService(pool);
 
+const receiving = new ReceivingService({
+  pool,
+  stock,
+  store: stockStore,
+  clock: systemClock,
+});
+const cod = new CodService({ pool, clock: systemClock });
+const returns = new ReturnsService({
+  pool,
+  stock,
+  clock: systemClock,
+  refundApprovalThresholdMinor: Number(
+    process.env.REFUND_APPROVAL_THRESHOLD_MINOR ?? 100000,
+  ),
+});
+const settlements = new SettlementService({
+  pool,
+  clock: systemClock,
+  parsers: [
+    csvSettlementParser("bosta"),
+    csvSettlementParser("posta"),
+    csvSettlementParser("jt"),
+  ],
+});
+const dlq = new DlqService({ pool, clock: systemClock });
+const routing = new RoutingService(pool);
+
 const app = buildApp({
   auth,
   apiKeys,
@@ -158,6 +191,7 @@ const app = buildApp({
   outboundWebhooks,
   trackingPool: pool,
   reports,
+  phase2: { receiving, cod, returns, settlements, dlq, routing },
 });
 app.addHook("onClose", async () => {
   await pool.end();

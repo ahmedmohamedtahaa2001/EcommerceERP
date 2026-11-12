@@ -39,6 +39,7 @@ import type { OutboundWebhookService } from "./webhooks/outbound-service";
 import { registerTrackingRoutes } from "./tracking/routes";
 import { registerReportRoutes } from "./reports/routes";
 import type { ReportsService } from "./reports/service";
+import { registerPhase2Routes, type Phase2Services } from "./phase2/routes";
 import type { Pool } from "pg";
 import type { OrderValidationService } from "./orders/validation-service";
 import type { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -104,6 +105,7 @@ export interface BuildAppOptions {
    * order number and then verifies the phone). */
   trackingPool?: Pool;
   reports?: ReportsService;
+  phase2?: Phase2Services;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -355,6 +357,18 @@ ${Object.entries(buildOpenApiDocument().paths)
       registerReportRoutes(app, {
         service: options.reports,
         requestAuth,
+      });
+    }
+    if (options.phase2) {
+      if (!options.audit) {
+        throw new Error(
+          "phase 2 routes mutate state and require an audit writer.",
+        );
+      }
+      registerPhase2Routes(app, {
+        services: options.phase2,
+        requestAuth,
+        audit: options.audit,
       });
     }
     if (options.outboundWebhooks) {
