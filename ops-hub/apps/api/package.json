@@ -16,6 +16,7 @@
     "@ops-hub/db": "workspace:*",
     "@ops-hub/domain": "workspace:*",
     "@ops-hub/events": "workspace:*",
+    "@ops-hub/integrations": "workspace:*",
     "@ops-hub/shared": "workspace:*",
     "fastify": "^5.2.0",
     "ioredis": "^5.11.1",
