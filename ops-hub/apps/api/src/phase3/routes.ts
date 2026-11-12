@@ -507,6 +507,28 @@ export function registerPhase3Routes(
   );
 
   app.post(
+    "/v1/segments",
+    { preHandler: requirePermission(requestAuth, "customers:write") },
+    async (request, reply) => {
+      const tenantId = tenantOf(request);
+      const body = (request.body ?? {}) as Record<string, unknown>;
+      const segment = await crm.createSegment(tenantId, {
+        key: String(body.key ?? ""),
+        name: String(body.name ?? ""),
+        definition: (body.definition as Record<string, unknown>) ?? {},
+      });
+      await recordAudit(request, audit, {
+        action: "segment.created",
+        objectType: "segment",
+        objectId: segment.id,
+        after: segment,
+      });
+      reply.status(201);
+      return segment;
+    },
+  );
+
+  app.post(
     "/v1/segments/:key/refresh",
     { preHandler: requirePermission(requestAuth, "customers:write") },
     async (request) => {

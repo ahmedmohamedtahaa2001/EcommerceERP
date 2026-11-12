@@ -817,6 +817,13 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
   },
   {
     method: "post",
+    path: "/v1/segments",
+    summary: "Create a segment",
+    tag: "CRM",
+    scope: "customers:write",
+  },
+  {
+    method: "post",
     path: "/v1/segments/:key/refresh",
     summary: "Recompute a segment",
     tag: "CRM",

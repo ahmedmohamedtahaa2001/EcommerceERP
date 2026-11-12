@@ -145,11 +145,22 @@ export class RoutingService {
         costMinor: 0,
       }));
 
+      const carriers = await client.query<{ carrier: string }>(
+        `select distinct carrier from shipments where tenant_id=$1 order by carrier asc`,
+        [tenantId],
+      );
+
       const decision = route({
         governorateCode: row.governorate_code ?? "",
         requiredQuantity: row.quantity,
         locations: candidates,
-        carriers: [],
+        carriers: carriers.rows.map((c) => ({
+          carrier: c.carrier,
+          coverage: [],
+          supportsCod: row.cod,
+          onTimeRate: 1,
+          costMinor: 0,
+        })),
       });
       return { decision, candidates };
     });
