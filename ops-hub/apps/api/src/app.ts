@@ -111,6 +111,8 @@ export interface BuildAppOptions {
   exceptions?: ExceptionService;
   shipments?: ShipmentService;
   carriers?: Record<string, ShippingCarrier>;
+  /** Per-carrier HMAC secrets for inbound carrier webhooks. */
+  carrierWebhookSecrets?: Record<string, string | undefined>;
   outboundWebhooks?: OutboundWebhookService;
   /** Pool used by the public tracking route (it reads across tenants by
    * order number and then verifies the phone). */
@@ -125,6 +127,12 @@ export interface BuildAppOptions {
   phase4?: Phase4Services;
   notifications?: NotificationService;
   connectors?: ConnectorHealthService;
+}
+
+declare module "fastify" {
+  interface FastifyRequest {
+    rawBody?: string;
+  }
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -165,7 +173,8 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   app.addContentTypeParser(
     "application/json",
     { parseAs: "string" },
-    (_request, body: string, done) => {
+    (request, body: string, done) => {
+      request.rawBody = body;
       if (body.length === 0) {
         done(null, {});
         return;
@@ -382,9 +391,7 @@ ${Object.entries(buildOpenApiDocument().paths)
         registerShipmentWebhookRoutes(app, {
           carriers: options.carriers,
           shipments: options.shipments,
-          ...(process.env.SHIPMENT_WEBHOOK_SECRET
-            ? { webhookSecret: process.env.SHIPMENT_WEBHOOK_SECRET }
-            : {}),
+          webhookSecrets: options.carrierWebhookSecrets ?? {},
         });
       }
     }

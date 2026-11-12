@@ -2,6 +2,10 @@ import type { FastifyInstance } from "fastify";
 
 import type { ShippingCarrier } from "@ops-hub/integrations";
 import type { ShipmentService } from "./service";
+import {
+  CARRIER_SIGNATURE_HEADER,
+  verifyCarrierSignature,
+} from "./webhook-signature";
 
 const seen = new Set<string>();
 
@@ -10,10 +14,11 @@ export function registerShipmentWebhookRoutes(
   options: {
     carriers: Record<string, ShippingCarrier>;
     shipments: ShipmentService;
-    webhookSecret?: string;
+    /** Keyed by carrier code. A carrier without a secret rejects every call. */
+    webhookSecrets: Record<string, string | undefined>;
   },
 ): void {
-  const { carriers, webhookSecret } = options;
+  const { carriers, webhookSecrets } = options;
 
   app.post("/v1/webhooks/carriers/:carrier", async (request, reply) => {
     const { carrier } = request.params as { carrier: string };
@@ -21,6 +26,18 @@ export function registerShipmentWebhookRoutes(
     if (!adapter) {
       reply.status(404);
       return { error: "unknown carrier" };
+    }
+
+    const signature = request.headers[CARRIER_SIGNATURE_HEADER];
+    if (
+      !verifyCarrierSignature(
+        webhookSecrets[carrier],
+        request.rawBody,
+        typeof signature === "string" ? signature : undefined,
+      )
+    ) {
+      reply.status(401);
+      return { error: "invalid signature" };
     }
 
     const headers = request.headers as Record<
@@ -46,8 +63,6 @@ export function registerShipmentWebhookRoutes(
 
     reply.status(200);
     reply.send({ ok: true });
-
-    void webhookSecret;
     return;
   });
 }

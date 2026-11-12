@@ -281,6 +281,11 @@ export function buildFullApp(
     exceptions,
     shipments,
     carriers,
+    carrierWebhookSecrets: {
+      bosta: process.env.BOSTA_WEBHOOK_SECRET,
+      posta: process.env.POSTA_WEBHOOK_SECRET,
+      jt: process.env.JT_WEBHOOK_SECRET,
+    },
     outboundWebhooks,
     trackingPool: pool,
     reports,
