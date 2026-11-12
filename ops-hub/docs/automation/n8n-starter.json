@@ -1,0 +1,19 @@
+{
+  "name": "Shopify -> Ops Hub order create",
+  "nodes": [
+    {
+      "name": "Shopify Trigger",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "parameters": { "event": "orders/create" }
+    },
+    {
+      "name": "Ops Hub Create Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "https://ops-hub.example.com/v1/orders"
+      }
+    }
+  ],
+  "connections": {}
+}

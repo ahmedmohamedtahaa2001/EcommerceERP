@@ -3,15 +3,19 @@ import type { FastifyInstance } from "fastify";
 import { verifyShopifyHmac, mapShopifyOrder } from "./inbound";
 import type { OrderService } from "../../orders/service";
 
+import { recordAudit } from "../../audit/record";
+import type { AuditWriter } from "../../audit/types";
+
 export function registerShopifyRoutes(
   app: FastifyInstance,
   options: {
     orders: OrderService;
     webhookSecret: string;
     tenantId: string;
+    audit?: AuditWriter;
   },
 ): void {
-  const { orders, webhookSecret, tenantId } = options;
+  const { orders, webhookSecret, tenantId, audit } = options;
 
   app.post("/v1/webhooks/shopify/orders", async (request, reply) => {
     const raw = JSON.stringify(request.body ?? {});
@@ -35,6 +39,14 @@ export function registerShopifyRoutes(
           externalOrderId: mapped.externalOrderId,
         },
       );
+      if (audit) {
+        await recordAudit(request, audit, {
+          action: "shopify.order_received",
+          objectType: "order",
+          objectId: result.result.order.id,
+          after: result.result,
+        });
+      }
       reply.status(201);
       return { ok: true, orderId: result.result.order.id };
     } catch (e) {
