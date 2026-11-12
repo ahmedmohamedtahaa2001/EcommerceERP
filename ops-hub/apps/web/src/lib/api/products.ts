@@ -1,4 +1,5 @@
 import { apiFetch } from "./client";
+import { fetchAllPages } from "./pages";
 
 /**
  * Wire shapes for `/v1/products*` and `/v1/variants*`, matching
@@ -122,8 +123,14 @@ export interface ImportProductsRequest {
 }
 
 /** `GET /v1/products` → 200. */
-export function listProducts(): Promise<{ products: Product[] }> {
-  return apiFetch<{ products: Product[] }>("/v1/products");
+export async function listProducts(): Promise<{ products: Product[] }> {
+  const products = await fetchAllPages("products", (page) =>
+    apiFetch<{ products: Product[]; nextCursor: string | null }>(
+      "/v1/products",
+      { searchParams: page },
+    ),
+  );
+  return { products };
 }
 
 /** `GET /v1/products/:id` → 200. */

@@ -1,4 +1,5 @@
 import { apiFetch } from "./client";
+import { fetchAllPages } from "./pages";
 
 /**
  * Wire shapes for `/v1/orders*` and `/v1/exceptions*`, matching
@@ -165,21 +166,22 @@ export interface OrderListItem extends Order {
 }
 
 /** `GET /v1/orders`: filter by status, order number or the customer's phone. */
-export function listOrders(params: {
+export async function listOrders(params: {
   status?: string | undefined;
   phone?: string | undefined;
   cursor?: string | undefined;
 }): Promise<{ orders: OrderListItem[]; nextCursor: string | null }> {
-  return apiFetch<{ orders: OrderListItem[]; nextCursor: string | null }>(
-    "/v1/orders",
-    {
-      searchParams: {
-        status: params.status,
-        phone: params.phone,
-        cursor: params.cursor,
+  const fetchPage = (page: { limit: number; cursor?: string | undefined }) =>
+    apiFetch<{ orders: OrderListItem[]; nextCursor: string | null }>(
+      "/v1/orders",
+      {
+        searchParams: { status: params.status, phone: params.phone, ...page },
       },
-    },
-  );
+    );
+  if (params.cursor !== undefined) {
+    return fetchPage({ limit: 100, cursor: params.cursor });
+  }
+  return { orders: await fetchAllPages("orders", fetchPage), nextCursor: null };
 }
 
 /** `GET /v1/orders/:id` → 200. */
@@ -232,13 +234,23 @@ export function validateOrder(
 }
 
 /** `GET /v1/exceptions?status&orderId` → 200. */
-export function listExceptions(params: {
+export async function listExceptions(params: {
   status?: string;
   orderId?: string;
 }): Promise<{ exceptions: OrderException[] }> {
-  return apiFetch<{ exceptions: OrderException[] }>("/v1/exceptions", {
-    searchParams: { status: params.status, orderId: params.orderId },
-  });
+  const exceptions = await fetchAllPages("exceptions", (page) =>
+    apiFetch<{ exceptions: OrderException[]; nextCursor: string | null }>(
+      "/v1/exceptions",
+      {
+        searchParams: {
+          status: params.status,
+          orderId: params.orderId,
+          ...page,
+        },
+      },
+    ),
+  );
+  return { exceptions };
 }
 
 /** `GET /v1/exceptions/:id` → 200. */

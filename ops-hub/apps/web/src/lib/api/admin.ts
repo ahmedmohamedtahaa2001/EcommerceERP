@@ -1,4 +1,5 @@
 import { apiFetch } from "./client";
+import { fetchAllPages } from "./pages";
 
 /**
  * Wire shapes for `/v1/audit` and `/v1/api-keys*`, matching
@@ -68,8 +69,13 @@ export function listAudit(params: {
 }
 
 /** `GET /v1/api-keys` → 200. */
-export function listApiKeys(): Promise<{ keys: ApiKey[] }> {
-  return apiFetch<{ keys: ApiKey[] }>("/v1/api-keys");
+export async function listApiKeys(): Promise<{ keys: ApiKey[] }> {
+  const keys = await fetchAllPages("keys", (page) =>
+    apiFetch<{ keys: ApiKey[]; nextCursor: string | null }>("/v1/api-keys", {
+      searchParams: page,
+    }),
+  );
+  return { keys };
 }
 
 /** `POST /v1/api-keys` → 201. */

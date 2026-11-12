@@ -1,4 +1,5 @@
 import { apiFetch } from "./client";
+import { fetchAllPages } from "./pages";
 
 /**
  * Wire shapes for `/v1/inventory/*` and `/v1/locations*`, matching
@@ -186,23 +187,35 @@ export function recordMovement(
 }
 
 /** `GET /v1/inventory/movements?variantId&locationId` → 200. */
-export function listMovements(params: {
+export async function listMovements(params: {
   variantId?: string;
   locationId?: string;
 }): Promise<{ movements: StockMovement[] }> {
-  return apiFetch<{ movements: StockMovement[] }>("/v1/inventory/movements", {
-    searchParams: params,
-  });
+  const movements = await fetchAllPages("movements", (page) =>
+    apiFetch<{ movements: StockMovement[]; nextCursor: string | null }>(
+      "/v1/inventory/movements",
+      {
+        searchParams: { ...params, ...page },
+      },
+    ),
+  );
+  return { movements };
 }
 
 /** `GET /v1/inventory/balances?variantId&locationId` → 200. */
-export function listBalances(params: {
+export async function listBalances(params: {
   variantId?: string;
   locationId?: string;
 }): Promise<{ balances: StockBalance[] }> {
-  return apiFetch<{ balances: StockBalance[] }>("/v1/inventory/balances", {
-    searchParams: params,
-  });
+  const balances = await fetchAllPages("balances", (page) =>
+    apiFetch<{ balances: StockBalance[]; nextCursor: string | null }>(
+      "/v1/inventory/balances",
+      {
+        searchParams: { ...params, ...page },
+      },
+    ),
+  );
+  return { balances };
 }
 
 /**
@@ -251,8 +264,14 @@ export function releaseReservation(id: string): Promise<StockReservation> {
 }
 
 /** `GET /v1/locations` → 200. */
-export function listLocations(): Promise<{ locations: Location[] }> {
-  return apiFetch<{ locations: Location[] }>("/v1/locations");
+export async function listLocations(): Promise<{ locations: Location[] }> {
+  const locations = await fetchAllPages("locations", (page) =>
+    apiFetch<{ locations: Location[]; nextCursor: string | null }>(
+      "/v1/locations",
+      { searchParams: page },
+    ),
+  );
+  return { locations };
 }
 
 /** `GET /v1/locations/:id` → 200. */
