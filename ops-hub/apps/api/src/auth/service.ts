@@ -5,11 +5,7 @@ import {
   RateLimitedError,
   UnauthorizedError,
 } from "./errors";
-import type {
-  AuthServiceDeps,
-  AuthUser,
-  UserRecord,
-} from "./types";
+import type { AuthServiceDeps, AuthUser, UserRecord } from "./types";
 
 export interface LoginResult {
   token: string;
@@ -47,6 +43,10 @@ export class AuthService {
       await this.deps.limiter.recordFailure(email);
       throw new InvalidCredentialsError();
     }
+    // A removed or deactivated member has no active membership: same answer as a wrong password.
+    if (user.tenantId === null || user.role === null) {
+      throw new InvalidCredentialsError();
+    }
 
     await this.deps.limiter.reset(email);
 
@@ -73,7 +73,7 @@ export class AuthService {
     }
 
     const user = await this.deps.users.findById(session.userId);
-    if (!user) {
+    if (!user || user.tenantId === null || user.role === null) {
       throw new UnauthorizedError();
     }
 

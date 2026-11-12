@@ -346,6 +346,27 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
   },
   {
     method: "get",
+    path: "/v1/users",
+    summary: "List the business's team members",
+    tag: "Users",
+    scope: "users:read",
+  },
+  {
+    method: "post",
+    path: "/v1/users",
+    summary: "Add a team member with an initial password",
+    tag: "Users",
+    scope: "users:write",
+  },
+  {
+    method: "patch",
+    path: "/v1/users/:id",
+    summary: "Change a member's role or activate and deactivate them",
+    tag: "Users",
+    scope: "users:write",
+  },
+  {
+    method: "get",
     path: "/v1/inventory/balances",
     summary: "Stock balances",
     tag: "Inventory",

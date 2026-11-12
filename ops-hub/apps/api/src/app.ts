@@ -39,6 +39,8 @@ import { registerCustomerRoutes } from "./customers/routes";
 import { registerPutawayRoutes } from "./putaway/routes";
 import { registerExportRoutes } from "./exports/routes";
 import { registerBulkRoutes } from "./bulk/routes";
+import { registerUserRoutes } from "./users/routes";
+import type { UserAdminService } from "./users/service";
 import type { BulkService } from "./bulk/service";
 import type { ExportService } from "./exports/service";
 import type { PutawayService } from "./putaway/service";
@@ -122,6 +124,7 @@ export interface BuildAppOptions {
   putaway?: PutawayService;
   exports?: ExportService;
   bulk?: BulkService;
+  userAdmin?: UserAdminService;
   carriers?: Record<string, ShippingCarrier>;
   /** Per-carrier HMAC secrets for inbound carrier webhooks. */
   carrierWebhookSecrets?: Record<string, string | undefined>;
@@ -384,6 +387,16 @@ ${Object.entries(buildOpenApiDocument().paths)
       }
       registerExceptionRoutes(app, {
         service: options.exceptions,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.userAdmin) {
+      if (!options.audit) {
+        throw new Error("user administration must be audited.");
+      }
+      registerUserRoutes(app, {
+        service: options.userAdmin,
         requestAuth,
         audit: options.audit,
       });

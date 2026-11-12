@@ -14,6 +14,7 @@ export const ar: Record<string, string> = {
   "nav.section.data": "البيانات",
   "nav.exports": "تصدير البيانات",
   "nav.bulk": "عمليات جماعية",
+  "nav.users": "الفريق",
   "nav.section.analytics": "التحليلات",
   "nav.section.admin": "الإدارة",
 

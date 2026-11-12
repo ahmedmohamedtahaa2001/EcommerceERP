@@ -87,6 +87,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     items: [
       { labelKey: "nav.audit", to: "/audit", icon: "scroll" },
       { labelKey: "nav.apiKeys", to: "/api-keys", icon: "key" },
+      { labelKey: "nav.users", to: "/users", icon: "users" },
       { labelKey: "nav.settings", to: "/settings", icon: "settings" },
       { labelKey: "nav.agents", to: "/agents", icon: "bot" },
     ],
