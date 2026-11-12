@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Flora.ds tokens — mirrored in tailwind.config.ts (UI_PLAN.md §2). */
+:root {
+  --flora-primary: #006b3f;
+  --flora-primary-light: #1a8a5c;
+  --flora-primary-lightest: #e6f5ef;
+  --flora-primary-dark: #004d2d;
+  --flora-primary-darkest: #003520;
+
+  --flora-secondary: #c5a34d;
+  --flora-secondary-light: #d4b86e;
+  --flora-secondary-lightest: #f5edda;
+  --flora-secondary-dark: #a6873d;
+  --flora-secondary-darkest: #7a632d;
+
+  --flora-bg: #fafaf8;
+  --flora-surface: #ffffff;
+
+  --flora-ink-100: #f5f5f3;
+  --flora-ink-200: #eeeeec;
+  --flora-ink-300: #e0e0de;
+  --flora-ink-400: #bdbdbb;
+  --flora-ink-500: #9e9e9c;
+  --flora-ink-600: #6b6b6b;
+  --flora-ink-700: #4a4a4a;
+  --flora-ink-800: #2d2d2d;
+  --flora-ink-900: #1a1a1a;
+
+  --flora-success: #2e7d32;
+  --flora-success-light: #c8e6c9;
+  --flora-warning: #f9a825;
+  --flora-warning-light: #fff9c4;
+  --flora-alert: #c62828;
+  --flora-alert-light: #ffcdd2;
+  --flora-info: #1565c0;
+  --flora-info-light: #bbdefb;
+}
+
+body {
+  background-color: var(--flora-bg);
+  color: var(--flora-ink-900);
+  font-family: "Nunito Sans", "Cairo", system-ui, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible focus everywhere — Flora primary ring, 2px, keyboard only. */
+:focus-visible {
+  outline: 2px solid var(--flora-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove the ring again for intentionally unstyled wrappers. */
+.no-focus-ring:focus-visible {
+  outline: none;
+}
+
+/* Bidi isolation for English fragments embedded in Arabic lines. */
+.bidi-isolate {
+  unicode-bidi: isolate;
+}

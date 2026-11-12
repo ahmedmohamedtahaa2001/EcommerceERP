@@ -1,0 +1,101 @@
+/**
+ * Arabic dictionary (Egyptian business-ops copy). Keys are flat dotted
+ * strings; page agents add their own keys in the same shape. Missing keys
+ * fall back to English, then to the key itself.
+ */
+export const ar: Record<string, string> = {
+  "app.title": "Operix — Ops Hub",
+  "app.name": "Operix",
+
+  "nav.section.operations": "العمليات",
+  "nav.section.inventory": "المخزون",
+  "nav.section.catalog": "الكتالوج",
+  "nav.section.customers": "العملاء",
+  "nav.section.analytics": "التحليلات",
+  "nav.section.admin": "الإدارة",
+
+  "nav.dashboard": "لوحة التحكم",
+  "nav.orders": "الطلبات",
+  "nav.exceptions": "المشكلات",
+  "nav.availability": "التوافر",
+  "nav.movements": "حركات المخزون",
+  "nav.adjustments": "التسويات",
+  "nav.reservations": "الحجوزات",
+  "nav.locations": "المخازن",
+  "nav.products": "المنتجات",
+  "nav.productImport": "استيراد المنتجات",
+  "nav.customers": "العملاء",
+  "nav.analytics": "التحليلات",
+  "nav.audit": "سجل التدقيق",
+  "nav.apiKeys": "مفاتيح الـ API",
+  "nav.settings": "الإعدادات",
+  "nav.agents": "الوكلاء الآليون",
+
+  "action.save": "حفظ",
+  "action.cancel": "إلغاء",
+  "action.close": "إغلاق",
+  "action.confirm": "تأكيد",
+  "action.delete": "حذف",
+  "action.edit": "تعديل",
+  "action.retry": "إعادة المحاولة",
+  "action.search": "بحث",
+  "action.login": "تسجيل الدخول",
+  "action.logout": "تسجيل الخروج",
+  "action.assign": "تعيين",
+  "action.resolve": "حل المشكلة",
+  "action.validate": "اعتماد الطلب",
+  "action.import": "استيراد",
+  "action.next": "التالي",
+  "action.previous": "السابق",
+  "action.toggleMenu": "طيّ القائمة الجانبية",
+
+  "state.loading": "جارٍ التحميل…",
+  "state.error": "حدث خطأ غير متوقع",
+  "state.errorDetail": "التفاصيل",
+  "state.empty": "لا توجد بيانات بعد",
+  "state.emptyHint": "ستظهر النتائج هنا بمجرد توفرها.",
+  "state.comingSoon": "هذه الصفحة في طور التجهيز",
+  "state.comingSoonHint":
+    "سيعمل فريق الواجهة على بناء هذه الشاشة في المرحلة التالية.",
+
+  "table.page": "صفحة {page} من {total}",
+  "table.rows": "{count} سجل",
+  "table.showing": "عرض {from}–{to} من {total}",
+
+  "login.title": "تسجيل الدخول إلى Ops Hub",
+  "login.description": "لوحة تشغيل التجارة الإلكترونية لفريق العمليات",
+  "login.email": "البريد الإلكتروني",
+  "login.password": "كلمة المرور",
+  "login.failed": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+
+  "topbar.searchPlaceholder": "ابحث عن طلب أو منتج أو رقم هاتف…",
+  "topbar.notifications": "الإشعارات",
+  "topbar.toggleLocale": "English",
+  "topbar.localeLabel": "العربية",
+
+  "breadcrumbs.home": "الرئيسية",
+
+  "orderStatus.pending": "قيد الانتظار",
+  "orderStatus.validated": "تم الاعتماد",
+  "orderStatus.confirmed": "مؤكد",
+  "orderStatus.allocated": "تم تخصيص المخزون",
+  "orderStatus.on_hold": "معلّق",
+  "orderStatus.picking": "قيد التجهيز",
+  "orderStatus.label_created": "تم إنشاء بوليصة الشحن",
+  "orderStatus.carrier_accepted": "استلمتها شركة الشحن",
+  "orderStatus.shipped": "تم الشحن",
+  "orderStatus.delivered": "تم التسليم",
+  "orderStatus.cancelled": "ملغي",
+  "orderStatus.returned": "مرتجع",
+  "orderStatus.unknown": "حالة غير معروفة",
+
+  "exceptionStatus.open": "مفتوحة",
+  "exceptionStatus.resolved": "تم حلها",
+  "exceptionStatus.unknown": "غير معروفة",
+
+  "reason.ADDRESS_INCOMPLETE": "العنوان ناقص",
+  "reason.INVALID_PHONE": "رقم الهاتف غير صالح",
+  "reason.PRODUCT_NOT_FOUND": "المنتج غير موجود",
+  "reason.INSUFFICIENT_STOCK": "المخزون غير كافٍ",
+  "reason.PAYMENT_METHOD_NOT_ALLOWED": "طريقة الدفع غير مسموحة",
+};

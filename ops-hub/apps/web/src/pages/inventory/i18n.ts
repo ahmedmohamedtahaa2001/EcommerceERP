@@ -1,0 +1,406 @@
+/**
+ * Domain dictionary owned by the inventory page agent. Keys are global
+ * (no prefix needed). Covers /inventory/* pages.
+ */
+export const dict = {
+  ar: {
+    // ── AvailabilityPage ──────────────────────────────────────────
+    "availability.title": "التوافر",
+    "availability.description":
+      "أرصدة أي متغير عبر المخازن — ابحث بالـ SKU لعرض سلال الرصيد والكمية المتاحة للوعد (ATP).",
+    "availability.searchLabel": "الـ SKU",
+    "availability.searchPlaceholder": "أدخل الـ SKU، مثل OPS-TSHIRT-RED-M",
+    "availability.location": "المخزن",
+    "availability.allLocations": "كل المخازن",
+    "availability.explainerTitle": "ابحث عن متغير لعرض توفره",
+    "availability.explainerHint":
+      "اكتب الـ SKU في خانة البحث أعلاه. مثال: أدخل OPS-TSHIRT-RED-M لعرض رصيد التيشيرت الأحمر مقاس M في كل المخازن، ويمكن تضييق النتيجة لمخزن واحد.",
+    "availability.emptyTitle": "لا توجد أرصدة مسجلة لهذا الـ SKU",
+    "availability.emptyHint":
+      "المتغير موجود لكن بلا أي رصيد — سجّل مخزونًا أوليًا من صفحة التسويات ليظهر هنا.",
+    "availability.perLocation": "الرصيد لكل مخزن",
+    "availability.totalTitle": "الإجمالي",
+    "availability.totalAria": "صف الإجمالي",
+    "availability.col.location": "المخزن",
+    "availability.atpZero": "نفد",
+    "availability.atpNegative": "سالب",
+
+    // ── MovementsPage ─────────────────────────────────────────────
+    "movements.title": "حركات المخزون",
+    "movements.description":
+      "كل تغيير في المخزون حركة مسجّلة — دفتر أستاذ بلا استثناءات، لا حذف ولا تعديل بعد التسجيل.",
+    "movements.skuFilter": "الـ SKU",
+    "movements.skuFilterPlaceholder": "رشّح حسب SKU المتغير…",
+    "movements.verifySku": "تحقّق",
+    "movements.locationFilter": "المخزن",
+    "movements.allLocations": "كل المخازن",
+    "movements.ariaTable": "جدول حركات المخزون",
+    "movements.col.time": "الوقت",
+    "movements.col.variant": "المتغير",
+    "movements.col.location": "المخزن",
+    "movements.col.bucket": "السلة",
+    "movements.col.delta": "الكمية",
+    "movements.col.reason": "السبب",
+    "movements.col.actor": "المستخدم",
+    "movements.emptyTitle": "لا توجد حركات مطابقة",
+    "movements.emptyHint":
+      "عدّل الفلاتر، أو سجّل تسوية جديدة وستظهر حركتها هنا فورًا.",
+    "movements.skuResolving": "جارٍ تحويل الـ SKU إلى متغير…",
+    "movements.skuNotFound":
+      "لم يُعثر على متغير بهذا الـ SKU — جرّب الـ SKU الظاهر في صفحة المنتجات.",
+    "movements.deltaAria": "تغيّر الكمية: {delta}",
+    "movements.noLocation": "—",
+    "movements.actor.system": "النظام",
+    "movements.actor.user": "مستخدم: {id}",
+
+    // ── Adjustment reasons (movement.reason / adjustments) ────────
+    "reason.COUNT_VARIANCE": "فرق جرد",
+    "reason.DAMAGE": "تلف",
+    "reason.LOSS": "عجز",
+    "reason.FOUND": "زيادة مرتجعة",
+    "reason.CORRECTION": "تصحيح",
+
+    // ── AdjustmentsPage ───────────────────────────────────────────
+    "adjustments.title": "التسويات",
+    "adjustments.description":
+      "تسوية رصيد متغير في مخزن محدد — كل تسوية تُسجّل في دفتر الحركات باسم حسابك ولا تُحذف.",
+    "adjustments.sku": "الـ SKU",
+    "adjustments.skuPlaceholder": "SKU المتغير، مثل OPS-TSHIRT-RED-M",
+    "adjustments.verify": "تحقّق",
+    "adjustments.skuVerified": "تم التحقق — المتغير جاهز للتسوية",
+    "adjustments.skuNotFound": "لم يُعثر على متغير بهذا الـ SKU",
+    "adjustments.skuRequired": "أدخل الـ SKU واضغط تحقّق أولًا",
+    "adjustments.location": "المخزن",
+    "adjustments.bucket": "السلة",
+    "adjustments.bucketHint": "السلة التي سيُعدَّل رصيدها.",
+    "adjustments.quantity": "الكمية",
+    "adjustments.quantityHint": "سالب للخصم، موجب للإضافة.",
+    "adjustments.increase": "زيادة الكمية",
+    "adjustments.decrease": "إنقاص الكمية",
+    "adjustments.reason": "السبب",
+    "adjustments.reasonHint": "سبب إلزامي من قائمة النظام لسجل التدقيق.",
+    "adjustments.previewTitle": "معاينة التأثير",
+    "adjustments.previewHint":
+      "الرصيد الحالي للسلة المختارة في المخزن المختار، والأثر بعد التسوية.",
+    "adjustments.previewCurrent": "الرصيد الحالي",
+    "adjustments.previewAfter": "بعد التسوية",
+    "adjustments.previewPending":
+      "تحقّق من الـ SKU واختر مخزنًا لعرض المعاينة.",
+    "adjustments.confirmTitle": "تأكيد التسوية",
+    "adjustments.confirmBody":
+      "سيُسجَّل تعديل {delta} وحدة على سلة {bucket} للـ SKU {sku} في مخزن {location} باسم حسابك، ويظهر في سجل التدقيق ودفتر الحركات نهائيًا. التراجع يتم فقط بتسوية معاكسة. متابعة؟",
+    "adjustments.success": "تم تسجيل التسوية بنجاح",
+    "adjustments.failed": "تعذر تسجيل التسوية",
+    "adjustments.linkMovements": "عرض حركات هذا المتغير",
+    "adjustments.zeroQuantity": "الكمية لا تكون صفر",
+
+    // ── ReservationsPage ──────────────────────────────────────────
+    "reservations.title": "الحجوزات",
+    "reservations.description":
+      "حجز كمية من متغير لمدة محددة (TTL) — الحجز يخصم من المتاح للوعد حتى يُصرف أو يُفرج عنه أو ينتهي تلقائيًا.",
+    "reservations.createTitle": "حجز مخزون",
+    "reservations.variantId": "معرّف المتغير (ID)",
+    "reservations.variantIdHint":
+      "معرّف المتغير من صفحة المنتج، مثل: var_9f2c…",
+    "reservations.location": "المخزن",
+    "reservations.quantity": "الكمية",
+    "reservations.ttl": "مدة الحجز (ثانية)",
+    "reservations.ttlHint":
+      "بعد انتهاء المدة يُلغى الحجز تلقائيًا وتعود الكمية للرصيد المتاح.",
+    "reservations.create": "إنشاء الحجز",
+    "reservations.created": "تم إنشاء الحجز بنجاح",
+    "reservations.createFailed": "تعذر إنشاء الحجز",
+    "reservations.listNote":
+      "قائمة الحجوزات النشطة ستتوفر عند تشغيل عامل المهام (background job runner) الذي يصدرها من الـ API — هذه الشاشة حاليًا للإنشاء والإفراج فقط.",
+    "reservations.activeCardTitle": "الحجز الحالي",
+    "reservations.col.id": "المعرّف",
+    "reservations.col.status": "الحالة",
+    "reservations.col.expiresAt": "ينتهي في",
+    "reservations.countdown": "ينتهي بعد {time}",
+    "reservations.countdownOver": "انتهى الحجز",
+    "reservations.emptyTitle": "لا يوجد حجز منشأ في هذه الجلسة",
+    "reservations.emptyHint":
+      "أنشئ حجزًا من بطاقة الإنشاء أعلاه وسيظهر هنا مع عدّاد لانتهائه.",
+    "reservations.releaseTitle": "إفراج عن حجز",
+    "reservations.releaseId": "معرّف الحجز (ID)",
+    "reservations.release": "إفراج",
+    "reservations.releaseConfirmTitle": "تأكيد الإفراج",
+    "reservations.releaseConfirmBody":
+      "سيُلغى الحجز {id} نهائيًا وتعود الكمية المحجوزة ({quantity}) إلى الرصيد المتاح للوعد. متابعة؟",
+    "reservations.released": "تم الإفراج عن الحجز",
+    "reservations.releaseFailed": "تعذر الإفراج عن الحجز",
+    "reservations.releaseIdRequired": "أدخل معرّف الحجز",
+    "reservationStatus.active": "نشط",
+    "reservationStatus.released": "مُفرج عنه",
+    "reservationStatus.expired": "منتهي",
+
+    // ── LocationsPage ─────────────────────────────────────────────
+    "locations.title": "المخازن",
+    "locations.description":
+      "المخازن ومنافذ التخزين (bins) التي تُخزَّن فيها الأرصدة — مخازن مركزية وشركات 3PL وفروع ونقاط عبور.",
+    "locations.add": "مخزن جديد",
+    "locations.listAria": "قائمة المخازن",
+    "locations.selectHint": "اختر مخزنًا من القائمة لعرض تفاصيله ومنافذه.",
+    "locations.emptyTitle": "لا توجد مخازن بعد",
+    "locations.emptyHint": "أنشئ أول مخزن لتتمكن من تسجيل المخزون فيه.",
+    "locations.col.type": "النوع",
+    "locations.col.name": "الاسم",
+    "locations.col.code": "الكود",
+    "locations.col.governorate": "المحافظة",
+    "locations.col.address": "العنوان",
+    "locations.detailTitle": "تفاصيل المخزن",
+    "locations.createdAt": "أُنشئ في {date}",
+    "locations.delete": "حذف المخزن",
+    "locations.deleteConfirmTitle": "حذف المخزن",
+    "locations.deleteConfirmBody":
+      "سيُحذف المخزن {name}. إذا كان به مخزون أو سجلات مرتبطة سيرفض النظام الحذف برسالة توضيحية. متابعة؟",
+    "locations.deleted": "تم حذف المخزن",
+    "locations.deleteFailedStock":
+      "لا يمكن حذف هذا المخزن: به مخزون مسجّل. انقل أو صفّر الأرصدة أولًا.",
+    "locations.deleteFailed": "تعذر حذف المخزن",
+    "locations.created": "تم إنشاء المخزن",
+    "locations.createFailed": "تعذر إنشاء المخزن",
+    "locations.binsTitle": "منافذ التخزين (Bins)",
+    "locations.addBin": "منفذ جديد",
+    "locations.binsAria": "جدول منافذ المخزن",
+    "locations.bin.col.zone": "المنطقة",
+    "locations.bin.col.code": "الكود",
+    "locations.bin.col.capacity": "السعة",
+    "locations.binsEmptyTitle": "لا توجد منافذ في هذا المخزن",
+    "locations.binsEmptyHint":
+      "أضف منفذًا لتقسيم التخزين داخل المخزن (رف / ممر / كود).",
+    "locations.binCreated": "تم إنشاء المنفذ",
+    "locations.binCreateFailed": "تعذر إنشاء المنفذ",
+    "locations.noZone": "—",
+    "locations.noCode": "—",
+    "locations.noCapacity": "بلا حد",
+
+    "locationForm.createTitle": "مخزن جديد",
+    "locationForm.type": "النوع",
+    "locationForm.name": "الاسم",
+    "locationForm.namePlaceholder": "مثل: مخزن مدينة نصر الرئيسي",
+    "locationForm.code": "الكود",
+    "locationForm.codeHint": "اختياري — مثل WH-NASR-01.",
+    "locationForm.governorate": "المحافظة",
+    "locationForm.governorateOptional": "بدون محافظة",
+    "locationForm.address": "العنوان",
+    "locationForm.addressHint": "اختياري.",
+
+    "binForm.createTitle": "منفذ جديد",
+    "binForm.zone": "المنطقة",
+    "binForm.zoneHint": "اختياري — مثل A أو MEZZ.",
+    "binForm.code": "الكود",
+    "binForm.codePlaceholder": "مثل: A-03-14",
+    "binForm.capacity": "السعة",
+    "binForm.capacityHint": "اختياري — الحد الأقصى للمنفذ.",
+
+    "locationType.warehouse": "مخزن مركزي",
+    "locationType.3pl": "شركة تخزين (3PL)",
+    "locationType.shop": "فرع / متجر",
+    "locationType.transit": "نقطة عبور",
+
+    "enums.loading": "جارٍ تحميل القوائم…",
+  },
+  en: {
+    // ── AvailabilityPage ──────────────────────────────────────────
+    "availability.title": "Availability",
+    "availability.description":
+      "Any variant's balances across locations — search by SKU to see stock buckets and the available-to-promise (ATP) quantity.",
+    "availability.searchLabel": "SKU",
+    "availability.searchPlaceholder": "Enter a SKU, e.g. OPS-TSHIRT-RED-M",
+    "availability.location": "Location",
+    "availability.allLocations": "All locations",
+    "availability.explainerTitle":
+      "Search for a variant to see its availability",
+    "availability.explainerHint":
+      "Type the SKU in the search box above. Example: enter OPS-TSHIRT-RED-M to see the red T-shirt size M balance in every location, and narrow it down to a single one.",
+    "availability.emptyTitle": "No balances recorded for this SKU",
+    "availability.emptyHint":
+      "The variant exists but has no stock — record an initial balance from the Adjustments page and it will appear here.",
+    "availability.perLocation": "Balance per location",
+    "availability.totalTitle": "Total",
+    "availability.totalAria": "Total row",
+    "availability.col.location": "Location",
+    "availability.atpZero": "Out",
+    "availability.atpNegative": "Negative",
+
+    // ── MovementsPage ─────────────────────────────────────────────
+    "movements.title": "Stock movements",
+    "movements.description":
+      "Every stock change is a recorded movement — an append-only ledger with no exceptions, never deleted or edited after the fact.",
+    "movements.skuFilter": "SKU",
+    "movements.skuFilterPlaceholder": "Filter by variant SKU…",
+    "movements.verifySku": "Verify",
+    "movements.locationFilter": "Location",
+    "movements.allLocations": "All locations",
+    "movements.ariaTable": "Stock movements table",
+    "movements.col.time": "Time",
+    "movements.col.variant": "Variant",
+    "movements.col.location": "Location",
+    "movements.col.bucket": "Bucket",
+    "movements.col.delta": "Quantity",
+    "movements.col.reason": "Reason",
+    "movements.col.actor": "Actor",
+    "movements.emptyTitle": "No matching movements",
+    "movements.emptyHint":
+      "Adjust the filters, or record a new adjustment and its movement will appear here right away.",
+    "movements.skuResolving": "Resolving the SKU to a variant…",
+    "movements.skuNotFound":
+      "No variant found with this SKU — try a SKU shown on the products pages.",
+    "movements.deltaAria": "Quantity change: {delta}",
+    "movements.noLocation": "—",
+    "movements.actor.system": "System",
+    "movements.actor.user": "User: {id}",
+
+    // ── Adjustment reasons (movement.reason / adjustments) ────────
+    "reason.COUNT_VARIANCE": "Count variance",
+    "reason.DAMAGE": "Damage",
+    "reason.LOSS": "Loss",
+    "reason.FOUND": "Found surplus",
+    "reason.CORRECTION": "Correction",
+
+    // ── AdjustmentsPage ───────────────────────────────────────────
+    "adjustments.title": "Adjustments",
+    "adjustments.description":
+      "Adjust a variant's balance in a specific location — every adjustment is logged to the movements ledger under your account and is never removed.",
+    "adjustments.sku": "SKU",
+    "adjustments.skuPlaceholder": "Variant SKU, e.g. OPS-TSHIRT-RED-M",
+    "adjustments.verify": "Verify",
+    "adjustments.skuVerified": "Verified — the variant is ready to adjust",
+    "adjustments.skuNotFound": "No variant found with this SKU",
+    "adjustments.skuRequired": "Enter the SKU and press verify first",
+    "adjustments.location": "Location",
+    "adjustments.bucket": "Bucket",
+    "adjustments.bucketHint": "The bucket whose balance will be adjusted.",
+    "adjustments.quantity": "Quantity",
+    "adjustments.quantityHint": "Negative to deduct, positive to add.",
+    "adjustments.increase": "Increase quantity",
+    "adjustments.decrease": "Decrease quantity",
+    "adjustments.reason": "Reason",
+    "adjustments.reasonHint":
+      "Mandatory reason from the system list, for the audit trail.",
+    "adjustments.previewTitle": "Effect preview",
+    "adjustments.previewHint":
+      "The selected bucket's current balance in the selected location, and the effect after the adjustment.",
+    "adjustments.previewCurrent": "Current balance",
+    "adjustments.previewAfter": "After adjustment",
+    "adjustments.previewPending":
+      "Verify the SKU and pick a location to see the preview.",
+    "adjustments.confirmTitle": "Confirm adjustment",
+    "adjustments.confirmBody":
+      "An adjustment of {delta} units on the {bucket} bucket for SKU {sku} in location {location} will be recorded under your account, permanently visible in the audit log and movements ledger. Reversal is only possible via an opposite adjustment. Continue?",
+    "adjustments.success": "Adjustment recorded successfully",
+    "adjustments.failed": "Could not record the adjustment",
+    "adjustments.linkMovements": "View this variant's movements",
+    "adjustments.zeroQuantity": "Quantity cannot be zero",
+
+    // ── ReservationsPage ──────────────────────────────────────────
+    "reservations.title": "Reservations",
+    "reservations.description":
+      "Reserve a quantity of a variant for a bounded time (TTL) — the reservation reduces ATP until it is consumed, released, or expires automatically.",
+    "reservations.createTitle": "Reserve stock",
+    "reservations.variantId": "Variant ID",
+    "reservations.variantIdHint":
+      "The variant's ID from the product page, e.g. var_9f2c…",
+    "reservations.location": "Location",
+    "reservations.quantity": "Quantity",
+    "reservations.ttl": "TTL (seconds)",
+    "reservations.ttlHint":
+      "When the TTL elapses the reservation is cancelled automatically and the quantity returns to ATP.",
+    "reservations.create": "Create reservation",
+    "reservations.created": "Reservation created successfully",
+    "reservations.createFailed": "Could not create the reservation",
+    "reservations.listNote":
+      "The active-reservations list will arrive once the background job runner that emits it is live — this screen currently covers creation and release only.",
+    "reservations.activeCardTitle": "Current reservation",
+    "reservations.col.id": "ID",
+    "reservations.col.status": "Status",
+    "reservations.col.expiresAt": "Expires at",
+    "reservations.countdown": "Expires in {time}",
+    "reservations.countdownOver": "Reservation expired",
+    "reservations.emptyTitle": "No reservation created in this session",
+    "reservations.emptyHint":
+      "Create a reservation from the card above and it will appear here with its expiry countdown.",
+    "reservations.releaseTitle": "Release a reservation",
+    "reservations.releaseId": "Reservation ID",
+    "reservations.release": "Release",
+    "reservations.releaseConfirmTitle": "Confirm release",
+    "reservations.releaseConfirmBody":
+      "Reservation {id} will be permanently cancelled and its reserved quantity ({quantity}) returns to available-to-promise. Continue?",
+    "reservations.released": "Reservation released",
+    "reservations.releaseFailed": "Could not release the reservation",
+    "reservations.releaseIdRequired": "Enter the reservation ID",
+    "reservationStatus.active": "Active",
+    "reservationStatus.released": "Released",
+    "reservationStatus.expired": "Expired",
+
+    // ── LocationsPage ─────────────────────────────────────────────
+    "locations.title": "Locations",
+    "locations.description":
+      "Stock-keeping locations and bins — central warehouses, 3PLs, shops and transit points.",
+    "locations.add": "New location",
+    "locations.listAria": "Locations list",
+    "locations.selectHint":
+      "Pick a location from the list to see its details and bins.",
+    "locations.emptyTitle": "No locations yet",
+    "locations.emptyHint":
+      "Create your first location so stock can be recorded into it.",
+    "locations.col.type": "Type",
+    "locations.col.name": "Name",
+    "locations.col.code": "Code",
+    "locations.col.governorate": "Governorate",
+    "locations.col.address": "Address",
+    "locations.detailTitle": "Location details",
+    "locations.createdAt": "Created {date}",
+    "locations.delete": "Delete location",
+    "locations.deleteConfirmTitle": "Delete location",
+    "locations.deleteConfirmBody":
+      "Location {name} will be deleted. If it has stock or linked records the system will reject the deletion with an explanatory message. Continue?",
+    "locations.deleted": "Location deleted",
+    "locations.deleteFailedStock":
+      "This location cannot be deleted: it has recorded stock. Move or zero out the balances first.",
+    "locations.deleteFailed": "Could not delete the location",
+    "locations.created": "Location created",
+    "locations.createFailed": "Could not create the location",
+    "locations.binsTitle": "Bins",
+    "locations.addBin": "New bin",
+    "locations.binsAria": "Location bins table",
+    "locations.bin.col.zone": "Zone",
+    "locations.bin.col.code": "Code",
+    "locations.bin.col.capacity": "Capacity",
+    "locations.binsEmptyTitle": "No bins in this location",
+    "locations.binsEmptyHint":
+      "Add a bin to divide storage inside the location (shelf / aisle / code).",
+    "locations.binCreated": "Bin created",
+    "locations.binCreateFailed": "Could not create the bin",
+    "locations.noZone": "—",
+    "locations.noCode": "—",
+    "locations.noCapacity": "No limit",
+
+    "locationForm.createTitle": "New location",
+    "locationForm.type": "Type",
+    "locationForm.name": "Name",
+    "locationForm.namePlaceholder": "e.g. Nasr City main warehouse",
+    "locationForm.code": "Code",
+    "locationForm.codeHint": "Optional — e.g. WH-NASR-01.",
+    "locationForm.governorate": "Governorate",
+    "locationForm.governorateOptional": "No governorate",
+    "locationForm.address": "Address",
+    "locationForm.addressHint": "Optional.",
+
+    "binForm.createTitle": "New bin",
+    "binForm.zone": "Zone",
+    "binForm.zoneHint": "Optional — e.g. A or MEZZ.",
+    "binForm.code": "Code",
+    "binForm.codePlaceholder": "e.g. A-03-14",
+    "binForm.capacity": "Capacity",
+    "binForm.capacityHint": "Optional — the bin's maximum capacity.",
+
+    "locationType.warehouse": "Warehouse",
+    "locationType.3pl": "3PL",
+    "locationType.shop": "Shop",
+    "locationType.transit": "Transit point",
+
+    "enums.loading": "Loading lists…",
+  },
+} as const;
