@@ -8,17 +8,20 @@ import {
 } from "../auth/context";
 import { recordAudit } from "../audit/record";
 import type { AuditWriter } from "../audit/types";
+import { OrderValidationError } from "./errors";
 import type { OrderService } from "./service";
+import type { OrderValidationService } from "./validation-service";
 
 export function registerOrderRoutes(
   app: FastifyInstance,
   options: {
     service: OrderService;
+    validation: OrderValidationService;
     requestAuth: RequestAuthenticator;
     audit: AuditWriter;
   },
 ): void {
-  const { service, requestAuth, audit } = options;
+  const { service, validation, requestAuth, audit } = options;
 
   app.post(
     "/v1/orders",
@@ -54,6 +57,37 @@ export function registerOrderRoutes(
       const { id } = request.params as { id: string };
       const { tenantId } = actorAndTenant(requirePrincipal(request));
       return service.getById(tenantId, id);
+    },
+  );
+
+  app.post(
+    "/v1/orders/:id/validate",
+    { preHandler: requirePermission(requestAuth, "orders:write") },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const body = (
+        typeof request.body === "object" && request.body !== null
+          ? request.body
+          : {}
+      ) as { locationId?: unknown };
+      if (typeof body.locationId !== "string" || body.locationId === "") {
+        throw new OrderValidationError("locationId is required.");
+      }
+
+      const { actor, tenantId } = actorAndTenant(requirePrincipal(request));
+      const result = await validation.validate(tenantId, id, body.locationId, {
+        type: actor.kind === "user" ? "user" : "api_key",
+        id: actor.id,
+      });
+
+      await recordAudit(request, audit, {
+        action: "order.validated",
+        objectType: "order",
+        objectId: id,
+        after: result,
+      });
+
+      return result;
     },
   );
 }

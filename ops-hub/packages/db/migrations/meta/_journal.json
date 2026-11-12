@@ -64,6 +64,13 @@
       "when": 1794475322133,
       "tag": "0008_grey_leech",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794475990286,
+      "tag": "0009_lethal_peter_parker",
+      "breakpoints": true
     }
   ]
 }

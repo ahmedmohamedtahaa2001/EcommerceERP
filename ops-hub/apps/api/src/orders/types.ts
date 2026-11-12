@@ -64,6 +64,8 @@ export interface OrderWithDetails {
   order: OrderRecord;
   lines: OrderLineRecord[];
   payment: PaymentRecord;
+  customer: CustomerRecord;
+  address: AddressRecord | null;
 }
 
 export interface OrderStore {
@@ -82,6 +84,19 @@ export interface OrderStore {
     resolvedVariants: ReadonlyMap<string, { variantId: string }>,
     governorateCode: string | null,
   ): Promise<OrderWithDetails>;
+  updateStatus(
+    tenantId: string,
+    orderId: string,
+    status: string,
+  ): Promise<void>;
+}
+
+export interface ExceptionStore {
+  create(
+    tenantId: string,
+    orderId: string,
+    reasonCode: string,
+  ): Promise<{ id: string; reasonCode: string }>;
 }
 
 export interface VariantLookup {

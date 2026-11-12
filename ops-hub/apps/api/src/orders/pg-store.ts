@@ -6,6 +6,8 @@ import type { Pool, PoolClient } from "pg";
 
 import { allocateOrderNumber } from "./order-number";
 import type {
+  AddressRecord,
+  CustomerRecord,
   OrderLineRecord,
   OrderRecord,
   OrderStore,
@@ -50,6 +52,27 @@ interface PaymentRow {
   status: string;
   created_at: Date;
   updated_at: Date;
+}
+
+interface CustomerRow {
+  id: string;
+  tenant_id: string;
+  phone: string;
+  full_name: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+interface AddressRow {
+  id: string;
+  tenant_id: string;
+  customer_id: string;
+  line1: string;
+  line2: string | null;
+  city: string | null;
+  governorate_code: string | null;
+  raw_governorate: string | null;
+  created_at: Date;
 }
 
 function toOrder(row: OrderRow): OrderRecord {
@@ -97,6 +120,31 @@ function toPayment(row: PaymentRow): PaymentRecord {
   };
 }
 
+function toCustomer(row: CustomerRow): CustomerRecord {
+  return {
+    id: row.id,
+    tenantId: row.tenant_id,
+    phone: row.phone,
+    fullName: row.full_name,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toAddress(row: AddressRow): AddressRecord {
+  return {
+    id: row.id,
+    tenantId: row.tenant_id,
+    customerId: row.customer_id,
+    line1: row.line1,
+    line2: row.line2,
+    city: row.city,
+    governorateCode: row.governorate_code,
+    rawGovernorate: row.raw_governorate,
+    createdAt: row.created_at,
+  };
+}
+
 async function loadDetails(
   client: PoolClient,
   tenantId: string,
@@ -122,10 +170,29 @@ async function loadDetails(
   if (!paymentRow) {
     throw new Error(`order ${orderId} has no payment row`);
   }
+  const customerResult = await client.query<CustomerRow>(
+    `select * from customers where tenant_id = $1 and id = $2`,
+    [tenantId, orderRow.customer_id],
+  );
+  const customerRow = customerResult.rows[0];
+  if (!customerRow) {
+    throw new Error(`order ${orderId} has no customer row`);
+  }
+  let address: AddressRecord | null = null;
+  if (orderRow.address_id) {
+    const addressResult = await client.query<AddressRow>(
+      `select * from addresses where tenant_id = $1 and id = $2`,
+      [tenantId, orderRow.address_id],
+    );
+    const addressRow = addressResult.rows[0];
+    address = addressRow ? toAddress(addressRow) : null;
+  }
   return {
     order: toOrder(orderRow),
     lines: linesResult.rows.map(toLine),
     payment: toPayment(paymentRow),
+    customer: toCustomer(customerRow),
+    address,
   };
 }
 
@@ -264,5 +331,18 @@ export class PgOrderStore implements OrderStore {
       }
       return details;
     });
+  }
+
+  async updateStatus(
+    tenantId: string,
+    orderId: string,
+    status: string,
+  ): Promise<void> {
+    await withTenant(this.pool, tenantId, (client) =>
+      client.query(
+        `update orders set status = $3, updated_at = now() where tenant_id = $1 and id = $2`,
+        [tenantId, orderId, status],
+      ),
+    );
   }
 }

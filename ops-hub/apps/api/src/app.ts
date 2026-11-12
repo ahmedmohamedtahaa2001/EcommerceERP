@@ -29,6 +29,7 @@ import { registerAdjustmentRoutes } from "./stock/adjustment-routes";
 import type { AdjustmentService } from "./stock/adjustment-service";
 import { registerMetaRoutes } from "./meta/routes";
 import { registerOrderRoutes } from "./orders/routes";
+import type { OrderValidationService } from "./orders/validation-service";
 import type { OrderService } from "./orders/service";
 
 export const REDACT_PATHS = [
@@ -78,6 +79,7 @@ export interface BuildAppOptions {
   reservations?: ReservationService;
   adjustments?: AdjustmentService;
   orders?: OrderService;
+  orderValidation?: OrderValidationService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -238,8 +240,12 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
           "order routes mutate state and require an audit writer.",
         );
       }
+      if (!options.orderValidation) {
+        throw new Error("order routes require an order validation service.");
+      }
       registerOrderRoutes(app, {
         service: options.orders,
+        validation: options.orderValidation,
         requestAuth,
         audit: options.audit,
       });
