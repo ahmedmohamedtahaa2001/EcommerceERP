@@ -9,6 +9,7 @@ import type {
   AddressRecord,
   CustomerRecord,
   OrderLineRecord,
+  OrderListItem,
   OrderRecord,
   OrderStore,
   OrderWithDetails,
@@ -29,6 +30,15 @@ interface OrderRow {
   idempotency_body_hash: string | null;
   created_at: Date;
   updated_at: Date;
+}
+
+interface OrderListRow extends OrderRow {
+  customer_name: string | null;
+  customer_phone: string;
+  governorate: string | null;
+  total_minor: number;
+  items_count: number;
+  payment_method: string | null;
 }
 
 interface OrderLineRow {
@@ -73,6 +83,18 @@ interface AddressRow {
   governorate_code: string | null;
   raw_governorate: string | null;
   created_at: Date;
+}
+
+function toOrderListItem(row: OrderListRow): OrderListItem {
+  return {
+    ...toOrder(row),
+    customerName: row.customer_name,
+    customerPhone: row.customer_phone,
+    governorate: row.governorate,
+    totalMinor: row.total_minor,
+    itemsCount: row.items_count,
+    paymentMethod: row.payment_method,
+  };
 }
 
 function toOrder(row: OrderRow): OrderRecord {
@@ -231,7 +253,7 @@ export class PgOrderStore implements OrderStore {
       limit: number;
       cursor: { createdAt: string; id: string } | null;
     },
-  ): Promise<OrderRecord[]> {
+  ): Promise<OrderListItem[]> {
     return withTenant(this.pool, tenantId, async (client) => {
       const conditions = ["o.tenant_id = $1"];
       const params: unknown[] = [tenantId];
@@ -259,15 +281,23 @@ export class PgOrderStore implements OrderStore {
       params.push(filter.limit);
       const limitParam = params.length;
 
-      const result = await client.query<OrderRow>(
-        `select o.* from orders o
+      const result = await client.query<OrderListRow>(
+        `select o.*,
+                c.full_name as customer_name,
+                c.phone as customer_phone,
+                a.raw_governorate as governorate,
+                (select count(*)::int from order_lines l where l.order_id = o.id) as items_count,
+                p.method as payment_method
+           from orders o
            join customers c on c.id = o.customer_id
+           left join addresses a on a.id = o.address_id
+           left join payments p on p.order_id = o.id
           where ${conditions.join(" and ")}
           order by o.created_at desc, o.id desc
           limit $${limitParam}`,
         params,
       );
-      return result.rows.map(toOrder);
+      return result.rows.map(toOrderListItem);
     });
   }
 

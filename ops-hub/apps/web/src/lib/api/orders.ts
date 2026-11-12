@@ -142,13 +142,23 @@ export interface CreateOrderRequest {
   externalOrderId?: string;
 }
 
+/** A row of `GET /v1/orders`: the order plus what the list displays. */
+export interface OrderListItem extends Order {
+  customerName: string | null;
+  customerPhone: string;
+  governorate: string | null;
+  totalMinor: number;
+  itemsCount: number;
+  paymentMethod: string | null;
+}
+
 /** `GET /v1/orders`: filter by status, order number or the customer's phone. */
 export function listOrders(params: {
   status?: string | undefined;
   phone?: string | undefined;
   cursor?: string | undefined;
-}): Promise<{ orders: Order[]; nextCursor: string | null }> {
-  return apiFetch<{ orders: Order[]; nextCursor: string | null }>(
+}): Promise<{ orders: OrderListItem[]; nextCursor: string | null }> {
+  return apiFetch<{ orders: OrderListItem[]; nextCursor: string | null }>(
     "/v1/orders",
     {
       searchParams: {

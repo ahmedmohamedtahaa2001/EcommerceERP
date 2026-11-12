@@ -206,4 +206,27 @@ describe.skipIf(!runDbTests)("Order intake against Postgres", () => {
     );
     expect(customerCount.rows[0]?.count).toBe("1");
   });
+
+  it("lists orders with the customer, governorate, total and payment shown in the orders table", async () => {
+    const key = randomUUID();
+    const created = await service.createOrder(
+      tenantA,
+      key,
+      samplePayload({
+        customer: { phone: "01055511122", fullName: "List Display" },
+        address: { line1: "3 Lists St", governorate: "Giza" },
+      }),
+    );
+
+    const rows = await service.list(tenantA, { limit: 100 });
+    const row = rows.find((item) => item.id === created.result.order.id);
+
+    expect(row).toBeDefined();
+    expect(row!.customerName).toBe("List Display");
+    expect(row!.customerPhone).toBe("+201055511122");
+    expect(row!.governorate).toBe("Giza");
+    expect(row!.totalMinor).toBe(30000);
+    expect(row!.itemsCount).toBe(1);
+    expect(row!.paymentMethod).toBe("cod");
+  });
 });

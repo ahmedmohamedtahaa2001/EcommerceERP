@@ -60,6 +60,16 @@ export interface OrderRecord {
   updatedAt: Date;
 }
 
+/** A row in the orders list: the order plus the display fields the list shows. */
+export interface OrderListItem extends OrderRecord {
+  customerName: string | null;
+  customerPhone: string;
+  governorate: string | null;
+  totalMinor: number;
+  itemsCount: number;
+  paymentMethod: string | null;
+}
+
 export interface OrderWithDetails {
   order: OrderRecord;
   lines: OrderLineRecord[];
@@ -86,7 +96,7 @@ export interface OrderStore {
       limit: number;
       cursor: { createdAt: string; id: string } | null;
     },
-  ): Promise<OrderRecord[]>;
+  ): Promise<OrderListItem[]>;
   /** Everything below runs in one transaction: customer upsert, address
    * insert, order number allocation, order + lines + payment insert. */
   createOrder(

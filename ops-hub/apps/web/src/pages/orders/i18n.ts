@@ -72,11 +72,6 @@ export const dict = {
     "orders.payment.prepaid": "مدفوع مسبقاً",
     "orders.empty.title": "لا توجد طلبات مطابقة",
     "orders.empty.hint": "جرّب تعديل البحث أو الفلاتر.",
-    "orders.preview.banner":
-      "عرض تصميم — قائمة الطلبات غير مفعّلة على الـ API بعد (P1-S3-T07)",
-    "orders.preview.demoTag": "بيانات عرض",
-    "orders.preview.note":
-      "بيانات تجريبية لعرض التصميم؛ عند تفعيل نقطة النهاية (P1-S3-T07) ستُستبدل بالبيانات الحقيقية تلقائياً.",
 
     "orders.detail.notFound.title": "الطلب غير موجود",
     "orders.detail.notFound.hint": "تأكد من الرابط أو عد إلى قائمة الطلبات.",
@@ -211,11 +206,6 @@ export const dict = {
     "orders.payment.prepaid": "Prepaid",
     "orders.empty.title": "No matching orders",
     "orders.empty.hint": "Try adjusting the search or filters.",
-    "orders.preview.banner":
-      "Design preview — the orders list isn't live on the API yet (P1-S3-T07)",
-    "orders.preview.demoTag": "Demo data",
-    "orders.preview.note":
-      "Demo data for design preview; once the endpoint ships (P1-S3-T07) real data loads here automatically.",
 
     "orders.detail.notFound.title": "Order not found",
     "orders.detail.notFound.hint":

@@ -15,7 +15,7 @@ import {
 import { hashRequestBody } from "./idempotency-hash";
 import type {
   OrderEventRecord,
-  OrderRecord,
+  OrderListItem,
   OrderServiceDeps,
   OrderWithDetails,
 } from "./types";
@@ -139,7 +139,7 @@ export class OrderService {
       limit?: number;
       cursor?: { createdAt: string; id: string } | null;
     },
-  ): Promise<OrderRecord[]> {
+  ): Promise<OrderListItem[]> {
     const limit = Math.min(Math.max(filter.limit ?? 25, 1), 100);
     const orders = await this.deps.store.list(tenantId, {
       limit,

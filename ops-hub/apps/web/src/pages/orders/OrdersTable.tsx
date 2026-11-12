@@ -14,10 +14,10 @@ import {
   THead,
   Tag,
 } from "../../components/ui";
-import type { OrderListRow } from "./demoOrders";
+import type { OrderListItem } from "../../lib/api/orders";
 
 export interface OrdersTableProps {
-  rows: readonly OrderListRow[];
+  rows: readonly OrderListItem[];
   isLoading: boolean;
   isError: boolean;
   error: unknown;
@@ -40,8 +40,8 @@ const COLUMN_HEADERS = [
 ] as const;
 
 /** Missing (real-data) cells render as a muted dash — never a fake value. */
-function Cell({ value }: { value: string | undefined }) {
-  if (value === undefined || value === "") {
+function Cell({ value }: { value: string | null | undefined }) {
+  if (value === undefined || value === null || value === "") {
     return <span className="text-ink-400">—</span>;
   }
   return <>{value}</>;
@@ -110,7 +110,7 @@ export function OrdersTable({
   const t = useT();
   const navigate = useNavigate();
 
-  const openDetail = (row: OrderListRow): void => {
+  const openDetail = (row: OrderListItem): void => {
     void navigate(`/orders/${encodeURIComponent(row.id)}`);
   };
 
@@ -216,7 +216,7 @@ export function OrdersTable({
                   )}
                 </TD>
                 <TD>
-                  <PaymentCell method={row.method} />
+                  <PaymentCell method={row.paymentMethod ?? undefined} />
                 </TD>
                 <TD>
                   <StatusPill kind={{ type: "order", status: row.status }} />
