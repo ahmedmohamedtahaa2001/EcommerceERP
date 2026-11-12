@@ -74,6 +74,16 @@ export function registerShipmentRoutes(
   );
 
   app.get(
+    "/v1/shipments/tracking/:trackingNumber",
+    { preHandler: requirePermission(requestAuth, "orders:read") },
+    async (request) => {
+      const { trackingNumber } = request.params as { trackingNumber: string };
+      const { tenantId } = actorAndTenant(requirePrincipal(request));
+      return service.getStatusByTrackingNumber(tenantId, trackingNumber);
+    },
+  );
+
+  app.get(
     "/v1/shipments/:id/status",
     { preHandler: requirePermission(requestAuth, "orders:read") },
     async (request) => {

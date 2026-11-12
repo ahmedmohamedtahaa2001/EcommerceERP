@@ -66,6 +66,20 @@ export class PgShipmentStore implements ShipmentStore {
     });
   }
 
+  async getByTrackingNumber(
+    tenantId: string,
+    trackingNumber: string,
+  ): Promise<ShipmentRecord | null> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const r = await client.query<ShipmentRow>(
+        `select * from shipments where tenant_id=$1 and tracking_number=$2
+         order by created_at desc limit 1`,
+        [tenantId, trackingNumber],
+      );
+      return r.rows[0] ? toShipment(r.rows[0]) : null;
+    });
+  }
+
   async create(
     tenantId: string,
     data: {

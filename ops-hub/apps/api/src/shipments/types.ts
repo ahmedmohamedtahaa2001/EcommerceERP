@@ -28,6 +28,10 @@ export interface ShipmentEventRecord {
 
 export interface ShipmentStore {
   getById(tenantId: string, id: string): Promise<ShipmentRecord | null>;
+  getByTrackingNumber(
+    tenantId: string,
+    trackingNumber: string,
+  ): Promise<ShipmentRecord | null>;
   getByOrderSequence(
     tenantId: string,
     orderId: string,

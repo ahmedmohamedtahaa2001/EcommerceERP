@@ -163,11 +163,20 @@ export async function callTool(
           ),
         );
       case "get_shipment_status":
+        if (input.shipmentId) {
+          return ok(
+            await callApi(
+              client,
+              "GET",
+              `/v1/shipments/${input.shipmentId}/status`,
+            ),
+          );
+        }
         return ok(
           await callApi(
             client,
             "GET",
-            `/v1/shipments/${input.shipmentId}/status`,
+            `/v1/shipments/tracking/${input.trackingNumber}`,
           ),
         );
       case "draft_customer_reply":

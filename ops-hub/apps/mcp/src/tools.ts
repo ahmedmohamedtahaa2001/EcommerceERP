@@ -39,7 +39,6 @@ export const getShipmentStatusInput = z.object({
   trackingNumber: z.string().optional().describe("Tracking number."),
   shipmentId: z.string().optional().describe("Shipment id (uuid)."),
 });
-
 export const draftCustomerReplyInput = z.object({
   orderId: z.string().describe("Order the reply is about."),
   message: z.string().min(1).describe("The drafted reply body."),

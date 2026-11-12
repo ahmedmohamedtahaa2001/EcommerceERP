@@ -71,6 +71,16 @@ export class ShipmentService {
     return { shipment: s, events };
   }
 
+  async getStatusByTrackingNumber(tenantId: string, trackingNumber: string) {
+    const s = await this.deps.store.getByTrackingNumber(
+      tenantId,
+      trackingNumber,
+    );
+    if (!s) throw new Error("Shipment not found");
+    const events = await this.deps.store.listEvents(tenantId, s.id);
+    return { shipment: s, events };
+  }
+
   /** Apply a raw carrier status update: normalize, record the event, update
    * the shipment, and transition the order to `shipped` only when the
    * normalized status is `carrier_accepted`. */

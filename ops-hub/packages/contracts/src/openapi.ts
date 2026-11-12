@@ -400,6 +400,13 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
   },
   {
     method: "get",
+    path: "/v1/shipments/tracking/:trackingNumber",
+    summary: "Shipment status by tracking number",
+    tag: "Shipments",
+    scope: "orders:read",
+  },
+  {
+    method: "get",
     path: "/v1/shipments/:id/status",
     summary: "Shipment status and events",
     tag: "Shipments",
