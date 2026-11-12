@@ -9,6 +9,7 @@ export type NavIconKey =
   | "pin"
   | "package"
   | "upload"
+  | "download"
   | "users"
   | "chart"
   | "scroll"
@@ -71,6 +72,10 @@ export const NAV_SECTIONS: readonly NavSection[] = [
   {
     labelKey: "nav.section.customers",
     items: [{ labelKey: "nav.customers", to: "/customers", icon: "users" }],
+  },
+  {
+    labelKey: "nav.section.data",
+    items: [{ labelKey: "nav.exports", to: "/exports", icon: "download" }],
   },
   {
     labelKey: "nav.section.analytics",

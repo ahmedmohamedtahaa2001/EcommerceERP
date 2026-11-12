@@ -37,6 +37,8 @@ import type { ShipmentService } from "./shipments/service";
 import { registerShipmentWebhookRoutes } from "./shipments/webhook-routes";
 import { registerCustomerRoutes } from "./customers/routes";
 import { registerPutawayRoutes } from "./putaway/routes";
+import { registerExportRoutes } from "./exports/routes";
+import type { ExportService } from "./exports/service";
 import type { PutawayService } from "./putaway/service";
 import type { CustomerService } from "./customers/service";
 import type { ShippingCarrier } from "@ops-hub/integrations";
@@ -116,6 +118,7 @@ export interface BuildAppOptions {
   shipments?: ShipmentService;
   customers?: CustomerService;
   putaway?: PutawayService;
+  exports?: ExportService;
   carriers?: Record<string, ShippingCarrier>;
   /** Per-carrier HMAC secrets for inbound carrier webhooks. */
   carrierWebhookSecrets?: Record<string, string | undefined>;
@@ -378,6 +381,16 @@ ${Object.entries(buildOpenApiDocument().paths)
       }
       registerExceptionRoutes(app, {
         service: options.exceptions,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.exports) {
+      if (!options.audit) {
+        throw new Error("export routes must be audited.");
+      }
+      registerExportRoutes(app, {
+        service: options.exports,
         requestAuth,
         audit: options.audit,
       });

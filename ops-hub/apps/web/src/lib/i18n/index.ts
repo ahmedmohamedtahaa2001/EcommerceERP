@@ -9,6 +9,7 @@ import { en } from "./en";
 import { dict as dashboardDict } from "../../pages/dashboard/i18n";
 import { dict as ordersDict } from "../../pages/orders/i18n";
 import { dict as productsDict } from "../../pages/products/i18n";
+import { dict as exportsDict } from "../../pages/exports/i18n";
 import { dict as inventoryDict } from "../../pages/inventory/i18n";
 import { dict as authDict } from "../../pages/auth/i18n";
 import { dict as adminDict } from "../../pages/admin/i18n";
@@ -20,6 +21,7 @@ const DOMAIN_DICTS = [
   dashboardDict,
   ordersDict,
   productsDict,
+  exportsDict,
   inventoryDict,
   authDict,
   adminDict,

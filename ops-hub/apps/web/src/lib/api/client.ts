@@ -190,3 +190,22 @@ export async function apiFetch<T>(
 
   return (await parseBody<T>(response)) as T;
 }
+
+/** Downloads a file (e.g. a CSV export) with the session token attached. */
+export async function downloadFile(
+  path: string,
+): Promise<{ blob: Blob; disposition: string | null }> {
+  const headers: Record<string, string> = {};
+  const token = tokenProvider();
+  if (token !== null && token !== "") {
+    headers.authorization = `Bearer ${token}`;
+  }
+  const response = await fetch(buildUrl(path, undefined), { headers });
+  if (!response.ok) {
+    throw new ApiError(await parseProblem(response));
+  }
+  return {
+    blob: await response.blob(),
+    disposition: response.headers.get("content-disposition"),
+  };
+}

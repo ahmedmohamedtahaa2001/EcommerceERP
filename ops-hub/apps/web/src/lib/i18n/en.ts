@@ -10,6 +10,8 @@ export const en: Record<string, string> = {
   "nav.section.inventory": "Inventory",
   "nav.section.catalog": "Catalog",
   "nav.section.customers": "Customers",
+  "nav.section.data": "Data",
+  "nav.exports": "Export data",
   "nav.section.analytics": "Analytics",
   "nav.section.admin": "Administration",
 

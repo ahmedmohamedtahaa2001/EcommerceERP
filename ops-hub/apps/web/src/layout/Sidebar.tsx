@@ -19,6 +19,7 @@ import {
   SettingsIcon,
   ShoppingCartIcon,
   UploadIcon,
+  DownloadIcon,
   UsersIcon,
 } from "./icons";
 import type { NavIconKey } from "./nav-model";
@@ -35,6 +36,7 @@ const ICONS: Record<NavIconKey, ReactNode> = {
   pin: <MapPinIcon />,
   package: <PackageIcon />,
   upload: <UploadIcon />,
+  download: <DownloadIcon />,
   users: <UsersIcon />,
   chart: <BarChartIcon />,
   scroll: <ScrollTextIcon />,
