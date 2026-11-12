@@ -1,5 +1,3 @@
-import type { ShippingCarrier } from "@ops-hub/integrations";
-
 import type { ShipmentServiceDeps, ShipmentRecord } from "./types";
 import { normalizeStatus, type StatusMapping } from "./normalize";
 

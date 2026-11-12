@@ -1,5 +1,4 @@
 import type {
-  CancelShipmentRequest,
   CarrierCapabilities,
   CarrierStatus,
   CreateShipmentRequest,

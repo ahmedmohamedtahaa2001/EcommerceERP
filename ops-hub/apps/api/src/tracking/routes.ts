@@ -1,7 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
 import { Pool } from "pg";
-import { withTenant } from "@ops-hub/db";
 
 export function registerTrackingRoutes(
   app: FastifyInstance,

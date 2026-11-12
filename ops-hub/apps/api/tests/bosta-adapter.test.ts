@@ -21,7 +21,9 @@ beforeAll(async () => {
         body: "{}",
       });
       if (r.ok) return;
-    } catch {}
+    } catch {
+      // ignore
+    }
     await new Promise((r) => setTimeout(r, 200));
   }
   throw new Error("fake courier did not start");

@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type {
-  CancelShipmentRequest,
   CreateShipmentRequest,
   GetLabelRequest,
   GetStatusRequest,
@@ -93,10 +92,8 @@ class FakeShippingCarrier implements ShippingCarrier {
     body: unknown,
   ): Promise<WebhookParseResult> {
     const b = (body ?? {}) as Record<string, unknown>;
-    return {
+    const result: WebhookParseResult = {
       eventId: String(b.eventId ?? "evt-1"),
-      carrierShipmentId: b.shipmentId as string | undefined,
-      trackingNumber: b.tracking as string | undefined,
       event: {
         carrierStatus: String(b.status ?? "delivered"),
         status: "delivered",
@@ -105,6 +102,11 @@ class FakeShippingCarrier implements ShippingCarrier {
       },
       raw: body,
     };
+    const csid = b.shipmentId as string | undefined;
+    if (csid) result.carrierShipmentId = csid;
+    const tn = b.tracking as string | undefined;
+    if (tn) result.trackingNumber = tn;
+    return result;
   }
 }
 

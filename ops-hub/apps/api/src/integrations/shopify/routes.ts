@@ -24,12 +24,14 @@ export function registerShopifyRoutes(
       reply.status(401);
       return { error: "invalid signature" };
     }
-    const payload = request.body as any;
-    const mapped = mapShopifyOrder(payload);
+    const payload = request.body as Record<string, unknown>;
+    const mapped = mapShopifyOrder(
+      payload as unknown as Parameters<typeof mapShopifyOrder>[0],
+    );
     try {
       const result = await orders.createOrder(
         tenantId,
-        `shopify-${payload.id}`,
+        `shopify-${String(payload.id)}`,
         {
           customer: mapped.customer,
           address: mapped.address,

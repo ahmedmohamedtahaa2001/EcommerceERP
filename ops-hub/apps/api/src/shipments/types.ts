@@ -75,4 +75,17 @@ export interface ShipmentServiceDeps {
   store: ShipmentStore;
   carrier: import("@ops-hub/integrations").ShippingCarrier;
   clock: { now(): Date };
+  orderStore?: {
+    getById(
+      tenantId: string,
+      id: string,
+    ): Promise<{ order: { id: string; status: string } } | null>;
+    updateStatus(
+      tenantId: string,
+      orderId: string,
+      status: string,
+      actor?: { type: "user" | "api_key"; id: string } | null,
+      note?: string,
+    ): Promise<void>;
+  };
 }

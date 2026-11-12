@@ -92,6 +92,13 @@
       "when": 1794477025374,
       "tag": "0012_loud_shard",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794487626559,
+      "tag": "0013_narrow_beast",
+      "breakpoints": true
     }
   ]
 }
