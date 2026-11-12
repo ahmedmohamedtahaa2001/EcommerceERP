@@ -1,4 +1,5 @@
 import { withTenant } from "@ops-hub/db";
+import { appendOutboxEvent } from "@ops-hub/events";
 import type { Pool } from "pg";
 
 import type {
@@ -68,8 +69,8 @@ export class PgProductStore implements ProductStore {
   constructor(private readonly pool: Pool) {}
 
   async create(record: ProductRecord): Promise<void> {
-    await withTenant(this.pool, record.tenantId, (client) =>
-      client.query(
+    await withTenant(this.pool, record.tenantId, async (client) => {
+      await client.query(
         `insert into products
            (id, tenant_id, kind, name_ar, name_en, description_ar, description_en,
             images, status, created_at, updated_at)
@@ -87,8 +88,16 @@ export class PgProductStore implements ProductStore {
           record.createdAt,
           record.updatedAt,
         ],
-      ),
-    );
+      );
+      // Same transaction, same client: if either write fails, both roll
+      // back together — the outbox can never record an event for a
+      // product that doesn't exist, or vice versa.
+      await appendOutboxEvent(client, {
+        tenantId: record.tenantId,
+        eventType: "product.created",
+        payload: record,
+      });
+    });
   }
 
   async getById(tenantId: string, id: string): Promise<ProductRecord | null> {

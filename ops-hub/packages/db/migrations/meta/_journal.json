@@ -43,6 +43,13 @@
       "when": 1794414473500,
       "tag": "0005_cloudy_wild_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794473446776,
+      "tag": "0006_same_sasquatch",
+      "breakpoints": true
     }
   ]
 }
