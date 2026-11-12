@@ -1025,6 +1025,42 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 
 ---
 
+## 17. Merge of the root Next app into ops-hub
+
+Goal: ops-hub is the only application in this repository. Every feature of the
+root Next.js app is ported into ops-hub by merging code, not rewriting it, and
+the Next app is then deleted. The Next app's code stays recoverable on the
+`archive/legacy` branch and in history until M-15 is done.
+
+Gate for M-15: nothing is deleted from main until M-02 through M-13 are `[x]`
+and the full suite is green.
+
+- [x] **M-01** Inventory transfer between locations. Ported from `app/api/inventory/transfer`. Now atomic (one transaction, available-to-promise checked, shared transfer reference). Commit 55d45ebb.
+- [ ] **M-02** Product pricing and attributes. Write and read price, currency, category, brand, barcode, weight, dimensions and tags through the catalog API, import and product screens. Columns exist (migration 0022).
+- [ ] **M-03** Customers: create and edit (API and screen), and a customer detail page with order history. Ported from `app/(dashboard)/customers/*` and `app/api/customers`.
+- [ ] **M-04** Create-order screen in the web console. Ported from `app/(dashboard)/orders/new`. Uses `POST /v1/orders`.
+- [ ] **M-05** Bins and putaway: bin management screen, warehouse detail with bin layout, putaway screen. Ported from `app/dashboard/warehouses/[id]` and `app/api/inventory/[id]/putaway`.
+- [ ] **M-06** Warehouse capacity and utilization on the locations screen. Column exists (migration 0022).
+- [ ] **M-07** CSV export for orders, products, inventory and customers. Ported from `app/(dashboard)/export`.
+- [ ] **M-08** Bulk operations (bulk product and order updates). Ported from `app/(dashboard)/bulk-operations`.
+- [ ] **M-09** User management: list users, invite, change role, deactivate (uses `memberships.active`). Ported from `app/(dashboard)/settings/users`.
+- [ ] **M-10** Tenant settings: timezone, default currency, country. Columns exist (migration 0022). Ported from `app/(dashboard)/settings`.
+- [ ] **M-11** Reports screen (daily report and KPIs in one place). Ported from `app/(dashboard)/reports`. Backend exists (`/v1/reports/daily`, `/v1/kpis`).
+- [ ] **M-12** Agents: compare `app/(dashboard)/agents` and `app/api/agents` with ops-hub's agents and automations screens; keep whichever covers more and port the rest.
+  - Blocker: decide which agent features are in scope for the client delivery.
+- [ ] **M-13** Signup (`app/auth/register`).
+  - Blocker: human decision. Is self-serve signup in scope for the client delivery, or are accounts created by the owner only?
+- [ ] **M-14** Performance settings page (`app/(dashboard)/settings/performance`): decide whether it's kept. Blocker: human decision.
+- [ ] **M-15** Delete the root Next app and move ops-hub to the repo root.
+  - Deletes: `app/`, `components/`, `lib/`, `db/`, `middleware.ts`, `next.config.js`, `next-env.d.ts`, `postcss.config.js`, `tailwind.config.js`, Firebase and Supabase files, root SQL and shell scripts, and the root `package.json` and lockfile.
+  - Moves: `ops-hub/*` to the repo root, with paths in this file and in CLAUDE.md updated.
+  - Gate: M-02 through M-14 are `[x]` or explicitly dropped by a human decision, and the full suite is green.
+
+Open decisions outside this section: `genz-portal/` (a nested git repo, currently ignored), `tools/rea` (a broken gitlink), and rotating the secrets that were committed in `.env.local` (see the progress log).
+
+---
+
 ## 16. Changelog of this roadmap
 
 - v1.0 — initial roadmap created from `ecommerce-ops-system-architecture.md`.
+- v1.1 — added Section 17 (merge of the root Next app into ops-hub, with a deletion gate).
