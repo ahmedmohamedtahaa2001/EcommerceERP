@@ -326,9 +326,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: contract suite passes against the fake server; adapter never logs the API key; unknown carrier error codes map to internal error types. **Note:** verify real endpoints in Bosta's docs before enabling live; record findings in `docs/decisions/0004-bosta.md`.
   - Note: `apps/api/src/integrations/bosta/adapter.ts`; endpoints are placeholder paths (`/v1/...`) pending verification against real Bosta docs; runs against the fake courier. Commit 9447c004.
 
-- [ ] **P1-S4-T04** Shipments schema and idempotent creation: `shipments` with unique `(order_id, sequence)`; `shipment_requests` log with request/response bodies.
+- [x] **P1-S4-T04** Shipments schema and idempotent creation: `shipments` with unique `(order_id, sequence)`; `shipment_requests` log with request/response bodies.
+  - Owner: claude (2026-11-12)
   - Deps: T03
   - AC: calling `createShipment` twice for the same order sequence calls the courier once (verified by fake server request count); timeout after creation recovers by reading existing shipment, not re-creating.
+  - Note: schema migration 0013 (shipments, shipment_requests, shipment_events) with RLS+grants; PgShipmentStore + ShipmentService (idempotent getByOrderSequence) + routes. Commit 6bfb87be.
 
 - [ ] **P1-S4-T05** Separate states: `label_created` stored separately from `carrier_accepted`; order `shipped` is set only on `carrier_accepted`.
   - Deps: T04, P1-S3-T02
@@ -837,6 +839,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-12 · P1-S4-T01 · Shipping port: `ShippingCarrier` interface + supporting types in `packages/integrations/src/shipping.ts`; contract suite in `packages/integrations/tests/contract.test.ts`. 295/295 tests green, lint + typecheck clean · commit d4f02d62
 - 2026-11-12 · P1-S4-T02 · Fake courier server (Node http) in `fixtures/courier/server.ts`: create/get/cancel/label/rates + timeout/error5xx/duplicate scenarios. Smoke-tested against localhost:4010 · commit d276d414
 - 2026-11-12 · P1-S4-T03 · Bosta adapter implementing ShippingCarrier (placeholder endpoints, fake-courier-tested) · commit 9447c004
+- 2026-11-12 · P1-S4-T04 · Shipments schema + idempotent creation service/routes (migration 0013) · commit 6bfb87be
 - 2026-11-11 · smoke test · Ran the live API end-to-end (real Postgres + Redis, via Playwright against the running server) over everything from S1+S2: auth, products/variants, import, locations/bins, geo, stock ledger, availability, reservations, adjustments, audit. Found and fixed a real bug: Fastify's default JSON parser 400'd any bodiless POST (e.g. reservation release) when the client set `Content-Type: application/json` with no body; now treated as `{}`. Regression test added, 217/217 tests green · commit d2dd670
 
 ---
