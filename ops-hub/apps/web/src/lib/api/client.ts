@@ -175,7 +175,14 @@ export async function apiFetch<T>(
   if (!response.ok) {
     const problem = await parseProblem(response);
     const error = new ApiError(problem);
-    if (response.status === 401 && onUnauthorized !== null) {
+    // A 401 from the login endpoint itself is a wrong password, not an
+    // expired session: running the global handler there would reload the
+    // page and wipe the form before the user can read the error.
+    if (
+      response.status === 401 &&
+      onUnauthorized !== null &&
+      !path.startsWith("/v1/auth/login")
+    ) {
       onUnauthorized(error);
     }
     throw error;

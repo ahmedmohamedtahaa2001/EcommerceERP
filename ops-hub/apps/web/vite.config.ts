@@ -7,6 +7,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/v1": "http://localhost:3001",
+      "/healthz": "http://localhost:3001",
+      "/readyz": "http://localhost:3001",
     },
   },
 });

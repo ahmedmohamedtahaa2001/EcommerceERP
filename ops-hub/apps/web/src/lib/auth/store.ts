@@ -60,7 +60,10 @@ setTokenProvider(getToken);
 
 setUnauthorizedHandler(() => {
   clearSession();
-  window.location.assign("/login");
+  // Already on the login page: a reload would wipe what the user typed.
+  if (window.location.pathname !== "/login") {
+    window.location.assign("/login");
+  }
 });
 
 export interface LoginInput {

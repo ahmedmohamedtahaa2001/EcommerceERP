@@ -6,3 +6,6 @@ coverage/
 .env.*
 !.env.example
 .superpowers/
+
+# Playwright demo output
+scripts/screenshots/

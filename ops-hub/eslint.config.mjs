@@ -16,14 +16,17 @@ export default tseslint.config(
     },
   },
   {
-    // Fixture servers run under Node, not the browser.
-    files: ["fixtures/**/*.mjs"],
+    // Fixture servers and scripts run under Node, not the browser.
+    files: ["fixtures/**/*.mjs", "scripts/**/*.mjs"],
     languageOptions: {
       globals: {
         process: "readonly",
         Buffer: "readonly",
         console: "readonly",
         setTimeout: "readonly",
+        fetch: "readonly",
+        window: "readonly",
+        document: "readonly",
       },
     },
   },
