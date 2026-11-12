@@ -8,6 +8,7 @@ import Fastify, {
 
 import { registerApiKeyRoutes } from "./api-keys/routes";
 import type { ApiKeyService } from "./api-keys/service";
+import { buildOpenApiDocument } from "@ops-hub/contracts";
 import { registerAuditRoutes } from "./audit/routes";
 import type { AuditReader, AuditWriter } from "./audit/types";
 import { registerAuthRoutes } from "./auth/routes";
@@ -72,6 +73,10 @@ function problemType(code: string): string {
 
 export interface BuildAppOptions {
   logger?: FastifyServerOptions["logger"];
+  /** Observability hook: called for every registered route. Used by the
+   * OpenAPI coverage check to assert that no route is missing from the
+   * published spec. */
+  onRoute?: (route: { method: string; url: string }) => void;
   auth?: AuthService;
   apiKeys?: ApiKeyService;
   audit?: AuditWriter;
@@ -108,6 +113,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     reply.header("x-request-id", request.id);
   });
 
+  if (options.onRoute) {
+    const onRoute = options.onRoute;
+    app.addHook("onRoute", (routeOptions) => {
+      onRoute({
+        method: Array.isArray(routeOptions.method)
+          ? (routeOptions.method[0] ?? "GET")
+          : routeOptions.method,
+        url: routeOptions.url,
+      });
+    });
+  }
+
   // Fastify's default JSON parser rejects an empty body outright
   // (FST_ERR_CTP_EMPTY_JSON_BODY), which breaks any bodiless POST (e.g.
   // reservation release) whenever the caller still sets
@@ -141,6 +158,39 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     status: "ok",
     uptimeSeconds: Math.round(process.uptime()),
   }));
+
+  app.get("/v1/openapi.json", async () => buildOpenApiDocument());
+
+  app.get("/docs", async (_request, reply) => {
+    reply.type("text/html");
+    return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ops Hub API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 2rem; color: #1a1a1a; }
+      code { background: #f5f5f3; padding: 0.15rem 0.35rem; border-radius: 4px; }
+      li { margin: 0.35rem 0; }
+    </style>
+  </head>
+  <body>
+    <h1>Ops Hub API</h1>
+    <p>OpenAPI 3.1 spec: <a href="/v1/openapi.json"><code>/v1/openapi.json</code></a></p>
+    <ul>
+${Object.entries(buildOpenApiDocument().paths)
+  .map(
+    ([path, item]) =>
+      `      <li><code>${Object.keys(item)
+        .map((m) => m.toUpperCase())
+        .join(" | ")}</code> ${path}</li>`,
+  )
+  .join("\n")}
+    </ul>
+  </body>
+</html>`;
+  });
 
   if (options.auth || options.apiKeys || options.audit) {
     const requestAuth = new CompositeRequestAuthenticator(
