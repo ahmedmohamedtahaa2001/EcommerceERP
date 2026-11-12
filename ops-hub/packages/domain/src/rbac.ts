@@ -114,6 +114,11 @@ export function isRole(value: string | null | undefined): value is Role {
   );
 }
 
+/** Every permission a role holds, for the client to decide what to show. */
+export function permissionsFor(role: Role | null): Permission[] {
+  return role === null ? [] : [...(ROLE_PERMISSIONS[role] ?? [])];
+}
+
 /** A missing role (no membership) grants nothing. */
 export function can(role: Role | null, permission: Permission): boolean {
   return role !== null && GRANTS.get(role)?.has(permission) === true;

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useT } from "../../lib/i18n";
 import { listExceptions } from "../../lib/api/orders";
 import { Button, PageHeader } from "../../components/ui";
+import { useSession } from "../../lib/auth/store";
 import { DashboardKpis } from "./DashboardKpis";
 import { AttentionPanel } from "./AttentionPanel";
 
@@ -15,6 +16,9 @@ import { AttentionPanel } from "./AttentionPanel";
 export function DashboardPage() {
   const t = useT();
   const navigate = useNavigate();
+  const { session } = useSession();
+  const canCreateOrder =
+    session?.user.permissions?.includes("orders:write") ?? false;
 
   const openExceptions = useQuery({
     queryKey: ["exceptions", "open"],
@@ -28,9 +32,11 @@ export function DashboardPage() {
         description={t("dashboard.description")}
         actions={
           <>
-            <Button onClick={() => void navigate("/orders/new")}>
-              {t("dashboard.quick.createOrder")}
-            </Button>
+            {canCreateOrder ? (
+              <Button onClick={() => void navigate("/orders/new")}>
+                {t("dashboard.quick.createOrder")}
+              </Button>
+            ) : null}
             <Button variant="outlined" onClick={() => void navigate("/orders")}>
               {t("dashboard.quick.goToOrders")}
             </Button>

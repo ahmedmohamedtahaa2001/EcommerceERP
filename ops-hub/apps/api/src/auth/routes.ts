@@ -1,3 +1,4 @@
+import { permissionsFor, type Role } from "@ops-hub/domain";
 import type { FastifyInstance } from "fastify";
 
 import { recordAudit } from "../audit/record";
@@ -5,6 +6,13 @@ import type { AuditWriter } from "../audit/types";
 import { UnauthorizedError, ValidationError } from "./errors";
 import { bearerToken } from "./http";
 import type { AuthService } from "./service";
+
+/** The client uses this list to show only the modules a person may use. */
+function withPermissions<T extends { role: Role | null }>(
+  user: T,
+): T & { permissions: string[] } {
+  return { ...user, permissions: permissionsFor(user.role) };
+}
 
 export function registerAuthRoutes(
   app: FastifyInstance,
@@ -54,7 +62,7 @@ export function registerAuthRoutes(
     return {
       token: result.token,
       expiresAt: result.expiresAt.toISOString(),
-      user: result.user,
+      user: withPermissions(result.user),
     };
   });
 
@@ -74,6 +82,6 @@ export function registerAuthRoutes(
 
     const user = await service.authenticate(token);
     reply.header("cache-control", "no-store");
-    return { user };
+    return { user: withPermissions(user) };
   });
 }

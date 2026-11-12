@@ -23,7 +23,8 @@ import {
   UsersIcon,
 } from "./icons";
 import type { NavIconKey } from "./nav-model";
-import { NAV_SECTIONS } from "./nav-model";
+import { NAV_SECTIONS, visibleNavSections } from "./nav-model";
+import { useSession } from "../lib/auth/store";
 
 const ICONS: Record<NavIconKey, ReactNode> = {
   dashboard: <LayoutDashboardIcon />,
@@ -61,6 +62,11 @@ const GOLD_INDICATOR =
  */
 export function Sidebar({ collapsed }: SidebarProps) {
   const t = useT();
+  const { session } = useSession();
+  const sections = visibleNavSections(
+    NAV_SECTIONS,
+    session?.user.permissions ?? [],
+  );
 
   return (
     <aside
@@ -81,7 +87,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
         aria-label={t("app.name")}
         className="flex-1 overflow-y-auto px-2 pb-6"
       >
-        {NAV_SECTIONS.map((section) => (
+        {sections.map((section) => (
           <div key={section.labelKey} className="mt-4 first:mt-2">
             {collapsed ? (
               <div

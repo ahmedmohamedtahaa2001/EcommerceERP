@@ -13,6 +13,8 @@ export interface AuthUser {
   tenantId: string | null;
   /** One of the `ROLES` in @ops-hub/domain (owner, manager, sales_agent, …). */
   role: string | null;
+  /** Every permission the role grants. Absent on sessions saved before this field existed. */
+  permissions?: string[];
 }
 
 /** `POST /v1/auth/login` → 200. */
