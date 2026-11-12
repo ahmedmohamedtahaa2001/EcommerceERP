@@ -268,7 +268,7 @@ function EditProductModal({
         status,
       }),
     onSuccess: async () => {
-      toast.showToast("success", t("products.created"));
+      toast.showToast("success", t("products.updated"));
       await queryClient.invalidateQueries({
         queryKey: ["product", product.id],
       });

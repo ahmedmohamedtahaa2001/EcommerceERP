@@ -12,6 +12,7 @@ export const en: Record<string, string> = {
   "nav.section.customers": "Customers",
   "nav.section.data": "Data",
   "nav.exports": "Export data",
+  "nav.bulk": "Bulk changes",
   "nav.section.analytics": "Analytics",
   "nav.section.admin": "Administration",
 

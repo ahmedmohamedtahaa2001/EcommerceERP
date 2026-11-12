@@ -20,6 +20,7 @@ export const dict = {
       "ابدأ بإضافة أول منتج للكتالوج، أو استورد ملف منتجات جاهز.",
     "products.rowHint": "عرض تفاصيل المنتج",
     "products.created": "تم إنشاء المنتج بنجاح",
+    "products.updated": "تم حفظ بيانات المنتج",
     "products.createFailed": "تعذر إنشاء المنتج",
 
     "kind.simple": "بسيط",
@@ -166,6 +167,7 @@ export const dict = {
       "Start by adding your first product, or import a ready product file.",
     "products.rowHint": "View product details",
     "products.created": "Product created successfully",
+    "products.updated": "Product details saved",
     "products.createFailed": "Could not create the product",
 
     "kind.simple": "Simple",

@@ -67,6 +67,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
     items: [
       { labelKey: "nav.products", to: "/products", icon: "package" },
       { labelKey: "nav.productImport", to: "/products/import", icon: "upload" },
+      { labelKey: "nav.bulk", to: "/bulk", icon: "package" },
     ],
   },
   {

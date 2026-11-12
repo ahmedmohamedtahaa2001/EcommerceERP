@@ -73,6 +73,7 @@ import { PgShipmentStore } from "./shipments/pg-store";
 import { CustomerService } from "./customers/service";
 import { PutawayService } from "./putaway/service";
 import { ExportService } from "./exports/service";
+import { BulkService } from "./bulk/service";
 import { PgCustomerStore } from "./customers/pg-store";
 import { SourcingService } from "./suppliers/service";
 import { TenantSettingsService } from "./settings/service";
@@ -284,6 +285,7 @@ export function buildFullApp(
     customers,
     putaway: new PutawayService(pool),
     exports: new ExportService(pool, systemClock),
+    bulk: new BulkService(pool),
     catalogImport,
     inventory,
     stock,

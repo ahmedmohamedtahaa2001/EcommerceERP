@@ -38,6 +38,8 @@ import { registerShipmentWebhookRoutes } from "./shipments/webhook-routes";
 import { registerCustomerRoutes } from "./customers/routes";
 import { registerPutawayRoutes } from "./putaway/routes";
 import { registerExportRoutes } from "./exports/routes";
+import { registerBulkRoutes } from "./bulk/routes";
+import type { BulkService } from "./bulk/service";
 import type { ExportService } from "./exports/service";
 import type { PutawayService } from "./putaway/service";
 import type { CustomerService } from "./customers/service";
@@ -119,6 +121,7 @@ export interface BuildAppOptions {
   customers?: CustomerService;
   putaway?: PutawayService;
   exports?: ExportService;
+  bulk?: BulkService;
   carriers?: Record<string, ShippingCarrier>;
   /** Per-carrier HMAC secrets for inbound carrier webhooks. */
   carrierWebhookSecrets?: Record<string, string | undefined>;
@@ -381,6 +384,16 @@ ${Object.entries(buildOpenApiDocument().paths)
       }
       registerExceptionRoutes(app, {
         service: options.exceptions,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.bulk) {
+      if (!options.audit) {
+        throw new Error("bulk routes mutate state and must be audited.");
+      }
+      registerBulkRoutes(app, {
+        service: options.bulk,
         requestAuth,
         audit: options.audit,
       });

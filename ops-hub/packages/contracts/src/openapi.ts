@@ -330,6 +330,21 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     scope: "customers:read",
   },
   {
+    method: "post",
+    path: "/v1/bulk/products/status",
+    summary: "Set the status of many products at once; reports each item",
+    tag: "Catalog",
+    scope: "products:write",
+  },
+  {
+    method: "post",
+    path: "/v1/bulk/products/prices",
+    summary:
+      "Change the prices of the priced variants of many products; reports each item",
+    tag: "Catalog",
+    scope: "products:write",
+  },
+  {
     method: "get",
     path: "/v1/inventory/balances",
     summary: "Stock balances",
