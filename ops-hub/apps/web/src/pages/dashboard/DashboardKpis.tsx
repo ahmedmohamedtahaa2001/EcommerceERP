@@ -3,7 +3,14 @@ import type { ReactNode } from "react";
 
 import { useT } from "../../lib/i18n";
 import { formatNumber } from "../../lib/format";
-import { StatCard, Tag } from "../../components/ui";
+import { useQuery } from "@tanstack/react-query";
+
+import { StatCard } from "../../components/ui";
+import { useSession } from "../../lib/auth/store";
+import { listOrders } from "../../lib/api/orders";
+import { listReorderSuggestions } from "../../lib/api/inventory";
+import { getDailyReport } from "../../lib/api/reports";
+import { isoDay } from "../reports/report-format";
 
 export interface DashboardKpisProps {
   /** Count of open exceptions; `undefined` while the query is loading. */
@@ -60,62 +67,106 @@ function PlusIcon() {
   );
 }
 
-/** Subtle "no endpoint yet" KPI: an em-dash value, never a fabricated number. */
-function ComingSoonStat({ label, icon }: { label: string; icon: ReactNode }) {
-  const t = useT();
+function useCan(permission: string): boolean {
+  const { session } = useSession();
+  return session?.user.permissions?.includes(permission) ?? false;
+}
+
+/** A KPI tile that links to the screen behind its number; a dash means no access or no answer. */
+function LinkedStat({
+  to,
+  label,
+  hint,
+  icon,
+  value,
+  loading,
+}: {
+  to: string;
+  label: string;
+  hint: string;
+  icon: ReactNode;
+  value: number | undefined;
+  loading: boolean;
+}) {
   return (
-    <StatCard
-      label={label}
-      value="—"
-      icon={icon}
-      hint={
-        <span className="flex flex-wrap items-center gap-1.5">
-          <Tag tone="secondary">{t("dashboard.kpi.comingSoon")}</Tag>
-          <span>{t("dashboard.kpi.comingSoonHint")}</span>
-        </span>
-      }
-    />
+    <Link
+      to={to}
+      className="group rounded-lg transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary hover:shadow-md"
+    >
+      <StatCard
+        label={label}
+        value={value === undefined ? "—" : formatNumber(value)}
+        hint={hint}
+        icon={icon}
+        loading={loading}
+      />
+    </Link>
   );
 }
 
-/**
- * KPI row (UI_PLAN §5). Only KPIs with a real data source show numbers;
- * the rest are honest "coming soon" tiles until the API ships aggregates.
- */
+/** KPI row: every tile reads a real source; nothing is estimated or invented. */
 export function DashboardKpis({
   openExceptions,
   isLoading,
 }: DashboardKpisProps) {
   const t = useT();
+  const canOrders = useCan("orders:read");
+  const canInventory = useCan("inventory:read");
+  const canReports = useCan("reports:read");
+  const today = isoDay(new Date());
+
+  const onHold = useQuery({
+    queryKey: ["orders", "list", "on_hold"],
+    queryFn: () => listOrders({ status: "on_hold" }),
+    enabled: canOrders,
+  });
+  const lowStock = useQuery({
+    queryKey: ["reorder-suggestions"],
+    queryFn: listReorderSuggestions,
+    enabled: canInventory,
+  });
+  const daily = useQuery({
+    queryKey: ["reports", "daily", today],
+    queryFn: () => getDailyReport(today),
+    enabled: canReports,
+  });
 
   return (
     <section
       aria-label={t("dashboard.title")}
       className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
-      <Link
+      <LinkedStat
         to="/exceptions"
-        className="group rounded-lg transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary hover:shadow-md"
-        aria-label={`${t("dashboard.kpi.openExceptions")} — ${t("dashboard.viewOrder")}`}
-      >
-        <StatCard
-          label={t("dashboard.kpi.openExceptions")}
-          value={
-            openExceptions === undefined ? "—" : formatNumber(openExceptions)
-          }
-          hint={t("dashboard.kpi.openExceptionsHint")}
-          icon={<AlertIcon />}
-          loading={isLoading && openExceptions === undefined}
-        />
-      </Link>
-      <ComingSoonStat
-        label={t("dashboard.kpi.onHoldOrders")}
-        icon={<PauseIcon />}
+        label={t("dashboard.kpi.openExceptions")}
+        hint={t("dashboard.kpi.openExceptionsHint")}
+        icon={<AlertIcon />}
+        value={openExceptions}
+        loading={isLoading && openExceptions === undefined}
       />
-      <ComingSoonStat label={t("dashboard.kpi.lowStock")} icon={<BoxIcon />} />
-      <ComingSoonStat
+      <LinkedStat
+        to="/orders?status=on_hold"
+        label={t("dashboard.kpi.onHoldOrders")}
+        hint={t("dashboard.kpi.onHoldHint")}
+        icon={<PauseIcon />}
+        value={onHold.data?.orders.length}
+        loading={onHold.isLoading && canOrders}
+      />
+      <LinkedStat
+        to="/inventory/availability"
+        label={t("dashboard.kpi.lowStock")}
+        hint={t("dashboard.kpi.lowStockHint")}
+        icon={<BoxIcon />}
+        value={lowStock.data?.suggestions.length}
+        loading={lowStock.isLoading && canInventory}
+      />
+      <LinkedStat
+        to="/reports"
         label={t("dashboard.kpi.ordersToday")}
+        hint={t("dashboard.kpi.ordersTodayHint")}
         icon={<PlusIcon />}
+        value={daily.data?.ordersCreated}
+        loading={daily.isLoading && canReports}
       />
     </section>
   );

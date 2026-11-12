@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { listExceptions } from "../lib/api/orders";
 import type { ReactNode } from "react";
 
 import { Avatar } from "../components/ui/Avatar";
@@ -14,14 +16,21 @@ export interface TopbarProps {
   onToggleSidebar: () => void;
 }
 
-const PLACEHOLDER_EXCEPTION_COUNT = 3;
-
 /** Global topbar: sidebar toggle, search, AR/EN switch, bell, user menu. */
 export function Topbar({ onToggleSidebar }: TopbarProps) {
   const t = useT();
   const navigate = useNavigate();
   const { session } = useSession();
   const [search, setSearch] = useState("");
+  const canSeeOrders =
+    session?.user.permissions?.includes("orders:read") ?? false;
+  const openExceptions = useQuery({
+    queryKey: ["exceptions", "open"],
+    queryFn: () => listExceptions({ status: "open" }),
+    enabled: canSeeOrders,
+    refetchInterval: 60_000,
+  });
+  const openCount = openExceptions.data?.exceptions.length ?? 0;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -68,6 +77,12 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
       <SearchBar
         value={search}
         onChange={setSearch}
+        onSubmit={(value) => {
+          const term = value.trim();
+          if (term === "") return;
+          void navigate(`/orders?q=${encodeURIComponent(term)}`);
+          setSearch("");
+        }}
         placeholder={t("topbar.searchPlaceholder")}
         className="hidden max-w-md flex-1 md:block"
       />
@@ -76,15 +91,20 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
         <LocaleToggleButton />
 
         <div className="relative">
-          <IconButton aria-label={t("topbar.notifications")}>
+          <IconButton
+            aria-label={t("topbar.notifications")}
+            onClick={() => void navigate("/exceptions")}
+          >
             <BellIcon />
           </IconButton>
-          <Badge
-            title={t("nav.exceptions")}
-            className="absolute -top-0.5 end-0.5"
-          >
-            {PLACEHOLDER_EXCEPTION_COUNT}
-          </Badge>
+          {openCount > 0 ? (
+            <Badge
+              title={t("nav.exceptions")}
+              className="absolute -top-0.5 end-0.5"
+            >
+              {openCount}
+            </Badge>
+          ) : null}
         </div>
 
         <div className="relative" ref={menuRef}>

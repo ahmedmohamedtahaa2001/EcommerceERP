@@ -5,6 +5,9 @@
  */
 export const dict = {
   ar: {
+    "dashboard.kpi.onHoldHint": "طلبات تنتظر قرارًا",
+    "dashboard.kpi.lowStockHint": "أصناف وصلت لنقطة إعادة الطلب",
+    "dashboard.kpi.ordersTodayHint": "طلبات أُنشئت اليوم",
     "dashboard.title": "لوحة التحكم",
     "dashboard.description":
       "نظرة سريعة على تشغيل اليوم: الطلبات والمشكلات والمخزون",
@@ -13,8 +16,6 @@ export const dict = {
     "dashboard.kpi.onHoldOrders": "طلبات معلّقة",
     "dashboard.kpi.lowStock": "تنبيهات مخزون منخفض",
     "dashboard.kpi.ordersToday": "طلبات اليوم",
-    "dashboard.kpi.comingSoon": "قريباً",
-    "dashboard.kpi.comingSoonHint": "بانتظار نقطة نهاية القوائم على الـ API",
     "dashboard.attention.title": "طلبات تحتاج تدخل",
     "dashboard.attention.description": "أحدث المشكلات المفتوحة على الطلبات",
     "dashboard.attention.viewAll": "كل المشكلات",
@@ -30,6 +31,9 @@ export const dict = {
     "dashboard.quick.goToExceptions": "الانتقال إلى المشكلات",
   },
   en: {
+    "dashboard.kpi.onHoldHint": "Orders waiting for a decision",
+    "dashboard.kpi.lowStockHint": "SKUs at their reorder point",
+    "dashboard.kpi.ordersTodayHint": "Orders created today",
     "dashboard.title": "Dashboard",
     "dashboard.description":
       "A quick view of today's run: orders, exceptions, and stock",
@@ -38,8 +42,6 @@ export const dict = {
     "dashboard.kpi.onHoldOrders": "On-hold orders",
     "dashboard.kpi.lowStock": "Low stock alerts",
     "dashboard.kpi.ordersToday": "Orders today",
-    "dashboard.kpi.comingSoon": "Coming soon",
-    "dashboard.kpi.comingSoonHint": "Waiting on the list endpoints on the API",
     "dashboard.attention.title": "Orders needing attention",
     "dashboard.attention.description": "The latest open exceptions on orders",
     "dashboard.attention.viewAll": "All exceptions",

@@ -351,3 +351,8 @@ export function getPutawaySuggestion(params: {
     },
   });
 }
+
+/** `GET /v1/reorder/suggestions` → 200: SKUs whose stock is at or below their reorder point. */
+export function listReorderSuggestions(): Promise<{ suggestions: unknown[] }> {
+  return apiFetch<{ suggestions: unknown[] }>("/v1/reorder/suggestions");
+}
