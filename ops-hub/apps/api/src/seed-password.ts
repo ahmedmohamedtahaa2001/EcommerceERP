@@ -9,6 +9,10 @@ import { createDb } from "@ops-hub/db";
 
 import { argon2Hasher } from "./auth/passwords";
 
+if (process.env.NODE_ENV === "production") {
+  throw new Error("Demo seed data must never run in production.");
+}
+
 const DEMO_EMAIL =
   process.argv[2] ?? process.env.DEMO_EMAIL ?? "owner@ops-hub.local";
 const DEMO_PASSWORD =

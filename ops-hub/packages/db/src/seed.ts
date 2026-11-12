@@ -8,6 +8,10 @@
 import { withTenant } from "./tenant";
 import { createDb } from "./client";
 
+if (process.env.NODE_ENV === "production") {
+  throw new Error("Demo seed data must never run in production.");
+}
+
 const TENANT_SLUG = "ops-hub-demo";
 const USER_ID = "22222222-2222-4222-8222-222222222222";
 const MEMBERSHIP_ID = "33333333-3333-4333-8333-333333333333";
