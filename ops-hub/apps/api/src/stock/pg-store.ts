@@ -1,3 +1,4 @@
+import { keysetClause } from "../platform/service";
 import { randomUUID } from "node:crypto";
 
 import { withTenant } from "@ops-hub/db";
@@ -127,7 +128,12 @@ export class PgStockStore implements StockStore {
 
   async listMovements(
     tenantId: string,
-    filter: { variantId?: string; locationId?: string },
+    filter: {
+      variantId?: string;
+      locationId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
   ): Promise<StockMovementRecord[]> {
     return withTenant(this.pool, tenantId, async (client) => {
       const conditions = ["tenant_id = $1"];
@@ -140,9 +146,20 @@ export class PgStockStore implements StockStore {
         params.push(filter.locationId);
         conditions.push(`location_id = $${params.length}`);
       }
+      const limitClause = keysetClause(
+        {
+          limit: filter.limit,
+          cursor: filter.cursor ?? null,
+        },
+        conditions,
+        params,
+        "created_at",
+        "uuid",
+        "asc",
+      );
       const result = await client.query<MovementRow>(
         `select * from stock_movements where ${conditions.join(" and ")}
-          order by created_at asc, id asc`,
+          order by created_at asc, id asc${limitClause}`,
         params,
       );
       return result.rows.map(toMovement);
@@ -151,7 +168,12 @@ export class PgStockStore implements StockStore {
 
   async listBalances(
     tenantId: string,
-    filter: { variantId?: string; locationId?: string },
+    filter: {
+      variantId?: string;
+      locationId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
   ): Promise<StockBalanceRecord[]> {
     return withTenant(this.pool, tenantId, async (client) => {
       const conditions = ["tenant_id = $1"];
@@ -164,9 +186,15 @@ export class PgStockStore implements StockStore {
         params.push(filter.locationId);
         conditions.push(`location_id = $${params.length}`);
       }
+      const limitClause = keysetClause(
+        { limit: filter.limit, cursor: filter.cursor ?? null },
+        conditions,
+        params,
+        "updated_at",
+      );
       const result = await client.query<BalanceRow>(
         `select * from stock_balances where ${conditions.join(" and ")}
-          order by variant_id asc, location_id asc, bucket asc`,
+          order by updated_at desc, id desc${limitClause}`,
         params,
       );
       return result.rows.map(toBalance);

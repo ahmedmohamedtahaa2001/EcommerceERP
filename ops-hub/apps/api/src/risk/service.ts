@@ -1,3 +1,4 @@
+import { keysetClause } from "../platform/service";
 import { randomUUID } from "node:crypto";
 
 import type { Pool } from "pg";
@@ -73,6 +74,8 @@ export function parseConfirmationReply(text: string): CodOutcome | null {
 export interface RiskScore {
   tier: RiskTier;
   reasons: string[];
+  /** The raw point total, so thresholds can live in tenant settings. */
+  points: number;
 }
 
 /**
@@ -130,7 +133,7 @@ export function scoreRisk(input: {
 
   const tier: RiskTier =
     points >= 60 ? "high" : points >= 25 ? "medium" : "low";
-  return { tier, reasons };
+  return { tier, reasons, points };
 }
 
 export interface CodServiceDeps {
@@ -235,7 +238,12 @@ export class CodService {
 
   async listTasks(
     tenantId: string,
-    filter: { status?: string; orderId?: string } = {},
+    filter: {
+      status?: string;
+      orderId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
   ): Promise<
     {
       id: string;
@@ -258,8 +266,14 @@ export class CodService {
         params.push(filter.orderId);
         conditions.push(`order_id = $${params.length}`);
       }
+      const limitClause = keysetClause(
+        { limit: filter.limit, cursor: filter.cursor ?? null },
+        conditions,
+        params,
+      );
       const r = await client.query<Record<string, unknown>>(
-        `select * from cod_tasks where ${conditions.join(" and ")} order by created_at desc`,
+        `select * from cod_tasks where ${conditions.join(" and ")}
+          order by created_at desc, id desc${limitClause}`,
         params,
       );
       return r.rows.map((row) => ({
@@ -270,6 +284,7 @@ export class CodService {
         attempts: Number(row.attempts),
         outcome: (row.outcome as string | null) ?? null,
         dueAt: new Date(row.due_at as string),
+        createdAt: new Date(row.created_at as string),
       }));
     });
   }
@@ -280,9 +295,15 @@ export class CodService {
     const score = scoreRisk(input);
     await withTenant(this.deps.pool, tenantId, async (client) => {
       await client.query(
-        `insert into risk_scores (tenant_id, order_id, tier, reasons)
-         values ($1,$2,$3,$4)`,
-        [tenantId, orderId, score.tier, JSON.stringify(score.reasons)],
+        `insert into risk_scores (tenant_id, order_id, tier, reasons, points)
+         values ($1,$2,$3,$4,$5)`,
+        [
+          tenantId,
+          orderId,
+          score.tier,
+          JSON.stringify(score.reasons),
+          score.points,
+        ],
       );
     });
     return score;
@@ -293,16 +314,23 @@ export class CodService {
     orderId: string,
   ): Promise<RiskScore | null> {
     return withTenant(this.deps.pool, tenantId, async (client) => {
-      const r = await client.query<{ tier: string; reasons: string[] }>(
-        `select tier, reasons from risk_scores
+      const r = await client.query<{
+        tier: string;
+        reasons: string[];
+        points: number;
+      }>(
+        `select tier, reasons, points from risk_scores
           where tenant_id=$1 and order_id=$2
           order by created_at desc limit 1`,
         [tenantId, orderId],
       );
       const row = r.rows[0];
-      return row
-        ? { tier: row.tier as RiskTier, reasons: row.reasons ?? [] }
-        : null;
+      if (!row) return null;
+      return {
+        tier: row.tier as RiskTier,
+        reasons: row.reasons ?? [],
+        points: row.points ?? 0,
+      };
     });
   }
 

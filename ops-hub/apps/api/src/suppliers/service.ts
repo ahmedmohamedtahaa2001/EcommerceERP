@@ -1,3 +1,4 @@
+import { keysetClause, type KeysetFilter } from "../platform/service";
 import { randomUUID } from "node:crypto";
 
 import type { Pool } from "pg";
@@ -48,6 +49,7 @@ const PO_TRANSITIONS: Record<PoStatus, PoStatus[]> = {
 export interface SupplierRecord {
   id: string;
   tenantId: string;
+  createdAt: Date;
   name: string;
   contactName: string | null;
   contactEmail: string | null;
@@ -143,11 +145,18 @@ export class SourcingService {
     });
   }
 
-  async listSuppliers(tenantId: string): Promise<SupplierRecord[]> {
+  async listSuppliers(
+    tenantId: string,
+    filter: KeysetFilter = {},
+  ): Promise<SupplierRecord[]> {
     return withTenant(this.deps.pool, tenantId, async (client) => {
+      const conditions = ["tenant_id = $1"];
+      const params: unknown[] = [tenantId];
+      const limitClause = keysetClause(filter, conditions, params);
       const r = await client.query<Record<string, unknown>>(
-        `select * from suppliers where tenant_id=$1 order by name asc`,
-        [tenantId],
+        `select * from suppliers where ${conditions.join(" and ")}
+          order by created_at desc, id desc${limitClause}`,
+        params,
       );
       return r.rows.map((row) => this.toSupplier(row));
     });
@@ -452,7 +461,11 @@ export class SourcingService {
 
   async listPurchaseOrders(
     tenantId: string,
-    filter: { status?: string } = {},
+    filter: {
+      status?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
   ): Promise<PurchaseOrderRecord[]> {
     return withTenant(this.deps.pool, tenantId, async (client) => {
       const conditions = ["tenant_id = $1"];
@@ -461,9 +474,14 @@ export class SourcingService {
         params.push(filter.status);
         conditions.push(`status = $${params.length}`);
       }
+      const limitClause = keysetClause(
+        { limit: filter.limit, cursor: filter.cursor ?? null },
+        conditions,
+        params,
+      );
       const r = await client.query<Record<string, unknown>>(
         `select * from purchase_orders where ${conditions.join(" and ")}
-          order by created_at desc`,
+          order by created_at desc, id desc${limitClause}`,
         params,
       );
       return r.rows.map((row) => this.toPurchaseOrder(row));
@@ -573,6 +591,7 @@ export class SourcingService {
     return {
       id: String(row.id),
       tenantId: String(row.tenant_id),
+      createdAt: new Date(row.created_at as string),
       name: String(row.name),
       contactName: (row.contact_name as string | null) ?? null,
       contactEmail: (row.contact_email as string | null) ?? null,

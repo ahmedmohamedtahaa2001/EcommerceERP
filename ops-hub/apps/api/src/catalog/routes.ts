@@ -7,6 +7,7 @@ import {
   type RequestAuthenticator,
 } from "../auth/context";
 import { recordAudit } from "../audit/record";
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { AuditWriter } from "../audit/types";
 import { CatalogValidationError } from "./errors";
 import type { CatalogImportService } from "./import-service";
@@ -89,7 +90,13 @@ export function registerCatalogRoutes(
     { preHandler: requirePermission(requestAuth, "products:read") },
     async (request) => {
       const { tenantId } = actorAndTenant(requirePrincipal(request));
-      return { products: await service.listProducts(tenantId) };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.listProducts(tenantId, {
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { products: page.items, nextCursor: page.nextCursor };
     },
   );
 

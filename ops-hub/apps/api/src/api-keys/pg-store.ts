@@ -1,11 +1,8 @@
+import { keysetClause, type KeysetFilter } from "../platform/service";
 import { withTenant } from "@ops-hub/db";
 import type { Pool } from "pg";
 
-import type {
-  ApiKeyRecord,
-  ApiKeyStore,
-  ApiKeySummary,
-} from "./types";
+import type { ApiKeyRecord, ApiKeyStore, ApiKeySummary } from "./types";
 
 interface ApiKeyRow {
   id: string;
@@ -92,13 +89,19 @@ export class PgApiKeyStore implements ApiKeyStore {
     return row ? toRecord(row) : null;
   }
 
-  async list(tenantId: string): Promise<ApiKeySummary[]> {
+  async list(
+    tenantId: string,
+    filter: KeysetFilter = {},
+  ): Promise<ApiKeySummary[]> {
     return withTenant(this.pool, tenantId, async (client) => {
+      const conditions = ["tenant_id = $1"];
+      const params: unknown[] = [tenantId];
+      const limitClause = keysetClause(filter, conditions, params);
       const result = await client.query<ApiKeyRow>(
         `select * from api_keys
-          where tenant_id = $1
-          order by created_at desc, id desc`,
-        [tenantId],
+          where ${conditions.join(" and ")}
+          order by created_at desc, id desc${limitClause}`,
+        params,
       );
       return result.rows.map(toSummary);
     });

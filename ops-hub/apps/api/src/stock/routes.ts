@@ -7,6 +7,7 @@ import {
   type RequestAuthenticator,
 } from "../auth/context";
 import { recordAudit } from "../audit/record";
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { AuditWriter } from "../audit/types";
 import { StockValidationError } from "./errors";
 import type { StockService } from "./service";
@@ -82,16 +83,19 @@ export function registerStockRoutes(
         variantId?: string;
         locationId?: string;
       };
-      return {
-        movements: await service.listMovements(tenantId, {
-          ...(query.variantId !== undefined
-            ? { variantId: query.variantId }
-            : {}),
-          ...(query.locationId !== undefined
-            ? { locationId: query.locationId }
-            : {}),
-        }),
-      };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.listMovements(tenantId, {
+        ...(query.variantId !== undefined
+          ? { variantId: query.variantId }
+          : {}),
+        ...(query.locationId !== undefined
+          ? { locationId: query.locationId }
+          : {}),
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { movements: page.items, nextCursor: page.nextCursor };
     },
   );
 
@@ -104,16 +108,21 @@ export function registerStockRoutes(
         variantId?: string;
         locationId?: string;
       };
-      return {
-        balances: await service.listBalances(tenantId, {
-          ...(query.variantId !== undefined
-            ? { variantId: query.variantId }
-            : {}),
-          ...(query.locationId !== undefined
-            ? { locationId: query.locationId }
-            : {}),
-        }),
-      };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.listBalances(tenantId, {
+        ...(query.variantId !== undefined
+          ? { variantId: query.variantId }
+          : {}),
+        ...(query.locationId !== undefined
+          ? { locationId: query.locationId }
+          : {}),
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit, (row) =>
+        String((row as { updatedAt?: Date }).updatedAt ?? new Date(0)),
+      );
+      return { balances: page.items, nextCursor: page.nextCursor };
     },
   );
 }

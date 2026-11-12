@@ -43,6 +43,7 @@ import { registerPhase2Routes, type Phase2Services } from "./phase2/routes";
 import { registerPhase3Routes, type Phase3Services } from "./phase3/routes";
 import { registerPhase4Routes, type Phase4Services } from "./phase4/routes";
 import { registerRateLimit, type RateLimitOptions } from "./platform/service";
+import { registerPagination } from "./platform/list-contract";
 import { registerNotificationRoutes } from "./notifications/routes";
 import type { NotificationService } from "./notifications/service";
 import { registerConnectorRoutes } from "./integrations/connectors/routes";
@@ -183,6 +184,9 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   if (options.rateLimit) {
     registerRateLimit(app, options.rateLimit);
   }
+
+  // Every list route shares the same pagination contract.
+  registerPagination(app);
 
   app.get("/healthz", async () => ({ status: "ok" }));
 

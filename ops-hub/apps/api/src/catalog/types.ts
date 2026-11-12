@@ -64,7 +64,13 @@ export interface UpdateVariantRequest {
 export interface ProductStore {
   create(record: ProductRecord): Promise<void>;
   getById(tenantId: string, id: string): Promise<ProductRecord | null>;
-  list(tenantId: string): Promise<ProductRecord[]>;
+  list(
+    tenantId: string,
+    filter?: {
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
+  ): Promise<ProductRecord[]>;
   update(
     tenantId: string,
     id: string,

@@ -170,6 +170,39 @@ export function readPagination(
   return { limit, cursor };
 }
 
+/** A cursor filter a list method accepts. */
+export interface KeysetFilter {
+  limit?: number | undefined;
+  cursor?: { createdAt: string; id: string } | null | undefined;
+}
+
+/**
+ * Adds the keyset predicate and the LIMIT to a list query. The caller
+ * passes its `conditions` and `params` arrays; the helper appends to both
+ * and returns the LIMIT clause to interpolate into the SQL.
+ */
+export function keysetClause(
+  filter: KeysetFilter,
+  conditions: string[],
+  params: unknown[],
+  sortColumn = "created_at",
+  /** The id column's SQL type; `uuid` everywhere except `audit_log`. */
+  idType: "uuid" | "bigint" = "uuid",
+  /** The list's sort direction; the cursor continues in the same direction. */
+  direction: "asc" | "desc" = "desc",
+): string {
+  if (filter.cursor) {
+    params.push(filter.cursor.createdAt, filter.cursor.id);
+    const operator = direction === "asc" ? ">" : "<";
+    conditions.push(
+      `(${sortColumn}, id) ${operator} ($${params.length - 1}::timestamptz, $${params.length}::${idType})`,
+    );
+  }
+  if (filter.limit === undefined) return "";
+  params.push(filter.limit);
+  return ` limit $${params.length}`;
+}
+
 /** Builds the WHERE fragment that continues after a cursor. */
 export function cursorPredicate(
   cursor: Cursor | null,

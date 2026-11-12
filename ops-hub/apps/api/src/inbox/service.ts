@@ -157,7 +157,13 @@ export class InboxService {
 
   async listTickets(
     tenantId: string,
-    filter: { status?: string; priority?: string; ownerId?: string } = {},
+    filter: {
+      status?: string;
+      priority?: string;
+      ownerId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
   ): Promise<TicketRecord[]> {
     return withTenant(this.deps.pool, tenantId, async (client) => {
       const conditions = ["tenant_id = $1"];
@@ -174,9 +180,19 @@ export class InboxService {
         params.push(filter.ownerId);
         conditions.push(`owner_id = $${params.length}`);
       }
+      if (filter.cursor) {
+        params.push(filter.cursor.createdAt, filter.cursor.id);
+        conditions.push(
+          `(created_at, id) < ($${params.length - 1}::timestamptz, $${params.length}::uuid)`,
+        );
+      }
+      const limitClause =
+        filter.limit === undefined
+          ? ""
+          : ` limit $${(params.push(filter.limit), params.length)}`;
       const r = await client.query<Record<string, unknown>>(
         `select * from tickets where ${conditions.join(" and ")}
-          order by sla_due_at asc, created_at desc`,
+          order by created_at desc, id desc${limitClause}`,
         params,
       );
       return r.rows.map((row) => this.toTicket(row));

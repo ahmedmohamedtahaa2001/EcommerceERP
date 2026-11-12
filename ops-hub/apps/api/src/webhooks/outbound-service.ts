@@ -1,3 +1,4 @@
+import { keysetClause, type KeysetFilter } from "../platform/service";
 import crypto from "node:crypto";
 import { withTenant } from "@ops-hub/db";
 import type { Pool } from "pg";
@@ -79,11 +80,18 @@ export class OutboundWebhookService {
     });
   }
 
-  async listSubscriptions(tenantId: string): Promise<WebhookSubscription[]> {
+  async listSubscriptions(
+    tenantId: string,
+    filter: KeysetFilter = {},
+  ): Promise<WebhookSubscription[]> {
     return withTenant(this.pool, tenantId, async (client) => {
+      const conditions = ["tenant_id = $1"];
+      const params: unknown[] = [tenantId];
+      const limitClause = keysetClause(filter, conditions, params);
       const r = await client.query(
-        `select * from webhook_subscriptions where tenant_id=$1 order by created_at asc`,
-        [tenantId],
+        `select * from webhook_subscriptions where ${conditions.join(" and ")}
+          order by created_at desc, id desc${limitClause}`,
+        params,
       );
       return r.rows.map(toSubscription);
     });
@@ -126,7 +134,12 @@ export class OutboundWebhookService {
 
   async listDeliveries(
     tenantId: string,
-    filter: { subscriptionId?: string; status?: string } = {},
+    filter: {
+      subscriptionId?: string;
+      status?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
   ): Promise<WebhookDelivery[]> {
     return withTenant(this.pool, tenantId, async (client) => {
       const conditions = ["tenant_id = $1"];
@@ -139,9 +152,14 @@ export class OutboundWebhookService {
         params.push(filter.status);
         conditions.push(`status = $${params.length}`);
       }
+      const limitClause = keysetClause(
+        { limit: filter.limit, cursor: filter.cursor ?? null },
+        conditions,
+        params,
+      );
       const r = await client.query(
         `select * from webhook_deliveries where ${conditions.join(" and ")}
-          order by created_at asc`,
+          order by created_at desc, id desc${limitClause}`,
         params,
       );
       return r.rows.map((row) => this.toDelivery(row));

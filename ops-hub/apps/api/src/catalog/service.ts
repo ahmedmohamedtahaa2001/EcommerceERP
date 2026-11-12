@@ -119,8 +119,14 @@ export class CatalogService {
     return product;
   }
 
-  async listProducts(tenantId: string): Promise<ProductRecord[]> {
-    return this.deps.products.list(tenantId);
+  async listProducts(
+    tenantId: string,
+    filter: {
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
+  ): Promise<ProductRecord[]> {
+    return this.deps.products.list(tenantId, filter);
   }
 
   async updateProduct(

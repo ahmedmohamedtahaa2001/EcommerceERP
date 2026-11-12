@@ -47,7 +47,13 @@ export interface ApiKeyStore {
   /** Auth lookup: no tenant context exists yet, so this is global by hash. */
   findByHash(keyHash: string): Promise<ApiKeyRecord | null>;
   getById(tenantId: string, id: string): Promise<ApiKeySummary | null>;
-  list(tenantId: string): Promise<ApiKeySummary[]>;
+  list(
+    tenantId: string,
+    filter?: {
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
+  ): Promise<ApiKeySummary[]>;
   /** Revokes only when not already revoked; returns whether it revoked. */
   revoke(tenantId: string, id: string, revokedAt: Date): Promise<boolean>;
 }
@@ -65,5 +71,4 @@ export interface CreateApiKeyRequest {
 
 /** Who performed an action: a staff session or another API key. */
 export type ApiKeyActor =
-  | { kind: "user"; id: string }
-  | { kind: "apiKey"; id: string };
+  { kind: "user"; id: string } | { kind: "apiKey"; id: string };

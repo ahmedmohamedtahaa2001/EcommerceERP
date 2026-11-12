@@ -29,6 +29,8 @@ export interface AuditQuery {
   objectType?: string;
   objectId?: string;
   limit: number;
+  /** Cursor from a previous page. */
+  cursor?: { createdAt: string; id: string } | null;
 }
 
 export interface AuditWriter {

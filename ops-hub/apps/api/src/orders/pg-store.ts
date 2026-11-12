@@ -226,10 +226,10 @@ export class PgOrderStore implements OrderStore {
     tenantId: string,
     filter: {
       status?: string;
-      phone?: string;
+      phone?: string | null;
       orderNumber?: string;
       limit: number;
-      offset: number;
+      cursor: { createdAt: string; id: string } | null;
     },
   ): Promise<OrderRecord[]> {
     return withTenant(this.pool, tenantId, async (client) => {
@@ -250,17 +250,21 @@ export class PgOrderStore implements OrderStore {
         // An unparsable phone must match nothing, not everything.
         conditions.push("false");
       }
+      if (filter.cursor) {
+        params.push(filter.cursor.createdAt, filter.cursor.id);
+        conditions.push(
+          `(o.created_at, o.id) < ($${params.length - 1}::timestamptz, $${params.length}::uuid)`,
+        );
+      }
       params.push(filter.limit);
       const limitParam = params.length;
-      params.push(filter.offset);
-      const offsetParam = params.length;
 
       const result = await client.query<OrderRow>(
         `select o.* from orders o
            join customers c on c.id = o.customer_id
           where ${conditions.join(" and ")}
           order by o.created_at desc, o.id desc
-          limit $${limitParam} offset $${offsetParam}`,
+          limit $${limitParam}`,
         params,
       );
       return result.rows.map(toOrder);

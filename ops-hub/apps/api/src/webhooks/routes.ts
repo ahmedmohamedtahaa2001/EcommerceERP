@@ -1,3 +1,4 @@
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { FastifyInstance } from "fastify";
 
 import {
@@ -56,7 +57,13 @@ export function registerOutboundWebhookRoutes(
     { preHandler: requirePermission(requestAuth, "settings:write") },
     async (request) => {
       const { tenantId } = actorAndTenant(requirePrincipal(request));
-      return { subscriptions: await service.listSubscriptions(tenantId) };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.listSubscriptions(tenantId, {
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { subscriptions: page.items, nextCursor: page.nextCursor };
     },
   );
 
@@ -89,14 +96,17 @@ export function registerOutboundWebhookRoutes(
         subscriptionId?: string;
         status?: string;
       };
-      return {
-        deliveries: await service.listDeliveries(tenantId, {
-          ...(query.subscriptionId !== undefined
-            ? { subscriptionId: query.subscriptionId }
-            : {}),
-          ...(query.status !== undefined ? { status: query.status } : {}),
-        }),
-      };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.listDeliveries(tenantId, {
+        ...(query.subscriptionId !== undefined
+          ? { subscriptionId: query.subscriptionId }
+          : {}),
+        ...(query.status !== undefined ? { status: query.status } : {}),
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { deliveries: page.items, nextCursor: page.nextCursor };
     },
   );
 

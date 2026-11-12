@@ -1,3 +1,4 @@
+import { paginationOf, toPage } from "../../platform/list-contract";
 import type { FastifyInstance } from "fastify";
 
 import {
@@ -25,7 +26,10 @@ export function registerConnectorRoutes(
     { preHandler: requirePermission(requestAuth, "settings:write") },
     async (request) => {
       const { tenantId } = actorAndTenant(requirePrincipal(request));
-      return { connectors: await service.list(tenantId) };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.list(tenantId, { limit: limit + 1, cursor });
+      const page = toPage(rows, limit);
+      return { connectors: page.items, nextCursor: page.nextCursor };
     },
   );
 

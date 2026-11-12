@@ -1,3 +1,4 @@
+import { keysetClause } from "../platform/service";
 import { randomUUID } from "node:crypto";
 
 import type { Pool } from "pg";
@@ -73,7 +74,11 @@ export class DlqService {
 
   async list(
     tenantId: string,
-    filter: { status?: DlqStatus } = {},
+    filter: {
+      status?: DlqStatus;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
   ): Promise<DlqEntryRecord[]> {
     return withTenant(this.deps.pool, tenantId, async (client) => {
       const conditions = ["tenant_id = $1"];
@@ -82,9 +87,14 @@ export class DlqService {
         params.push(filter.status);
         conditions.push(`status = $${params.length}`);
       }
+      const limitClause = keysetClause(
+        { limit: filter.limit, cursor: filter.cursor ?? null },
+        conditions,
+        params,
+      );
       const r = await client.query<Record<string, unknown>>(
         `select * from dlq_entries where ${conditions.join(" and ")}
-          order by created_at desc`,
+          order by created_at desc, id desc${limitClause}`,
         params,
       );
       return r.rows.map((row) => ({

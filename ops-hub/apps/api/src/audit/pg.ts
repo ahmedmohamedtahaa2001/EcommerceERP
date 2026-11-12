@@ -1,3 +1,4 @@
+import { keysetClause } from "../platform/service";
 import { withTenant } from "@ops-hub/db";
 import type { Pool } from "pg";
 
@@ -81,8 +82,13 @@ export class PgAuditReader implements AuditReader {
       params.push(query.objectId);
       filters.push(`object_id = $${params.length}`);
     }
-    params.push(query.limit);
-    const limitParam = `$${params.length}`;
+    const limitClause = keysetClause(
+      { limit: query.limit, cursor: query.cursor ?? null },
+      filters,
+      params,
+      "created_at",
+      "bigint",
+    );
 
     return withTenant(this.pool, tenantId, async (client) => {
       const result = await client.query<AuditRow>(
@@ -90,8 +96,7 @@ export class PgAuditReader implements AuditReader {
                 object_type, object_id, before, after, created_at
            from audit_log
           where ${filters.join(" and ")}
-          order by id desc
-          limit ${limitParam}`,
+          order by created_at desc, id desc${limitClause}`,
         params,
       );
       return result.rows.map(toRecord);

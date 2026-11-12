@@ -114,8 +114,14 @@ export class InventoryService {
     return location;
   }
 
-  async listLocations(tenantId: string): Promise<LocationRecord[]> {
-    return this.deps.locations.list(tenantId);
+  async listLocations(
+    tenantId: string,
+    filter: {
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
+  ): Promise<LocationRecord[]> {
+    return this.deps.locations.list(tenantId, filter);
   }
 
   /**

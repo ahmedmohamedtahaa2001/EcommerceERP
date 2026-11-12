@@ -1,3 +1,4 @@
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { FastifyInstance } from "fastify";
 
 import {
@@ -79,7 +80,13 @@ export function registerInventoryRoutes(
     { preHandler: requirePermission(requestAuth, "inventory:read") },
     async (request) => {
       const { tenantId } = actorAndTenant(requirePrincipal(request));
-      return { locations: await service.listLocations(tenantId) };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.listLocations(tenantId, {
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { locations: page.items, nextCursor: page.nextCursor };
     },
   );
 

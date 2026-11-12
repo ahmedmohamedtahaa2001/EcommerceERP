@@ -15,7 +15,12 @@ export class ExceptionService {
 
   async list(
     tenantId: string,
-    filter: { status?: string; orderId?: string },
+    filter: {
+      status?: string;
+      orderId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
   ): Promise<ExceptionRecord[]> {
     return this.deps.store.list(tenantId, filter);
   }

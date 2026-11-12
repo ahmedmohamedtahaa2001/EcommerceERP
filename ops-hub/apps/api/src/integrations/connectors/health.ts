@@ -1,9 +1,11 @@
+import { keysetClause, type KeysetFilter } from "../../platform/service";
 import type { Pool } from "pg";
 import { withTenant } from "@ops-hub/db";
 
 export interface ConnectorHealth {
   id: string;
   tenantId: string;
+  createdAt: Date;
   name: string;
   type: string;
   enabled: boolean;
@@ -69,11 +71,18 @@ export class ConnectorHealthService {
     });
   }
 
-  async list(tenantId: string): Promise<ConnectorHealth[]> {
+  async list(
+    tenantId: string,
+    filter: KeysetFilter = {},
+  ): Promise<ConnectorHealth[]> {
     return withTenant(this.deps.pool, tenantId, async (client) => {
+      const conditions = ["tenant_id = $1"];
+      const params: unknown[] = [tenantId];
+      const limitClause = keysetClause(filter, conditions, params);
       const r = await client.query<Record<string, unknown>>(
-        `select * from connectors where tenant_id=$1 order by name asc`,
-        [tenantId],
+        `select * from connectors where ${conditions.join(" and ")}
+          order by created_at desc, id desc${limitClause}`,
+        params,
       );
       return r.rows.map((row) => this.toHealth(row));
     });
@@ -153,6 +162,7 @@ export class ConnectorHealthService {
     return {
       id: String(row.id),
       tenantId: String(row.tenant_id),
+      createdAt: new Date(row.created_at as string),
       name: String(row.name),
       type: String(row.type),
       enabled: Boolean(row.enabled),

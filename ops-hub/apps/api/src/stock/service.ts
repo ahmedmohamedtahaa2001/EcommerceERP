@@ -85,14 +85,24 @@ export class StockService {
 
   async listMovements(
     tenantId: string,
-    filter: { variantId?: string; locationId?: string },
+    filter: {
+      variantId?: string;
+      locationId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
   ): Promise<StockMovementRecord[]> {
     return this.deps.store.listMovements(tenantId, filter);
   }
 
   async listBalances(
     tenantId: string,
-    filter: { variantId?: string; locationId?: string },
+    filter: {
+      variantId?: string;
+      locationId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
   ): Promise<StockBalanceRecord[]> {
     return this.deps.store.listBalances(tenantId, filter);
   }

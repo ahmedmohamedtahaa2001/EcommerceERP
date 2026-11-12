@@ -57,11 +57,21 @@ export interface StockStore {
   ): Promise<{ movement: StockMovementRecord; balance: StockBalanceRecord }>;
   listMovements(
     tenantId: string,
-    filter: { variantId?: string; locationId?: string },
+    filter: {
+      variantId?: string;
+      locationId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
   ): Promise<StockMovementRecord[]>;
   listBalances(
     tenantId: string,
-    filter: { variantId?: string; locationId?: string },
+    filter: {
+      variantId?: string;
+      locationId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
   ): Promise<StockBalanceRecord[]>;
 }
 

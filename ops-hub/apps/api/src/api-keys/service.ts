@@ -3,10 +3,7 @@ import { randomUUID } from "node:crypto";
 import { PERMISSIONS, type Permission } from "@ops-hub/domain";
 
 import { ValidationError } from "../auth/errors";
-import {
-  ApiKeyIpDeniedError,
-  InvalidApiKeyError,
-} from "./errors";
+import { ApiKeyIpDeniedError, InvalidApiKeyError } from "./errors";
 import { generateApiKey, hashApiKey } from "./keys";
 import type {
   ApiKeyActor,
@@ -58,7 +55,11 @@ export class ApiKeyService {
         );
       }
       for (const ip of ipAllowlist) {
-        if (ip.length === 0 || ip.length > MAX_IP_LENGTH || !IP_PATTERN.test(ip)) {
+        if (
+          ip.length === 0 ||
+          ip.length > MAX_IP_LENGTH ||
+          !IP_PATTERN.test(ip)
+        ) {
           throw new ValidationError(`invalid IP address in ipAllowlist: ${ip}`);
         }
       }
@@ -124,8 +125,14 @@ export class ApiKeyService {
     };
   }
 
-  async list(tenantId: string): Promise<ApiKeySummary[]> {
-    return this.deps.store.list(tenantId);
+  async list(
+    tenantId: string,
+    filter: {
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
+  ): Promise<ApiKeySummary[]> {
+    return this.deps.store.list(tenantId, filter);
   }
 
   /**

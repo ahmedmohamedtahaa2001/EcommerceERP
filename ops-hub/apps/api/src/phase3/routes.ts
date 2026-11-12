@@ -7,17 +7,20 @@ import {
   type RequestAuthenticator,
 } from "../auth/context";
 import { recordAudit } from "../audit/record";
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { AuditWriter } from "../audit/types";
 import { SourcingService } from "../suppliers/service";
 import { ScorecardService } from "../scorecards/service";
 import { InboxService } from "../inbox/service";
 import { CrmService } from "../crm/service";
+import { StarterAutomationService } from "../automations/starter";
 
 export interface Phase3Services {
   sourcing: SourcingService;
   scorecards: ScorecardService;
   inbox: InboxService;
   crm: CrmService;
+  starterAutomations: StarterAutomationService;
 }
 
 export function registerPhase3Routes(
@@ -29,7 +32,7 @@ export function registerPhase3Routes(
   },
 ): void {
   const { services, requestAuth, audit } = options;
-  const { sourcing, scorecards, inbox, crm } = services;
+  const { sourcing, scorecards, inbox, crm, starterAutomations } = services;
 
   const tenantOf = (request: Parameters<typeof requirePrincipal>[0]) =>
     actorAndTenant(requirePrincipal(request)).tenantId;
@@ -67,7 +70,13 @@ export function registerPhase3Routes(
     { preHandler: requirePermission(requestAuth, "settings:write") },
     async (request) => {
       const tenantId = tenantOf(request);
-      return { suppliers: await sourcing.listSuppliers(tenantId) };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await sourcing.listSuppliers(tenantId, {
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { suppliers: page.items, nextCursor: page.nextCursor };
     },
   );
 
@@ -118,10 +127,16 @@ export function registerPhase3Routes(
     async (request) => {
       const tenantId = tenantOf(request);
       const query = request.query as { status?: string };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await sourcing.listPurchaseOrders(tenantId, {
+        ...(query.status !== undefined ? { status: query.status } : {}),
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
       return {
-        purchaseOrders: await sourcing.listPurchaseOrders(tenantId, {
-          ...(query.status !== undefined ? { status: query.status } : {}),
-        }),
+        purchaseOrders: page.items,
+        nextCursor: page.nextCursor,
       };
     },
   );
@@ -329,13 +344,16 @@ export function registerPhase3Routes(
         priority?: string;
         ownerId?: string;
       };
-      return {
-        tickets: await inbox.listTickets(tenantId, {
-          ...(query.status !== undefined ? { status: query.status } : {}),
-          ...(query.priority !== undefined ? { priority: query.priority } : {}),
-          ...(query.ownerId !== undefined ? { ownerId: query.ownerId } : {}),
-        }),
-      };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await inbox.listTickets(tenantId, {
+        ...(query.status !== undefined ? { status: query.status } : {}),
+        ...(query.priority !== undefined ? { priority: query.priority } : {}),
+        ...(query.ownerId !== undefined ? { ownerId: query.ownerId } : {}),
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { tickets: page.items, nextCursor: page.nextCursor };
     },
   );
 
@@ -593,6 +611,75 @@ export function registerPhase3Routes(
         action: "automation.ran",
         objectType: "automation",
         objectId: "run",
+        after: result,
+      });
+      return result;
+    },
+  );
+
+  app.post(
+    "/v1/starter-automations/install",
+    { preHandler: requirePermission(requestAuth, "settings:write") },
+    async (request) => {
+      const tenantId = tenantOf(request);
+      const result = await starterAutomations.install(tenantId);
+      await recordAudit(request, audit, {
+        action: "starter_automations.installed",
+        objectType: "automation",
+        objectId: "starter",
+        after: result,
+      });
+      return result;
+    },
+  );
+
+  app.get(
+    "/v1/starter-automations",
+    { preHandler: requirePermission(requestAuth, "settings:write") },
+    async (request) => {
+      const tenantId = tenantOf(request);
+      return { automations: await starterAutomations.list(tenantId) };
+    },
+  );
+
+  app.post(
+    "/v1/starter-automations/:key/enabled",
+    { preHandler: requirePermission(requestAuth, "settings:write") },
+    async (request) => {
+      const { key } = request.params as { key: string };
+      const tenantId = tenantOf(request);
+      const body = (request.body ?? {}) as Record<string, unknown>;
+      const result = await starterAutomations.setEnabled(
+        tenantId,
+        key,
+        body.enabled !== false,
+      );
+      await recordAudit(request, audit, {
+        action: "starter_automation.toggled",
+        objectType: "automation",
+        objectId: key,
+        after: result,
+      });
+      return result;
+    },
+  );
+
+  app.post(
+    "/v1/starter-automations/:key/run",
+    { preHandler: requirePermission(requestAuth, "settings:write") },
+    async (request) => {
+      const { key } = request.params as { key: string };
+      const tenantId = tenantOf(request);
+      const body = (request.body ?? {}) as Record<string, unknown>;
+      const result = await starterAutomations.runFixture(
+        tenantId,
+        key,
+        (body.payload as Record<string, unknown>) ?? {},
+      );
+      await recordAudit(request, audit, {
+        action: "starter_automation.ran",
+        objectType: "automation",
+        objectId: key,
         after: result,
       });
       return result;

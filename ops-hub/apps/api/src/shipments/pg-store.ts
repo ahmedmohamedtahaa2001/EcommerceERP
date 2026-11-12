@@ -1,4 +1,6 @@
 import { withTenant } from "@ops-hub/db";
+
+import { keysetClause } from "../platform/service";
 import type { Pool } from "pg";
 
 import type {
@@ -63,6 +65,40 @@ export class PgShipmentStore implements ShipmentStore {
         [tenantId, orderId, sequence],
       );
       return r.rows[0] ? toShipment(r.rows[0]) : null;
+    });
+  }
+
+  async list(
+    tenantId: string,
+    filter: {
+      orderId?: string;
+      status?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
+  ): Promise<ShipmentRecord[]> {
+    return withTenant(this.pool, tenantId, async (client) => {
+      const conditions = ["tenant_id = $1"];
+      const params: unknown[] = [tenantId];
+      if (filter.orderId) {
+        params.push(filter.orderId);
+        conditions.push(`order_id = $${params.length}`);
+      }
+      if (filter.status) {
+        params.push(filter.status);
+        conditions.push(`status = $${params.length}`);
+      }
+      const limitClause = keysetClause(
+        { limit: filter.limit, cursor: filter.cursor ?? null },
+        conditions,
+        params,
+      );
+      const r = await client.query<ShipmentRow>(
+        `select * from shipments where ${conditions.join(" and ")}
+          order by created_at desc, id desc${limitClause}`,
+        params,
+      );
+      return r.rows.map(toShipment);
     });
   }
 

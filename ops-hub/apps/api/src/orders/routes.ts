@@ -7,6 +7,7 @@ import {
   type RequestAuthenticator,
 } from "../auth/context";
 import { recordAudit } from "../audit/record";
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { AuditWriter } from "../audit/types";
 import { OrderValidationError } from "./errors";
 import type { DuplicateDetectionService } from "./duplicate-detection-service";
@@ -65,15 +66,18 @@ export function registerOrderRoutes(
         limit?: string;
         offset?: string;
       };
-      return service.list(tenantId, {
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.list(tenantId, {
         ...(query.status !== undefined ? { status: query.status } : {}),
         ...(query.phone !== undefined ? { phone: query.phone } : {}),
         ...(query.orderNumber !== undefined
           ? { orderNumber: query.orderNumber }
           : {}),
-        ...(query.limit !== undefined ? { limit: Number(query.limit) } : {}),
-        ...(query.offset !== undefined ? { offset: Number(query.offset) } : {}),
+        limit: limit + 1,
+        cursor,
       });
+      const page = toPage(rows, limit);
+      return { orders: page.items, nextCursor: page.nextCursor };
     },
   );
 

@@ -1,0 +1,1 @@
+ALTER TABLE "risk_scores" ADD COLUMN "points" integer DEFAULT 0 NOT NULL;

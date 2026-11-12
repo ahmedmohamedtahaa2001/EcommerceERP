@@ -7,6 +7,7 @@ import {
   type RequestAuthenticator,
 } from "../auth/context";
 import { ValidationError } from "../auth/errors";
+import { paginationOf, toPage } from "../platform/list-contract";
 import { AUDIT_DEFAULT_LIMIT, AUDIT_MAX_LIMIT } from "./types";
 import type { AuditQuery, AuditReader } from "./types";
 
@@ -27,6 +28,7 @@ export function registerAuditRoutes(
         limit?: unknown;
       };
 
+      const { cursor } = paginationOf(request);
       const parsed: AuditQuery = { limit: AUDIT_DEFAULT_LIMIT };
       if (query.limit !== undefined) {
         if (typeof query.limit !== "string" || !/^\d+$/.test(query.limit)) {
@@ -54,7 +56,16 @@ export function registerAuditRoutes(
         parsed.objectId = query.objectId;
       }
 
-      return { entries: await reader.list(tenantId, parsed) };
+      const rows = await reader.list(tenantId, {
+        ...parsed,
+        ...(cursor !== null ? { cursor } : {}),
+      });
+      // A full page means there may be more; the next cursor then returns
+      // an empty page when this was the last one.
+      const page = toPage(rows, parsed.limit, (row) =>
+        String((row as { createdAt?: Date }).createdAt ?? new Date(0)),
+      );
+      return { entries: page.items, nextCursor: page.nextCursor };
     },
   );
 }

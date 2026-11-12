@@ -74,7 +74,12 @@ export class PgExceptionStore implements ExceptionStore {
 
   async list(
     tenantId: string,
-    filter: { status?: string; orderId?: string },
+    filter: {
+      status?: string;
+      orderId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
   ): Promise<ExceptionRecord[]> {
     return withTenant(this.pool, tenantId, async (client) => {
       const conditions = ["tenant_id = $1"];
@@ -87,9 +92,23 @@ export class PgExceptionStore implements ExceptionStore {
         params.push(filter.orderId);
         conditions.push(`order_id = $${params.length}`);
       }
+      if (filter.cursor) {
+        params.push(filter.cursor.createdAt, filter.cursor.id);
+        conditions.push(
+          "(created_at, id) < ($" +
+            params.length +
+            "::timestamptz, $" +
+            (params.length + 1) +
+            "::uuid)",
+        );
+      }
+      const limitClause =
+        filter.limit === undefined
+          ? ""
+          : ` limit $${(params.push(filter.limit), params.length)}`;
       const result = await client.query<ExceptionRow>(
         `select * from exceptions where ${conditions.join(" and ")}
-          order by due_at asc, created_at asc`,
+          order by created_at desc, id desc${limitClause}`,
         params,
       );
       return result.rows.map(toRecord);

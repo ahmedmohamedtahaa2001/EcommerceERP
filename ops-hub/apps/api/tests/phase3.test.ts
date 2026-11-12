@@ -11,6 +11,7 @@ import {
 import { SourcingService } from "../src/suppliers/service";
 import { InboxService } from "../src/inbox/service";
 import { CrmService } from "../src/crm/service";
+import { KpiService } from "../src/kpis/service";
 
 describe("Ticket priority and SLA", () => {
   it("derives priority from the type", () => {
@@ -289,7 +290,11 @@ describe.skipIf(!runDbTests)("Phase 3 services against Postgres", () => {
   });
 
   it("blocks a marketing send without consent and allows it with consent", async () => {
-    const service = new CrmService({ pool, clock: { now: () => new Date() } });
+    const service = new CrmService({
+      pool,
+      clock: { now: () => new Date() },
+      kpis: new KpiService({ pool, clock: { now: () => new Date() } }),
+    });
     const customerId = randomUUID();
     await service.recordConsent(tenantId, {
       customerId,
@@ -323,7 +328,11 @@ describe.skipIf(!runDbTests)("Phase 3 services against Postgres", () => {
   });
 
   it("suppresses an automation when an open ticket exists", async () => {
-    const service = new CrmService({ pool, clock: { now: () => new Date() } });
+    const service = new CrmService({
+      pool,
+      clock: { now: () => new Date() },
+      kpis: new KpiService({ pool, clock: { now: () => new Date() } }),
+    });
     const customerId = randomUUID();
     await service.createAutomation(tenantId, {
       key: "win_back",
@@ -348,7 +357,11 @@ describe.skipIf(!runDbTests)("Phase 3 services against Postgres", () => {
   });
 
   it("caps automation runs per week", async () => {
-    const service = new CrmService({ pool, clock: { now: () => new Date() } });
+    const service = new CrmService({
+      pool,
+      clock: { now: () => new Date() },
+      kpis: new KpiService({ pool, clock: { now: () => new Date() } }),
+    });
     await service.createAutomation(tenantId, {
       key: "follow_up",
       name: "Follow up",
@@ -373,9 +386,13 @@ describe.skipIf(!runDbTests)("Phase 3 services against Postgres", () => {
 
   it("computes KPIs and fires a threshold alert once", async () => {
     await seedOpenException();
-    const service = new CrmService({ pool, clock: { now: () => new Date() } });
+    const service = new CrmService({
+      pool,
+      clock: { now: () => new Date() },
+      kpis: new KpiService({ pool, clock: { now: () => new Date() } }),
+    });
     const kpis = await service.kpis(tenantId, new Date());
-    expect(kpis.map((k) => k.metric)).toContain("cod_collection_rate");
+    expect(kpis.map((k) => k.metric)).toContain("cod_collection_rate_percent");
     expect(kpis.map((k) => k.metric)).toContain("open_exceptions");
 
     const fired = await service.evaluateAlerts(tenantId, { openExceptions: 0 });

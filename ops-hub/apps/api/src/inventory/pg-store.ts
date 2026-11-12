@@ -1,3 +1,4 @@
+import { keysetClause, type KeysetFilter } from "../platform/service";
 import { withTenant } from "@ops-hub/db";
 import type { Pool } from "pg";
 
@@ -95,12 +96,18 @@ export class PgLocationStore implements LocationStore {
     });
   }
 
-  async list(tenantId: string): Promise<LocationRecord[]> {
+  async list(
+    tenantId: string,
+    filter: KeysetFilter = {},
+  ): Promise<LocationRecord[]> {
     return withTenant(this.pool, tenantId, async (client) => {
+      const conditions = ["tenant_id = $1"];
+      const params: unknown[] = [tenantId];
+      const limitClause = keysetClause(filter, conditions, params);
       const result = await client.query<LocationRow>(
-        `select * from locations where tenant_id = $1
-          order by created_at desc, id desc`,
-        [tenantId],
+        `select * from locations where ${conditions.join(" and ")}
+          order by created_at desc, id desc${limitClause}`,
+        params,
       );
       return result.rows.map(toLocation);
     });

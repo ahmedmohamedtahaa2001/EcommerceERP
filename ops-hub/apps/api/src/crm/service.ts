@@ -3,6 +3,8 @@ import { randomUUID } from "node:crypto";
 import type { Pool } from "pg";
 import { withTenant } from "@ops-hub/db";
 
+import type { KpiService, KpiValue } from "../kpis/service";
+
 export class CrmError extends Error {
   readonly statusCode: number;
   constructor(message: string, statusCode = 422) {
@@ -21,11 +23,6 @@ export type SegmentKey =
   | "open_issue"
   | "high_rto_risk";
 
-export interface KpiValue {
-  metric: string;
-  value: number;
-}
-
 /**
  * Customer profiles, consent ledger, segments, automations, KPI service and
  * threshold alerts (roadmap Sprint 12).
@@ -35,6 +32,7 @@ export class CrmService {
     private readonly deps: {
       pool: Pool;
       clock: { now(): Date };
+      kpis: KpiService;
       /** Delivers an alert (email, WhatsApp). */
       deliver?: (alert: {
         kind: string;
@@ -511,71 +509,9 @@ export class CrmService {
 
   // ---- KPI & alerts --------------------------------------------------------
 
-  /** Computes the documented KPI set for a day. */
+  /** The KPI set for a day. See `docs/kpis.md` for the formulas. */
   async kpis(tenantId: string, date: Date): Promise<KpiValue[]> {
-    return withTenant(this.deps.pool, tenantId, async (client) => {
-      const dayStart = new Date(
-        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-      );
-      const dayEnd = new Date(dayStart.getTime() + 24 * 3600 * 1000);
-
-      const orders = await client.query<{ count: string }>(
-        `select count(*)::text as count from orders
-          where tenant_id=$1 and created_at >= $2 and created_at < $3`,
-        [tenantId, dayStart, dayEnd],
-      );
-      const delivered = await client.query<{ count: string }>(
-        `select count(*)::text as count from shipments
-          where tenant_id=$1 and status='delivered'
-            and created_at >= $2 and created_at < $3`,
-        [tenantId, dayStart, dayEnd],
-      );
-      const oversold = await client.query<{ count: string }>(
-        `select count(*)::text as count from stock_balances sb
-          where sb.tenant_id=$1 and sb.bucket='on_hand' and sb.quantity < 0`,
-        [tenantId],
-      );
-      const exceptions = await client.query<{ count: string }>(
-        `select count(*)::text as count from exceptions
-          where tenant_id=$1 and status='open'`,
-        [tenantId],
-      );
-      const cod = await client.query<{ expected: string; collected: string }>(
-        `select coalesce(sum(p.amount_minor),0)::text as expected,
-                coalesce(sum(p.amount_minor) filter (where p.status='collected'),0)::text as collected
-           from payments p join orders o on o.id=p.order_id
-          where p.tenant_id=$1 and p.method='cod'
-            and o.created_at >= $2 and o.created_at < $3`,
-        [tenantId, dayStart, dayEnd],
-      );
-      const codExpected = Number(cod.rows[0]?.expected ?? 0);
-      const codCollected = Number(cod.rows[0]?.collected ?? 0);
-
-      return [
-        { metric: "orders_created", value: Number(orders.rows[0]?.count ?? 0) },
-        {
-          metric: "shipments_delivered",
-          value: Number(delivered.rows[0]?.count ?? 0),
-        },
-        {
-          metric: "oversold_skus",
-          value: Number(oversold.rows[0]?.count ?? 0),
-        },
-        {
-          metric: "open_exceptions",
-          value: Number(exceptions.rows[0]?.count ?? 0),
-        },
-        {
-          metric: "cod_collection_rate",
-          value:
-            codExpected === 0
-              ? 100
-              : Math.round((codCollected / codExpected) * 100),
-        },
-        { metric: "cod_expected_minor", value: codExpected },
-        { metric: "cod_collected_minor", value: codCollected },
-      ];
-    });
+    return this.deps.kpis.compute(tenantId, date);
   }
 
   /** Fires a threshold alert once per breach window. */

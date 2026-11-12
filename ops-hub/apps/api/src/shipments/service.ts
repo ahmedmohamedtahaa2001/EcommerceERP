@@ -58,6 +58,18 @@ export class ShipmentService {
     return shipment;
   }
 
+  async list(
+    tenantId: string,
+    filter: {
+      orderId?: string;
+      status?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
+  ): Promise<ShipmentRecord[]> {
+    return this.deps.store.list(tenantId, filter);
+  }
+
   async getById(tenantId: string, id: string): Promise<ShipmentRecord> {
     const s = await this.deps.store.getById(tenantId, id);
     if (!s) throw new Error("Shipment not found");

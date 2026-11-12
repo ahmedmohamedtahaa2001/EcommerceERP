@@ -111,12 +111,36 @@ export class PgProductStore implements ProductStore {
     });
   }
 
-  async list(tenantId: string): Promise<ProductRecord[]> {
+  async list(
+    tenantId: string,
+    filter: {
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    } = {},
+  ): Promise<ProductRecord[]> {
     return withTenant(this.pool, tenantId, async (client) => {
+      const conditions = ["tenant_id = $1"];
+      const params: unknown[] = [tenantId];
+      if (filter.cursor) {
+        params.push(filter.cursor.createdAt, filter.cursor.id);
+        conditions.push("(created_at, id) < ($2::timestamptz, $3::uuid)");
+      }
+      if (filter.limit !== undefined) {
+        params.push(filter.limit);
+        conditions.push(`true`);
+        const limitParam = params.length;
+        const result = await client.query<ProductRow>(
+          `select * from products where ${conditions.join(" and ")}
+            order by created_at desc, id desc
+            limit $${limitParam}`,
+          params,
+        );
+        return result.rows.map(toProduct);
+      }
       const result = await client.query<ProductRow>(
-        `select * from products where tenant_id = $1
+        `select * from products where ${conditions.join(" and ")}
           order by created_at desc, id desc`,
-        [tenantId],
+        params,
       );
       return result.rows.map(toProduct);
     });

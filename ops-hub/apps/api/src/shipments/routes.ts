@@ -7,6 +7,7 @@ import {
   type RequestAuthenticator,
 } from "../auth/context";
 import { recordAudit } from "../audit/record";
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { AuditWriter } from "../audit/types";
 import type { ShipmentService } from "./service";
 
@@ -60,6 +61,24 @@ export function registerShipmentRoutes(
       });
       reply.status(201);
       return shipment;
+    },
+  );
+
+  app.get(
+    "/v1/shipments",
+    { preHandler: requirePermission(requestAuth, "orders:read") },
+    async (request) => {
+      const { tenantId } = actorAndTenant(requirePrincipal(request));
+      const query = request.query as { orderId?: string; status?: string };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.list(tenantId, {
+        ...(query.orderId !== undefined ? { orderId: query.orderId } : {}),
+        ...(query.status !== undefined ? { status: query.status } : {}),
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { shipments: page.items, nextCursor: page.nextCursor };
     },
   );
 

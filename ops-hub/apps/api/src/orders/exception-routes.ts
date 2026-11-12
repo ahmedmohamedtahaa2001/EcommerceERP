@@ -7,6 +7,7 @@ import {
   type RequestAuthenticator,
 } from "../auth/context";
 import { recordAudit } from "../audit/record";
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { AuditWriter } from "../audit/types";
 import { OrderValidationError } from "./errors";
 import type { ExceptionService } from "./exception-service";
@@ -34,12 +35,15 @@ export function registerExceptionRoutes(
     async (request) => {
       const { tenantId } = actorAndTenant(requirePrincipal(request));
       const query = request.query as { status?: string; orderId?: string };
-      return {
-        exceptions: await service.list(tenantId, {
-          ...(query.status !== undefined ? { status: query.status } : {}),
-          ...(query.orderId !== undefined ? { orderId: query.orderId } : {}),
-        }),
-      };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.list(tenantId, {
+        ...(query.status !== undefined ? { status: query.status } : {}),
+        ...(query.orderId !== undefined ? { orderId: query.orderId } : {}),
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { exceptions: page.items, nextCursor: page.nextCursor };
     },
   );
 

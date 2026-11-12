@@ -42,7 +42,13 @@ export interface CreateBinRequest {
 export interface LocationStore {
   create(record: LocationRecord): Promise<void>;
   getById(tenantId: string, id: string): Promise<LocationRecord | null>;
-  list(tenantId: string): Promise<LocationRecord[]>;
+  list(
+    tenantId: string,
+    filter?: {
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
+  ): Promise<LocationRecord[]>;
   /** Throws on an FK restrict violation when the location still has stock. */
   delete(tenantId: string, id: string): Promise<boolean>;
 }

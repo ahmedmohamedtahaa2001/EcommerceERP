@@ -8,6 +8,7 @@ import {
 } from "../auth/context";
 import { ValidationError } from "../auth/errors";
 import { recordAudit } from "../audit/record";
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { AuditWriter } from "../audit/types";
 import { ApiKeyNotFoundError } from "./errors";
 import type { ApiKeyService } from "./service";
@@ -79,7 +80,10 @@ export function registerApiKeyRoutes(
     { preHandler: requirePermission(requestAuth, "api_keys:read") },
     async (request) => {
       const { tenantId } = actorAndTenant(requirePrincipal(request));
-      return { keys: await service.list(tenantId) };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await service.list(tenantId, { limit: limit + 1, cursor });
+      const page = toPage(rows, limit);
+      return { keys: page.items, nextCursor: page.nextCursor };
     },
   );
 

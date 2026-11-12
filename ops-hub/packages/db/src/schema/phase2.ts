@@ -119,6 +119,26 @@ export const cycleCounts = pgTable(
   ],
 );
 
+export const tenantSettings = pgTable(
+  "tenant_settings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    /** e.g. `risk_thresholds`, `duplicate_window_hours`. */
+    key: text("key").notNull(),
+    /** JSON payload. */
+    value: jsonb("value").notNull().default({}),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("tenant_settings_tenant_key_key").on(table.tenantId, table.key),
+  ],
+);
+
 export const binStock = pgTable(
   "bin_stock",
   {
@@ -210,6 +230,8 @@ export const riskScores = pgTable(
     tier: text("tier").notNull(),
     /** Human-readable reasons, e.g. `["2 prior refusals on this phone"]`. */
     reasons: jsonb("reasons").$type<string[]>().notNull().default([]),
+    /** The raw point total, so thresholds can live in tenant settings. */
+    points: integer("points").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

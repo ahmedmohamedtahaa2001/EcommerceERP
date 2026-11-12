@@ -1,3 +1,4 @@
+import { paginationOf, toPage } from "../platform/list-contract";
 import type { FastifyInstance } from "fastify";
 
 import {
@@ -14,6 +15,13 @@ import { ReturnsService } from "../returns/service";
 import { SettlementService } from "../settlements/service";
 import { DlqService } from "../dlq/service";
 import { RoutingService } from "../routing/service";
+import {
+  CycleCountGenerator,
+  ExchangeService,
+  ReconcilerService,
+  RiskGateService,
+} from "./extra-services";
+import { TenantSettingsService, riskThresholds } from "../settings/service";
 
 export interface Phase2Services {
   receiving: ReceivingService;
@@ -22,6 +30,11 @@ export interface Phase2Services {
   settlements: SettlementService;
   dlq: DlqService;
   routing: RoutingService;
+  riskGate: RiskGateService;
+  exchanges: ExchangeService;
+  reconciler: ReconcilerService;
+  cycleCounts: CycleCountGenerator;
+  settings: TenantSettingsService;
 }
 
 export function registerPhase2Routes(
@@ -33,7 +46,19 @@ export function registerPhase2Routes(
   },
 ): void {
   const { services, requestAuth, audit } = options;
-  const { receiving, cod, returns, settlements, dlq, routing } = services;
+  const {
+    receiving,
+    cod,
+    returns,
+    settlements,
+    dlq,
+    routing,
+    riskGate,
+    exchanges,
+    reconciler,
+    cycleCounts,
+    settings,
+  } = services;
 
   const actor = (request: Parameters<typeof requirePrincipal>[0]) => {
     const { actor: a, tenantId } = actorAndTenant(requirePrincipal(request));
@@ -223,12 +248,15 @@ export function registerPhase2Routes(
     async (request) => {
       const { tenantId } = actor(request);
       const query = request.query as { status?: string; orderId?: string };
-      return {
-        tasks: await cod.listTasks(tenantId, {
-          ...(query.status !== undefined ? { status: query.status } : {}),
-          ...(query.orderId !== undefined ? { orderId: query.orderId } : {}),
-        }),
-      };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await cod.listTasks(tenantId, {
+        ...(query.status !== undefined ? { status: query.status } : {}),
+        ...(query.orderId !== undefined ? { orderId: query.orderId } : {}),
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { tasks: page.items, nextCursor: page.nextCursor };
     },
   );
 
@@ -442,13 +470,16 @@ export function registerPhase2Routes(
     async (request) => {
       const { tenantId } = actor(request);
       const query = request.query as { status?: string };
-      return {
-        entries: await dlq.list(tenantId, {
-          ...(query.status !== undefined
-            ? { status: query.status as "dead" }
-            : {}),
-        }),
-      };
+      const { limit, cursor } = paginationOf(request);
+      const rows = await dlq.list(tenantId, {
+        ...(query.status !== undefined
+          ? { status: query.status as "dead" }
+          : {}),
+        limit: limit + 1,
+        cursor,
+      });
+      const page = toPage(rows, limit);
+      return { entries: page.items, nextCursor: page.nextCursor };
     },
   );
 
@@ -481,6 +512,112 @@ export function registerPhase2Routes(
         action: "dlq.replayed_batch",
         objectType: "dlq_entry",
         objectId: ids.join(","),
+        after: result,
+      });
+      return result;
+    },
+  );
+
+  // ---- Risk gating, exchanges, reconciliation, cycle counts ---------------
+
+  app.post(
+    "/v1/orders/:id/risk-gate",
+    { preHandler: requirePermission(requestAuth, "orders:write") },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const { tenantId } = actor(request);
+      const thresholds = await riskThresholds(settings, tenantId);
+      const decision = await riskGate.gate(tenantId, id, { thresholds });
+      await recordAudit(request, audit, {
+        action: "order.risk_gated",
+        objectType: "order",
+        objectId: id,
+        after: decision,
+      });
+      return decision;
+    },
+  );
+
+  app.post(
+    "/v1/exchanges",
+    { preHandler: requirePermission(requestAuth, "orders:write") },
+    async (request, reply) => {
+      const { tenantId } = actor(request);
+      const body = (request.body ?? {}) as Record<string, unknown>;
+      const result = await exchanges.exchange(tenantId, {
+        orderId: String(body.orderId ?? ""),
+        originalLineId: String(body.originalLineId ?? ""),
+        replacementVariantId: String(body.replacementVariantId ?? ""),
+        replacementQuantity: Number(body.replacementQuantity ?? 0),
+      });
+      await recordAudit(request, audit, {
+        action: "exchange.created",
+        objectType: "order",
+        objectId: String(body.orderId ?? ""),
+        after: result,
+      });
+      reply.status(201);
+      return result;
+    },
+  );
+
+  app.post(
+    "/v1/reconciliation/orders",
+    { preHandler: requirePermission(requestAuth, "orders:write") },
+    async (request) => {
+      const { tenantId } = actor(request);
+      const body = (request.body ?? {}) as Record<string, unknown>;
+      const source = (body.source ?? []) as {
+        externalOrderId: string;
+        orderNumber: string;
+        status: string;
+      }[];
+      const result = await reconciler.reconcileOrders(tenantId, source);
+      await recordAudit(request, audit, {
+        action: "reconciliation.ran",
+        objectType: "tenant",
+        objectId: tenantId,
+        after: result,
+      });
+      return result;
+    },
+  );
+
+  app.post(
+    "/v1/reconciliation/orders/restore",
+    { preHandler: requirePermission(requestAuth, "orders:write") },
+    async (request) => {
+      const { tenantId } = actor(request);
+      const body = (request.body ?? {}) as Record<string, unknown>;
+      const result = await reconciler.restoreDeletedOrder(tenantId, {
+        externalOrderId: String(body.externalOrderId ?? ""),
+        orderNumber: String(body.orderNumber ?? ""),
+        status: String(body.status ?? "pending"),
+      });
+      await recordAudit(request, audit, {
+        action: "reconciliation.restored",
+        objectType: "order",
+        objectId: result.orderId ?? String(body.externalOrderId ?? ""),
+        after: result,
+      });
+      return result;
+    },
+  );
+
+  app.post(
+    "/v1/cycle-counts/generate",
+    { preHandler: requirePermission(requestAuth, "inventory:write") },
+    async (request) => {
+      const { tenantId } = actor(request);
+      const body = (request.body ?? {}) as Record<string, unknown>;
+      const result = await cycleCounts.generate(
+        tenantId,
+        String(body.locationId ?? ""),
+      );
+      await recordAudit(request, audit, {
+        action: "cycle_count.generated",
+        objectType: "location",
+        objectId: String(body.locationId ?? ""),
         after: result,
       });
       return result;

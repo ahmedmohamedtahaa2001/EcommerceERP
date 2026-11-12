@@ -137,14 +137,13 @@ export class OrderService {
       phone?: string;
       orderNumber?: string;
       limit?: number;
-      offset?: number;
+      cursor?: { createdAt: string; id: string } | null;
     },
-  ): Promise<{ orders: OrderRecord[]; total: number }> {
+  ): Promise<OrderRecord[]> {
     const limit = Math.min(Math.max(filter.limit ?? 25, 1), 100);
-    const offset = Math.max(filter.offset ?? 0, 0);
     const orders = await this.deps.store.list(tenantId, {
       limit,
-      offset,
+      cursor: filter.cursor ?? null,
       ...(filter.status !== undefined ? { status: filter.status } : {}),
       ...(filter.phone !== undefined
         ? { phone: normalizePhoneOrNull(filter.phone) }
@@ -153,7 +152,7 @@ export class OrderService {
         ? { orderNumber: filter.orderNumber }
         : {}),
     });
-    return { orders, total: orders.length };
+    return orders;
   }
 
   async listEvents(

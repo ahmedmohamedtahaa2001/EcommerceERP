@@ -84,7 +84,7 @@ export interface OrderStore {
       phone?: string | null;
       orderNumber?: string;
       limit: number;
-      offset: number;
+      cursor: { createdAt: string; id: string } | null;
     },
   ): Promise<OrderRecord[]>;
   /** Everything below runs in one transaction: customer upsert, address
@@ -148,7 +148,12 @@ export interface ExceptionStore {
   getById(tenantId: string, id: string): Promise<ExceptionRecord | null>;
   list(
     tenantId: string,
-    filter: { status?: string; orderId?: string },
+    filter: {
+      status?: string;
+      orderId?: string;
+      limit?: number;
+      cursor?: { createdAt: string; id: string } | null;
+    },
   ): Promise<ExceptionRecord[]>;
   assign(
     tenantId: string,
