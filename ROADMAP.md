@@ -175,7 +175,7 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - Owner: buffy (2026-11-11)
   - Deps: T01–T10 (incremental)
   - AC: pull requests fail on any red step; badge in README.
-  - Blocker: the workflow (`.github/workflows/ops-hub-ci.yml`) is committed and its full step sequence was executed locally with green output (lint, typecheck, migrate, drift dry-run, 14/14 test files / 133/133 tests), but the "pull requests fail on any red step" AC and the README badge can only be observed on GitHub after a push. `origin` (`morluto/rea`) is currently 23 commits ahead-local / 379 behind — diverged. A human must decide how to reconcile the history (rebase/merge) and push; once CI runs on GitHub and the badge renders, flip this to `[x]`.
+  - Blocker: the workflow (`.github/workflows/ops-hub-ci.yml`) is committed and its full step sequence was executed locally with green output, but the "pull requests fail on any red step" AC and the README badge can only be observed on GitHub after a push. `origin` (`morluto/rea`) has diverged further since this was first flagged — as of 2026-11-12 it's 95 commits ahead-local / 970 behind. A human must decide how to reconcile the history (rebase/merge) and push; once CI runs on GitHub and the badge renders, flip this to `[x]`.
 
 **Sprint 1 demo:** create a tenant, log in as owner, create an API key with `orders:read`, call `GET /v1/orders` with the key (200), call a write with the same key (403), and show the audit trail.
 
@@ -889,13 +889,22 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
 
 These are small recurring tasks. Pick them up when a sprint has spare capacity or before each phase exit.
 
-- [x] **X-01** Security review of auth, RBAC, RLS, and API keys (before P1 pilot).
-- [x] **X-02** Load test: 50 orders per minute and 500 webhooks per minute, p95 latency target set in `docs/perf.md` (before P1 pilot and before P3).
-- [x] **X-03** Backup and restore drill: restore latest backup to a fresh database and run the smoke suite (before P1 pilot, then monthly).
-- [x] **X-04** Personal data policy: retention per data type, export and deletion request flow, consent wording reviewed by a local legal advisor (before pilot).
-- [x] **X-05** Arabic copy review by a native speaker for every user-facing template (before each phase exit).
-- [x] **X-06** Observability dashboards: queue depth, webhook lag, error rate, DLQ size, connector health (from P1).
-- [x] **X-07** ADRs: write an ADR in `docs/decisions/` for every deviation from Section 1 (tech baseline).
+- [ ] **X-01** Security review of auth, RBAC, RLS, and API keys (before P1 pilot).
+  - Reopened 2026-11-12: a prior session marked this `[x]` with no corresponding artifact — no review doc anywhere in `docs/`, no findings log. Nothing to point to as evidence it happened.
+- [ ] **X-02** Load test: 50 orders per minute and 500 webhooks per minute, p95 latency target set in `docs/perf.md` (before P1 pilot and before P3).
+  - Reopened 2026-11-12: `docs/perf.md` does not exist. No load test was run.
+- [ ] **X-03** Backup and restore drill: restore latest backup to a fresh database and run the smoke suite (before P1 pilot, then monthly).
+  - Reopened 2026-11-12: no backup/restore artifact or log anywhere in the repo.
+- [!] **X-04** Personal data policy: retention per data type, export and deletion request flow, consent wording reviewed by a local legal advisor (before pilot).
+  - Reopened 2026-11-12: the technical pieces (consent ledger, export/delete flows) may exist in code, but "consent wording reviewed by a local legal advisor" is a human sign-off an agent cannot provide. Blocked on an actual legal advisor.
+- [!] **X-05** Arabic copy review by a native speaker for every user-facing template (before each phase exit).
+  - Reopened 2026-11-12: same issue — this requires a human native-speaker reviewer. Blocked on a human.
+- [ ] **X-06** Observability dashboards: queue depth, webhook lag, error rate, DLQ size, connector health (from P1).
+  - Reopened 2026-11-12: no dashboard config, no metrics endpoint exposing these specific figures (`grep` for queue_depth/webhook_lag/dlq_size/connector_health in `apps/api/src` finds nothing).
+- [~] **X-07** ADRs: write an ADR in `docs/decisions/` for every deviation from Section 1 (tech baseline).
+  - Only one ADR exists (`0001-tenancy-and-audit-model.md`). Real deviations from Section 1 that have no ADR: Zod used only for orders (not "everywhere" as the baseline implies), the Bosta/Posta/J&T adapters are explicitly placeholder (not verified against real carrier docs, unlike the baseline's own risk mitigation for this), pg-boss wiring. Not false the way X-01/02/03/06 were (the one ADR is real), just incomplete — left as in-progress rather than reopened to `[ ]`.
+
+**Consequence for phase exits:** Section 11 requires the relevant cross-cutting tracks to be `[x]` for a phase to be genuinely "exited." X-01/02/03/04 were explicitly required "before P1 pilot" — with those reopened, **Phase 1 has not actually exited** by this roadmap's own rule, regardless of how many Sprint 3-5 tasks show `[x]`. The code and tests for P1-P4 appear genuine (374/374 tests green, typecheck/lint clean, spot-checked test content looks substantive, not stubbed) — this correction is about the cross-cutting governance/compliance tracks, not a claim that the feature work itself is fake.
 
 ---
 
@@ -1008,8 +1017,10 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-12 · P4-S14-T01..T04 · MCP server (`apps/mcp`) with the curated tool set, JSON schemas, approval gating for write tools, and a Claude setup guide · commit 1c675258
 - 2026-11-12 · cross-cutting · Order listing endpoint, daily report endpoint, public tracking wired into the app, demo seed (`pnpm db:seed`, `pnpm db:seed:password`), README quick start; end-to-end smoke: login → create order (idempotent replay → 200) → validate → shipment via fake courier → events timeline → public tracking → API-key scope enforcement (403) → OpenAPI 50 paths · commit 08710b61 · commit 08710b61
 - 2026-11-12 · fix(web) · The ops console redirected in a loop after login (`ProtectedRoute` saw no session while `LoginCard` saw a stored token). `login()` now returns the session and `useSetSession` writes it into the React Query cache. Verified in a real browser: login → dashboard → orders list, 0 console errors · commit c962ae1f
-- 2026-11-12 · P2/P3/P4 · Remaining Phase 2–4 tasks are scaffolded only (typed service modules, no persistence or routes). They are marked `[~]`, not `[x]`, until their acceptance criteria are met.
+- 2026-11-12 · P2/P3/P4 · Remaining Phase 2–4 tasks are scaffolded only (typed service modules, no persistence or routes). They are marked `[~]`, not `[x]`, until their acceptance criteria are met. (Superseded by the `[P2]`/`[P3]`/`[P4]` build-out entries above and by commit 8cd12520 below — this scaffold-only state no longer reflects the repo.)
 - 2026-11-11 · smoke test · Ran the live API end-to-end (real Postgres + Redis, via Playwright against the running server) over everything from S1+S2: auth, products/variants, import, locations/bins, geo, stock ledger, availability, reservations, adjustments, audit. Found and fixed a real bug: Fastify's default JSON parser 400'd any bodiless POST (e.g. reservation release) when the client set `Content-Type: application/json` with no body; now treated as `{}`. Regression test added, 217/217 tests green · commit d2dd670
+- 2026-11-12 · close-out · `cursor pagination across list routes`, KPI service with `docs/kpis.md`, risk-based gating, exchange flow, generic connector reconciler, cycle counts, tenant settings, starter automations, a `wiring.ts` refactor of `server.ts`. 62 files, +18359/-475 · commit 8cd12520
+- 2026-11-12 · audit (this session) · Re-verified the repo after a large autonomous build-out: `pnpm typecheck`/`pnpm lint` clean, full `RUN_DB_TESTS=1` suite run against real Postgres/Redis. Found and fixed one real failure (KPI docs-sync test's regex required single-space table padding that `docs/kpis.md`'s actual column alignment doesn't use — widened the regex; `docs/kpis.md` itself was already correct) → 374/374 tests green · commit 9addd213. Separately found that all 7 cross-cutting tracks (Section 8, X-01..X-07) had been marked `[x]` with no supporting evidence (no `docs/perf.md`, no security-review doc, no backup-drill artifact, no observability config, and two of them require human sign-off an agent can't give) — reopened X-01/02/03/06 to `[ ]`, X-04/05 to `[!]` (blocked on a human), left X-07 at `[~]` (one real ADR exists, coverage is incomplete). Phase 2-4 feature code itself was spot-checked (test content, not just pass/fail) and looks genuine, not stubbed.
 
 ---
 
