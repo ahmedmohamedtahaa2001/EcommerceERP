@@ -1,0 +1,28 @@
+{
+  "name": "Tracking -> WhatsApp",
+  "nodes": [
+    {
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "parameters": {}
+    },
+    {
+      "name": "List shipments",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "parameters": {
+        "method": "GET",
+        "url": "{{$env.OPS_HUB_URL}}/v1/shipments",
+        "options": {}
+      }
+    },
+    {
+      "name": "WhatsApp",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "parameters": {}
+    }
+  ],
+  "connections": {}
+}

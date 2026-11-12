@@ -1,0 +1,24 @@
+{
+  "name": "Daily report",
+  "meta": {
+    "version": 1,
+    "appVersion": "make",
+    "scenario": {
+      "roundtrips": 1
+    }
+  },
+  "modules": [
+    {
+      "id": 1,
+      "name": "Webhook",
+      "type": "webhooks:customWebhook"
+    },
+    {
+      "id": 2,
+      "name": "email:send",
+      "type": "email:send",
+      "version": 1
+    }
+  ],
+  "connections": {}
+}

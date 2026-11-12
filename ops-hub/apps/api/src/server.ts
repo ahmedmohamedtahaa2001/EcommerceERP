@@ -40,6 +40,12 @@ import { SourcingService } from "./suppliers/service";
 import { ScorecardService } from "./scorecards/service";
 import { InboxService } from "./inbox/service";
 import { CrmService } from "./crm/service";
+import { PlaybookService } from "./playbooks/service";
+import {
+  SandboxService,
+  SafetyGuard,
+  RedisRateLimitStore,
+} from "./platform/service";
 import { OrderService } from "./orders/service";
 import { OrderValidationService } from "./orders/validation-service";
 import { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -184,8 +190,21 @@ const sourcing = new SourcingService({
 const scorecards = new ScorecardService({ pool, clock: systemClock });
 const inbox = new InboxService({ pool, clock: systemClock });
 const crm = new CrmService({ pool, clock: systemClock });
+const playbooks = new PlaybookService({ pool, clock: systemClock });
+const sandbox = new SandboxService({ pool });
+const safety = new SafetyGuard({
+  approvalThresholdMinor: Number(
+    process.env.APPROVAL_THRESHOLD_MINOR ?? 100000,
+  ),
+  volumeCapPerHour: Number(process.env.VOLUME_CAP_PER_HOUR ?? 1000),
+});
 
 const app = buildApp({
+  rateLimit: {
+    store: new RedisRateLimitStore(redis),
+    limit: Number(process.env.RATE_LIMIT_PER_MINUTE ?? 600),
+    windowSeconds: 60,
+  },
   auth,
   apiKeys,
   audit,
@@ -207,6 +226,10 @@ const app = buildApp({
   reports,
   phase2: { receiving, cod, returns, settlements, dlq, routing },
   phase3: { sourcing, scorecards, inbox, crm },
+  phase4: { playbooks, sandbox, safety },
+  ...(process.env.SANDBOX_TENANT_ID !== undefined
+    ? { sandboxTenantId: process.env.SANDBOX_TENANT_ID }
+    : {}),
 });
 app.addHook("onClose", async () => {
   await pool.end();

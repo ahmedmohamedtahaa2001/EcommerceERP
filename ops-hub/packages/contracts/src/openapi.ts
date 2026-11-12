@@ -857,6 +857,41 @@ export const ROUTE_REGISTRY: RouteDefinition[] = [
     tag: "KPIs",
     scope: "reports:read",
   },
+  {
+    method: "post",
+    path: "/v1/playbooks/morning-report",
+    summary: "Morning operations report",
+    tag: "Playbooks",
+    scope: "reports:read",
+  },
+  {
+    method: "post",
+    path: "/v1/playbooks/exception-triage",
+    summary: "Group open exceptions and suggest next actions",
+    tag: "Playbooks",
+    scope: "orders:read",
+  },
+  {
+    method: "post",
+    path: "/v1/playbooks/settlement-analysis",
+    summary: "Analyse a settlement file",
+    tag: "Playbooks",
+    scope: "reports:read",
+  },
+  {
+    method: "post",
+    path: "/v1/sandbox/reset",
+    summary: "Reset the sandbox tenant to its fixture state",
+    tag: "Playbooks",
+    scope: "settings:write",
+  },
+  {
+    method: "post",
+    path: "/v1/safety/check",
+    summary: "Preview the agent safety decision for an action",
+    tag: "Playbooks",
+    scope: "settings:write",
+  },
 ];
 
 function schemaOf(schema: ZodTypeAny): Record<string, unknown> {

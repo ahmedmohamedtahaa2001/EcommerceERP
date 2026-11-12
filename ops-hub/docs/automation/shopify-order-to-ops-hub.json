@@ -1,0 +1,33 @@
+{
+  "name": "Shopify order -> Ops Hub",
+  "nodes": [
+    {
+      "name": "Shopify Trigger",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "parameters": {
+        "event": "orders/create"
+      }
+    },
+    {
+      "name": "Create order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "parameters": {
+        "method": "POST",
+        "url": "{{$env.OPS_HUB_URL}}/v1/orders",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{$json.id}}"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {}
+}

@@ -11,6 +11,40 @@ export interface McpClient {
 
 export type ToolResult = CallToolResult;
 
+/**
+ * Redaction for agent responses (roadmap P4-S14-T04): phones and addresses
+ * are masked unless the key carries `pii:read`.
+ */
+export function redactPii(value: unknown, scopes: string[]): unknown {
+  if (scopes.includes("pii:read")) return value;
+  if (Array.isArray(value)) {
+    return value.map((item) => redactPii(item, scopes));
+  }
+  if (value !== null && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value)) {
+      if (key === "phone" && typeof item === "string") {
+        out[key] = maskPhone(item);
+      } else if (
+        (key === "line1" || key === "line2" || key === "address") &&
+        typeof item === "string"
+      ) {
+        out[key] = "***";
+      } else {
+        out[key] = redactPii(item, scopes);
+      }
+    }
+    return out;
+  }
+  return value;
+}
+
+function maskPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 6) return "***";
+  return `${"*".repeat(digits.length - 4)}${digits.slice(-4)}`;
+}
+
 /** JSON schema for every curated tool, keyed by tool name. */
 export function toolJsonSchemas(): Record<string, Record<string, unknown>> {
   const schemas: Record<string, Record<string, unknown>> = {};
@@ -80,9 +114,11 @@ async function callApi(
   return parsed;
 }
 
-function ok(payload: unknown): ToolResult {
+function ok(payload: unknown, client?: McpClient): ToolResult {
+  const safe =
+    client === undefined ? payload : redactPii(payload, client.scopes);
   return {
-    content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
+    content: [{ type: "text", text: JSON.stringify(safe, null, 2) }],
   };
 }
 
@@ -137,19 +173,26 @@ export async function callTool(
         return ok(await callApi(client, "GET", `/v1/orders?${params}`));
       }
       case "get_order":
-        return ok(await callApi(client, "GET", `/v1/orders/${input.orderId}`));
+        return ok(
+          await callApi(client, "GET", `/v1/orders/${input.orderId}`),
+          client,
+        );
       case "get_inventory_availability": {
         const params = new URLSearchParams({ sku: String(input.sku) });
         if (input.locationId)
           params.set("locationId", String(input.locationId));
         return ok(
           await callApi(client, "GET", `/v1/inventory/availability?${params}`),
+          client,
         );
       }
       case "list_exceptions": {
         const params = new URLSearchParams({ limit: String(input.limit) });
         if (input.status) params.set("status", String(input.status));
-        return ok(await callApi(client, "GET", `/v1/exceptions?${params}`));
+        return ok(
+          await callApi(client, "GET", `/v1/exceptions?${params}`),
+          client,
+        );
       }
       case "resolve_exception":
         return ok(
@@ -170,6 +213,7 @@ export async function callTool(
               "GET",
               `/v1/shipments/${input.shipmentId}/status`,
             ),
+            client,
           );
         }
         return ok(
@@ -178,6 +222,7 @@ export async function callTool(
             "GET",
             `/v1/shipments/tracking/${input.trackingNumber}`,
           ),
+          client,
         );
       case "draft_customer_reply":
         return ok(
@@ -185,11 +230,15 @@ export async function callTool(
             note: input.message,
             customerVisible: false,
           }),
+          client,
         );
       case "generate_daily_report": {
         const params = new URLSearchParams();
         if (input.date) params.set("date", String(input.date));
-        return ok(await callApi(client, "GET", `/v1/reports/daily?${params}`));
+        return ok(
+          await callApi(client, "GET", `/v1/reports/daily?${params}`),
+          client,
+        );
       }
       case "create_shipment":
         return ok(await callApi(client, "POST", "/v1/shipments", input));

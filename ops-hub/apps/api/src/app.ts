@@ -41,6 +41,8 @@ import { registerReportRoutes } from "./reports/routes";
 import type { ReportsService } from "./reports/service";
 import { registerPhase2Routes, type Phase2Services } from "./phase2/routes";
 import { registerPhase3Routes, type Phase3Services } from "./phase3/routes";
+import { registerPhase4Routes, type Phase4Services } from "./phase4/routes";
+import { registerRateLimit, type RateLimitOptions } from "./platform/service";
 import type { Pool } from "pg";
 import type { OrderValidationService } from "./orders/validation-service";
 import type { DuplicateDetectionService } from "./orders/duplicate-detection-service";
@@ -105,9 +107,14 @@ export interface BuildAppOptions {
   /** Pool used by the public tracking route (it reads across tenants by
    * order number and then verifies the phone). */
   trackingPool?: Pool;
+  /** The tenant treated as the sandbox by `POST /v1/sandbox/reset`. */
+  sandboxTenantId?: string;
+  /** Per-principal rate limiting. */
+  rateLimit?: RateLimitOptions;
   reports?: ReportsService;
   phase2?: Phase2Services;
   phase3?: Phase3Services;
+  phase4?: Phase4Services;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -166,6 +173,10 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       }
     },
   );
+
+  if (options.rateLimit) {
+    registerRateLimit(app, options.rateLimit);
+  }
 
   app.get("/healthz", async () => ({ status: "ok" }));
 
@@ -383,6 +394,21 @@ ${Object.entries(buildOpenApiDocument().paths)
         services: options.phase3,
         requestAuth,
         audit: options.audit,
+      });
+    }
+    if (options.phase4) {
+      if (!options.audit) {
+        throw new Error(
+          "phase 4 routes mutate state and require an audit writer.",
+        );
+      }
+      registerPhase4Routes(app, {
+        services: options.phase4,
+        requestAuth,
+        audit: options.audit,
+        ...(options.sandboxTenantId !== undefined
+          ? { sandboxTenantId: options.sandboxTenantId }
+          : {}),
       });
     }
     if (options.outboundWebhooks) {

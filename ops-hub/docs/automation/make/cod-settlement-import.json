@@ -1,0 +1,24 @@
+{
+  "name": "COD email attachment -> settlement import",
+  "meta": {
+    "version": 1,
+    "appVersion": "make",
+    "scenario": {
+      "roundtrips": 1
+    }
+  },
+  "modules": [
+    {
+      "id": 1,
+      "name": "Webhook",
+      "type": "webhooks:customWebhook"
+    },
+    {
+      "id": 2,
+      "name": "http:importSettlement",
+      "type": "http:importSettlement",
+      "version": 1
+    }
+  ],
+  "connections": {}
+}

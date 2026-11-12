@@ -1,0 +1,28 @@
+{
+  "name": "Overdue exception -> escalation",
+  "nodes": [
+    {
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "parameters": {}
+    },
+    {
+      "name": "Open exceptions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "parameters": {
+        "method": "GET",
+        "url": "{{$env.OPS_HUB_URL}}/v1/exceptions?status=open",
+        "options": {}
+      }
+    },
+    {
+      "name": "Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "parameters": {}
+    }
+  ],
+  "connections": {}
+}

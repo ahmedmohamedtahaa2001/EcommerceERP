@@ -1,0 +1,22 @@
+{
+  "name": "COD email attachment -> settlement import",
+  "nodes": [
+    {
+      "name": "Email Trigger",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "parameters": {}
+    },
+    {
+      "name": "Import settlement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "parameters": {
+        "method": "POST",
+        "url": "{{$env.OPS_HUB_URL}}/v1/settlements/import",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {}
+}

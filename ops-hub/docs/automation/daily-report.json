@@ -1,0 +1,28 @@
+{
+  "name": "Daily report",
+  "nodes": [
+    {
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "parameters": {}
+    },
+    {
+      "name": "Morning report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "parameters": {
+        "method": "POST",
+        "url": "{{$env.OPS_HUB_URL}}/v1/playbooks/morning-report",
+        "options": {}
+      }
+    },
+    {
+      "name": "Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "parameters": {}
+    }
+  ],
+  "connections": {}
+}

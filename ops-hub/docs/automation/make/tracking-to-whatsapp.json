@@ -1,0 +1,24 @@
+{
+  "name": "Tracking -> WhatsApp",
+  "meta": {
+    "version": 1,
+    "appVersion": "make",
+    "scenario": {
+      "roundtrips": 1
+    }
+  },
+  "modules": [
+    {
+      "id": 1,
+      "name": "Webhook",
+      "type": "webhooks:customWebhook"
+    },
+    {
+      "id": 2,
+      "name": "whatsapp:send",
+      "type": "whatsapp:send",
+      "version": 1
+    }
+  ],
+  "connections": {}
+}

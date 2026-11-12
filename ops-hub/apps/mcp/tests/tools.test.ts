@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { callTool, isApproved, listTools } from "../src/client";
+import { callTool, isApproved, listTools, redactPii } from "../src/client";
 import { TOOLS } from "../src/tools";
 
 const client = {
@@ -75,6 +75,24 @@ describe("MCP tool catalog", () => {
     const result = await callTool(client, "search_orders", { limit: 999 });
     expect(result.isError).toBe(true);
     expect(textOf(result)).toContain("Invalid arguments");
+  });
+
+  it("masks phones and addresses without the pii:read scope", () => {
+    const masked = redactPii(
+      { phone: "+201012345678", line1: "12 Street", name: "Ahmed" },
+      ["orders:read"],
+    ) as Record<string, string>;
+    expect(masked.phone).toBe("********5678");
+    expect(masked.line1).toBe("***");
+    expect(masked.name).toBe("Ahmed");
+  });
+
+  it("keeps PII when the key has the pii:read scope", () => {
+    const plain = redactPii({ phone: "+201012345678" }, [
+      "orders:read",
+      "pii:read",
+    ]) as Record<string, string>;
+    expect(plain.phone).toBe("+201012345678");
   });
 
   it("reports unknown tools", async () => {
