@@ -28,6 +28,8 @@ import type { ReservationService } from "./stock/reservation-service";
 import { registerAdjustmentRoutes } from "./stock/adjustment-routes";
 import type { AdjustmentService } from "./stock/adjustment-service";
 import { registerMetaRoutes } from "./meta/routes";
+import { registerOrderRoutes } from "./orders/routes";
+import type { OrderService } from "./orders/service";
 
 export const REDACT_PATHS = [
   "req.headers.authorization",
@@ -75,6 +77,7 @@ export interface BuildAppOptions {
   availability?: AvailabilityService;
   reservations?: ReservationService;
   adjustments?: AdjustmentService;
+  orders?: OrderService;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -225,6 +228,18 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       }
       registerAdjustmentRoutes(app, {
         service: options.adjustments,
+        requestAuth,
+        audit: options.audit,
+      });
+    }
+    if (options.orders) {
+      if (!options.audit) {
+        throw new Error(
+          "order routes mutate state and require an audit writer.",
+        );
+      }
+      registerOrderRoutes(app, {
+        service: options.orders,
         requestAuth,
         audit: options.audit,
       });

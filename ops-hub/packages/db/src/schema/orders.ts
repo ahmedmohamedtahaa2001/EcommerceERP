@@ -91,6 +91,10 @@ export const orders = pgTable(
     channel: text("channel").notNull().default("manual"),
     externalOrderId: text("external_order_id"),
     idempotencyKey: text("idempotency_key"),
+    /** SHA-256 of the canonicalized request body, so a replayed
+     * Idempotency-Key with a different body can be told apart from a true
+     * retry. */
+    idempotencyBodyHash: text("idempotency_body_hash"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

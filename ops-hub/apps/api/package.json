@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@node-rs/argon2": "^2.2.2",
+    "@ops-hub/contracts": "workspace:*",
     "@ops-hub/db": "workspace:*",
     "@ops-hub/domain": "workspace:*",
     "@ops-hub/events": "workspace:*",

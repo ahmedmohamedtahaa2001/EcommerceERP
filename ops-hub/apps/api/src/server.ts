@@ -22,6 +22,8 @@ import {
 import { RedisLock } from "./stock/redis-lock";
 import { ReservationService } from "./stock/reservation-service";
 import { AdjustmentService } from "./stock/adjustment-service";
+import { PgOrderStore } from "./orders/pg-store";
+import { OrderService } from "./orders/service";
 import { argon2Hasher } from "./auth/passwords";
 import { PgUserDirectory } from "./auth/pg-directory";
 import { RedisRateLimiter } from "./auth/redis-rate-limiter";
@@ -88,6 +90,11 @@ const reservations = new ReservationService({
 
 const adjustments = new AdjustmentService(stock);
 
+const orders = new OrderService({
+  store: new PgOrderStore(pool),
+  variants: new PgVariantStore(pool),
+});
+
 const app = buildApp({
   auth,
   apiKeys,
@@ -100,6 +107,7 @@ const app = buildApp({
   availability,
   reservations,
   adjustments,
+  orders,
 });
 app.addHook("onClose", async () => {
   await pool.end();
