@@ -264,9 +264,11 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: migrations apply; RLS on all tables; order number generated per tenant (`OP-10001`, sequential, gap-free).
   - Note: started before P0 is fully `[x]` — P0-S1-T11 (CI) is blocked on a human git-history decision, and P0-S2-T10/T11 (webhooks, OpenAPI) aren't started — at the user's explicit direction to move on to Orders/Customers/Analytics now. `ecommerce-ops-system-architecture.md` (the companion doc Section 6.2 that P1-S3-T02 expects for the order state machine) doesn't exist anywhere in the repo; flagging now since T02 will need to either get that doc or have the state machine designed from the hints already scattered through this file (`validated → confirmed → allocated`, `on_hold`, `label_created`/`shipped`/`delivered`).
 
-- [ ] **P1-S3-T02** Order state machine in `packages/domain`: states from architecture doc Section 6.2; transition table; invalid transitions throw `InvalidTransitionError`.
+- [x] **P1-S3-T02** Order state machine in `packages/domain`: states from architecture doc Section 6.2; transition table; invalid transitions throw `InvalidTransitionError`.
+  - Owner: claude (2026-11-12)
   - Deps: T01
   - AC: pure unit tests cover every allowed transition and at least 20 forbidden ones; `label_created` cannot transition to `delivered` directly; no DB or HTTP in this package.
+  - Note: `ecommerce-ops-system-architecture.md` Section 6.2 doesn't exist in the repo (confirmed — searched everywhere). 12 states / 19 transitions reconstructed from hints already in this file; a human should verify this against the real intended design if/when it surfaces, since every later task that references order status (S4 shipment states, S7 risk gating, S11 cancel-before-dispatch) inherits this shape.
 
 - [ ] **P1-S3-T03** `POST /v1/orders` with `Idempotency-Key`, Zod validation, customer upsert by normalized phone, address with governorate resolution.
   - Deps: T01, T02, P0-S1-T05, P0-S2-T04
@@ -810,6 +812,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-11 · P0-S2-T08 · Adjustments endpoint (fixed reason enum) + GET /v1/meta/enums, both reading ADJUSTMENT_REASONS from one module so they can't drift. 215/215 tests green, lint + typecheck clean · commit e19d100
 - 2026-11-12 · P0-S2-T09 · Transactional outbox + pg-boss dispatcher (TDD: RED before GREEN for dispatcher/idempotency logic). outbox_events + processed_events (migration 0006); PgProductStore.create wired as the one proof-of-concept emitter. 227/227 tests green (stable across repeated full-suite runs), lint + typecheck clean · commit 3f3ded2
 - 2026-11-12 · P1-S3-T01 · Orders schema (migration 0007): customers/addresses/orders/order_lines/payments/order_number_counters, RLS on all. allocateOrderNumber gives gap-free OP-10001... per tenant by incrementing a counter row in the same transaction as the order it numbers (verified with a rollback test and a 10-way concurrency test). 231/231 tests green, lint + typecheck clean · commit eab49fd
+- 2026-11-12 · P1-S3-T02 · Order state machine (TDD: RED before GREEN). 12 states, 19 allowed transitions, reconstructed from hints in this file since the referenced architecture doc doesn't exist in the repo (flagged for human review). All 19 allowed + all 125 other pairs tested, plus terminal-state and no-op cases. 255/255 tests green, lint + typecheck clean · commit 0cd2905
 - 2026-11-11 · smoke test · Ran the live API end-to-end (real Postgres + Redis, via Playwright against the running server) over everything from S1+S2: auth, products/variants, import, locations/bins, geo, stock ledger, availability, reservations, adjustments, audit. Found and fixed a real bug: Fastify's default JSON parser 400'd any bodiless POST (e.g. reservation release) when the client set `Content-Type: application/json` with no body; now treated as `{}`. Regression test added, 217/217 tests green · commit d2dd670
 
 ---
