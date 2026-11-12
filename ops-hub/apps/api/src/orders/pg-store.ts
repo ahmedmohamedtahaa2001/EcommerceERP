@@ -325,6 +325,12 @@ export class PgOrderStore implements OrderStore {
         ],
       );
 
+      await client.query(
+        `insert into order_events (tenant_id, order_id, event_type, from_status, to_status)
+         values ($1, $2, 'status_changed', null, 'pending')`,
+        [tenantId, orderId],
+      );
+
       const details = await loadDetails(client, tenantId, orderId);
       if (!details) {
         throw new Error("order was just created but could not be re-read");
@@ -337,13 +343,35 @@ export class PgOrderStore implements OrderStore {
     tenantId: string,
     orderId: string,
     status: string,
+    actor?: { type: "user" | "api_key"; id: string } | null,
+    note?: string,
   ): Promise<void> {
-    await withTenant(this.pool, tenantId, (client) =>
-      client.query(
+    await withTenant(this.pool, tenantId, async (client) => {
+      const current = await client.query<{ status: string }>(
+        `select status from orders where tenant_id = $1 and id = $2`,
+        [tenantId, orderId],
+      );
+      const fromStatus = current.rows[0]?.status ?? null;
+
+      await client.query(
         `update orders set status = $3, updated_at = now() where tenant_id = $1 and id = $2`,
         [tenantId, orderId, status],
-      ),
-    );
+      );
+      await client.query(
+        `insert into order_events
+           (tenant_id, order_id, event_type, from_status, to_status, note, actor_type, actor_id)
+         values ($1, $2, 'status_changed', $3, $4, $5, $6, $7)`,
+        [
+          tenantId,
+          orderId,
+          fromStatus,
+          status,
+          note ?? null,
+          actor?.type ?? null,
+          actor?.id ?? null,
+        ],
+      );
+    });
   }
 
   async findRecentOrdersForCustomer(

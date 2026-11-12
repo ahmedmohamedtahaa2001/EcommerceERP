@@ -84,10 +84,14 @@ export interface OrderStore {
     resolvedVariants: ReadonlyMap<string, { variantId: string }>,
     governorateCode: string | null,
   ): Promise<OrderWithDetails>;
+  /** Also appends an `order_events` row (status_changed) in the SAME
+   * transaction as the status update. */
   updateStatus(
     tenantId: string,
     orderId: string,
     status: string,
+    actor?: { type: "user" | "api_key"; id: string } | null,
+    note?: string,
   ): Promise<void>;
   /** Other non-cancelled orders for this customer, created within the
    * window, excluding `excludeOrderId`, with their SKU sets — candidates
@@ -164,4 +168,34 @@ export interface OrderServiceDeps {
   store: OrderStore;
   variants: VariantLookup;
   duplicateDetection?: DuplicateChecker;
+  events?: OrderEventStore;
+}
+
+export interface OrderEventRecord {
+  id: string;
+  tenantId: string;
+  orderId: string;
+  eventType: string;
+  fromStatus: string | null;
+  toStatus: string | null;
+  note: string | null;
+  customerVisible: boolean;
+  actorType: string | null;
+  actorId: string | null;
+  createdAt: Date;
+}
+
+export interface OrderEventStore {
+  list(
+    tenantId: string,
+    orderId: string,
+    filter: { customerVisible?: boolean },
+  ): Promise<OrderEventRecord[]>;
+  addNote(
+    tenantId: string,
+    orderId: string,
+    note: string,
+    customerVisible: boolean,
+    actor: { type: "user" | "api_key"; id: string } | null,
+  ): Promise<OrderEventRecord>;
 }

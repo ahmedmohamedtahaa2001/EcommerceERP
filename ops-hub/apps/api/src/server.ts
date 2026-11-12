@@ -23,6 +23,7 @@ import { RedisLock } from "./stock/redis-lock";
 import { ReservationService } from "./stock/reservation-service";
 import { AdjustmentService } from "./stock/adjustment-service";
 import { PgOrderStore } from "./orders/pg-store";
+import { PgOrderEventStore } from "./orders/pg-order-event-store";
 import { PgExceptionStore } from "./orders/pg-exception-store";
 import { OrderService } from "./orders/service";
 import { OrderValidationService } from "./orders/validation-service";
@@ -105,6 +106,7 @@ const orders = new OrderService({
   store: orderStore,
   variants: new PgVariantStore(pool),
   duplicateDetection,
+  events: new PgOrderEventStore(pool),
 });
 const orderValidation = new OrderValidationService({
   store: orderStore,

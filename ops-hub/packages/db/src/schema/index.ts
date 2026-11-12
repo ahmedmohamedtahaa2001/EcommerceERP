@@ -5,4 +5,5 @@ export * from "./core";
 export * from "./events";
 export * from "./exceptions";
 export * from "./inventory";
+export * from "./order-events";
 export * from "./orders";

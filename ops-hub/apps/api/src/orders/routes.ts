@@ -1,4 +1,4 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 
 import {
   actorAndTenant,
@@ -61,6 +61,73 @@ export function registerOrderRoutes(
       const { tenantId } = actorAndTenant(requirePrincipal(request));
       return service.getById(tenantId, id);
     },
+  );
+
+  app.get(
+    "/v1/orders/:id/events",
+    { preHandler: requirePermission(requestAuth, "orders:read") },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const { tenantId } = actorAndTenant(requirePrincipal(request));
+      const query = request.query as {
+        customerVisible?: string;
+        customer_visible?: string;
+        visible?: string;
+      };
+      const raw =
+        query.customerVisible ?? query.customer_visible ?? query.visible;
+      const filter: { customerVisible?: boolean } = {};
+      if (raw === "true") {
+        filter.customerVisible = true;
+      } else if (raw === "false") {
+        filter.customerVisible = false;
+      }
+      return { events: await service.listEvents(tenantId, id, filter) };
+    },
+  );
+
+  const addNoteHandler = async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) => {
+    const { id } = request.params as { id: string };
+    const body = (
+      typeof request.body === "object" && request.body !== null
+        ? request.body
+        : {}
+    ) as Record<string, unknown>;
+    const noteValue = body.note ?? body.text ?? body.message ?? body.body;
+    if (typeof noteValue !== "string" || noteValue.trim() === "") {
+      throw new OrderValidationError("note is required.");
+    }
+    const visibleRaw =
+      body.customerVisible ?? body.customer_visible ?? body.visible;
+    const customerVisible = visibleRaw === true || visibleRaw === "true";
+    const { actor, tenantId } = actorAndTenant(requirePrincipal(request));
+    const event = await service.addNote(
+      tenantId,
+      id,
+      noteValue,
+      customerVisible,
+      {
+        type: actor.kind === "user" ? "user" : "api_key",
+        id: actor.id,
+      },
+    );
+    await recordAudit(request, audit, {
+      action: "order.note_added",
+      objectType: "order",
+      objectId: id,
+      after: event,
+    });
+    reply.status(201);
+    return event;
+  };
+
+  app.post(
+    "/v1/orders/:id/events",
+    { preHandler: requirePermission(requestAuth, "orders:write") },
+    addNoteHandler,
   );
 
   app.post(

@@ -13,7 +13,11 @@ import {
   UnknownSkuError,
 } from "./errors";
 import { hashRequestBody } from "./idempotency-hash";
-import type { OrderServiceDeps, OrderWithDetails } from "./types";
+import type {
+  OrderEventRecord,
+  OrderServiceDeps,
+  OrderWithDetails,
+} from "./types";
 
 export class OrderService {
   constructor(private readonly deps: OrderServiceDeps) {}
@@ -113,5 +117,43 @@ export class OrderService {
       throw new OrderNotFoundError();
     }
     return order;
+  }
+
+  async listEvents(
+    tenantId: string,
+    orderId: string,
+    filter: { customerVisible?: boolean } = {},
+  ): Promise<OrderEventRecord[]> {
+    const order = await this.deps.store.getById(tenantId, orderId);
+    if (!order) {
+      throw new OrderNotFoundError();
+    }
+    if (!this.deps.events) {
+      return [];
+    }
+    return this.deps.events.list(tenantId, orderId, filter);
+  }
+
+  async addNote(
+    tenantId: string,
+    orderId: string,
+    note: string,
+    customerVisible: boolean,
+    actor: { type: "user" | "api_key"; id: string } | null,
+  ): Promise<OrderEventRecord> {
+    const order = await this.deps.store.getById(tenantId, orderId);
+    if (!order) {
+      throw new OrderNotFoundError();
+    }
+    if (!this.deps.events) {
+      throw new OrderValidationError("Order event store is not configured.");
+    }
+    return this.deps.events.addNote(
+      tenantId,
+      orderId,
+      note,
+      customerVisible,
+      actor,
+    );
   }
 }
