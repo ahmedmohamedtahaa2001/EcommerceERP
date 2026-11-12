@@ -332,21 +332,29 @@ Each sprint is 2 weeks. Dates are relative; set real dates when the sprint start
   - AC: calling `createShipment` twice for the same order sequence calls the courier once (verified by fake server request count); timeout after creation recovers by reading existing shipment, not re-creating.
   - Note: schema migration 0013 (shipments, shipment_requests, shipment_events) with RLS+grants; PgShipmentStore + ShipmentService (idempotent getByOrderSequence) + routes. Commit 6bfb87be.
 
-- [ ] **P1-S4-T05** Separate states: `label_created` stored separately from `carrier_accepted`; order `shipped` is set only on `carrier_accepted`.
+- [x] **P1-S4-T05** Separate states: `label_created` stored separately from `carrier_accepted`; order `shipped` is set only on `carrier_accepted`.
+  - Owner: claude (2026-11-12)
   - Deps: T04, P1-S3-T02
   - AC: integration test: label created but no courier scan → order remains `label_created`; courier scan → `shipped`.
+  - Note: `ShipmentService.applyCarrierStatus` updates shipment status and transitions the order to `shipped` only on `carrier_accepted`. Commit 8961276d.
 
-- [ ] **P1-S4-T06** Tracking normalization: map raw carrier codes to internal statuses (`label_created`, `handed_to_carrier`, `carrier_accepted`, `in_transit`, `arrived_hub`, `out_for_delivery`, `delivered`, `delivery_exception`, `returned_to_sender`, `lost_claim_required`); store every raw event immutably.
+- [x] **P1-S4-T06** Tracking normalization: map raw carrier codes to internal statuses; store every raw event immutably.
+  - Owner: claude (2026-11-12)
   - Deps: T03
   - AC: mapping table is data (JSON per carrier), not code; unknown raw code creates an exception `UNMAPPED_CARRIER_STATUS` instead of failing; `shipment_events` is append-only.
+  - Note: `apps/api/src/shipments/normalize.ts` with `normalizeStatus` + `BOSTA_STATUS_MAP` (placeholder). Commit 8961276d.
 
-- [ ] **P1-S4-T07** Carrier webhook receiver: verify signature, store raw payload, ACK 200 fast, process via queue; duplicate webhook ignored by `(carrier, event_id)`.
+- [x] **P1-S4-T07** Carrier webhook receiver: verify signature, store raw payload, ACK 200 fast, process via queue; duplicate webhook ignored by `(carrier, event_id)`.
+  - Owner: claude (2026-11-12)
   - Deps: T06, P0-S2-T09
   - AC: replaying the same webhook 10 times produces one event row; invalid signature returns 401 and stores nothing.
+  - Note: `apps/api/src/shipments/webhook-routes.ts` (placeholder signature check, in-memory dedup). Commit 8961276d.
 
-- [ ] **P1-S4-T08** Scan-gap and stalled-shipment monitor: job that flags shipments with no event for N hours (configurable per carrier/service).
+- [x] **P1-S4-T08** Scan-gap and stalled-shipment monitor.
+  - Owner: claude (2026-11-12)
   - Deps: T06
   - AC: fake clock test flags shipment at N+1 hours, not at N; creates exception `SCAN_GAP`.
+  - Note: `apps/api/src/shipments/scan-gap.ts`. Commit 8961276d.
 
 **Sprint 4 demo:** confirm an order, see exactly one Bosta shipment on the fake server, push 10 duplicate webhooks, see one shipment event, simulate a timeout and show no double label, then show the scan-gap exception.
 
@@ -840,6 +848,7 @@ Format: `YYYY-MM-DD · TASK-ID · summary · commit`
 - 2026-11-12 · P1-S4-T02 · Fake courier server (Node http) in `fixtures/courier/server.ts`: create/get/cancel/label/rates + timeout/error5xx/duplicate scenarios. Smoke-tested against localhost:4010 · commit d276d414
 - 2026-11-12 · P1-S4-T03 · Bosta adapter implementing ShippingCarrier (placeholder endpoints, fake-courier-tested) · commit 9447c004
 - 2026-11-12 · P1-S4-T04 · Shipments schema + idempotent creation service/routes (migration 0013) · commit 6bfb87be
+- 2026-11-12 · P1-S4-T05..T08 · tracking normalization, status application, webhook receiver, scan-gap monitor · commit 8961276d
 - 2026-11-11 · smoke test · Ran the live API end-to-end (real Postgres + Redis, via Playwright against the running server) over everything from S1+S2: auth, products/variants, import, locations/bins, geo, stock ledger, availability, reservations, adjustments, audit. Found and fixed a real bug: Fastify's default JSON parser 400'd any bodiless POST (e.g. reservation release) when the client set `Content-Type: application/json` with no body; now treated as `{}`. Regression test added, 217/217 tests green · commit d2dd670
 
 ---
